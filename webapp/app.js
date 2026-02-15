@@ -394,11 +394,17 @@ generateBtn.addEventListener('click', async () => {
             steps: steps,
         };
 
+        // 5 min timeout for cold start + generation
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000);
+
         const resp = await fetch('/api/inpaint', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
+            signal: controller.signal,
         });
+        clearTimeout(timeoutId);
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
