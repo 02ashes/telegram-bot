@@ -264,22 +264,74 @@ async def run_inpaint(
         return None
 
     # Extract result image from output
-    # RunPod worker-comfyui returns: {"images": [{"image": "base64...", "type": "base64"}]}
+    # Log the full output structure for debugging
+    logger.info("RunPod output type: %s", type(output).__name__)
+    if isinstance(output, dict):
+        logger.info("RunPod output keys: %s", list(output.keys()))
+        for key, val in output.items():
+            if isinstance(val, list):
+                logger.info("  output[%s]: list of %d items", key, len(val))
+                if val:
+                    first = val[0]
+                    if isinstance(first, dict):
+                        logger.info("    first item keys: %s", list(first.keys()))
+                    elif isinstance(first, str):
+                        logger.info("    first item: str of %d chars", len(first))
+            elif isinstance(val, str):
+                logger.info("  output[%s]: str of %d chars", key, len(val))
+            else:
+                logger.info("  output[%s]: %s", key, type(val).__name__)
+    elif isinstance(output, str):
+        logger.info("RunPod output is a raw string of %d chars", len(output))
+    
     try:
-        output_images = output.get("images", [])
-        if output_images:
-            img_data = output_images[0]
-            if img_data.get("type") == "base64":
-                return base64.b64decode(img_data["image"])
-            elif "image" in img_data:
-                return base64.b64decode(img_data["image"])
-        
-        # Alternative output format: {"message": "base64..."}
-        if "message" in output:
-            return base64.b64decode(output["message"])
+        # Handle dict output
+        if isinstance(output, dict):
+            # Format 1: {"images": [{"image": "base64...", ...}]}
+            output_images = output.get("images", [])
+            if output_images:
+                img_data = output_images[0]
+                # Try various key names for the base64 data
+                for key in ("image", "data", "base64"):
+                    if key in img_data:
+                        b64_str = img_data[key]
+                        # Strip data URI prefix if present
+                        if "," in b64_str and b64_str.startswith("data:"):
+                            b64_str = b64_str.split(",", 1)[1]
+                        return base64.b64decode(b64_str)
             
-        logger.error("Unexpected output format: %s", list(output.keys()))
+            # Format 2: {"message": "base64..."}
+            if "message" in output:
+                msg = output["message"]
+                if isinstance(msg, str):
+                    return base64.b64decode(msg)
+            
+            # Format 3: {"status": "COMPLETED", ...} with nested output
+            if "output" in output:
+                return await _extract_image_from_output(output["output"])
+        
+        # Handle raw string (base64 directly)
+        elif isinstance(output, str):
+            return base64.b64decode(output)
+            
+        logger.error("Could not extract image from output")
         return None
     except Exception as e:
-        logger.error("Failed to parse result: %s", e)
+        logger.error("Failed to parse result: %s (type: %s)", e, type(e).__name__)
+        logger.error("Output preview: %s", str(output)[:500])
         return None
+
+
+async def _extract_image_from_output(output) -> bytes | None:
+    """Recursively try to extract image from nested output."""
+    if isinstance(output, dict):
+        for key in ("images", "image", "data", "message"):
+            if key in output:
+                return await _extract_image_from_output(output[key])
+    elif isinstance(output, list) and output:
+        return await _extract_image_from_output(output[0])
+    elif isinstance(output, str):
+        if "," in output and output.startswith("data:"):
+            output = output.split(",", 1)[1]
+        return base64.b64decode(output)
+    return None
