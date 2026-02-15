@@ -60,31 +60,14 @@ if (tg) {
 }
 
 // ============================================================
-// Pod Status Check
+// Serverless Status (no polling needed)
 // ============================================================
-async function checkPodStatus() {
-    try {
-        const resp = await fetch('/api/pod-status', {
-            headers: { 'ngrok-skip-browser-warning': '1' }
-        });
-        const data = await resp.json();
-        const dot = document.querySelector('.status-dot');
-        const text = document.querySelector('.status-text');
-        if (data.running) {
-            dot.className = 'status-dot online';
-            text.textContent = 'RunPod: Online';
-        } else {
-            dot.className = 'status-dot offline';
-            text.textContent = 'RunPod: Offline';
-        }
-    } catch (e) {
-        // Server not reachable
-    }
-}
-
-// Check every 15 seconds
-checkPodStatus();
-setInterval(checkPodStatus, 15000);
+(function setServerlessStatus() {
+    const dot = document.querySelector('.status-dot');
+    const text = document.querySelector('.status-text');
+    if (dot) dot.className = 'status-dot online';
+    if (text) text.textContent = '⚡ Serverless';
+})();
 
 // ============================================================
 // Image Upload
