@@ -22,7 +22,6 @@ from fastapi.exceptions import RequestValidationError
 
 import comfyui_api
 import config
-import runpod_manager
 
 # Logging
 logging.basicConfig(
@@ -91,7 +90,7 @@ async def health():
 
 @app.post("/api/inpaint")
 async def api_inpaint(request: Request):
-    """Run inpainting: start pod → upload → generate → return result."""
+    """Run inpainting via RunPod Serverless."""
     try:
         # Parse JSON body
         body = await request.json()
@@ -114,16 +113,7 @@ async def api_inpaint(request: Request):
             prompt[:60], cfg, steps, len(image_bytes), len(mask_bytes),
         )
 
-        # Ensure RunPod pod is running
-        logger.info("Ensuring pod is running...")
-        pod_ready = await runpod_manager.ensure_pod_running()
-        if not pod_ready:
-            return JSONResponse(
-                status_code=503,
-                content={"error": "RunPod pod failed to start. Please try again."},
-            )
-
-        # Run inpainting
+        # Run inpainting via RunPod Serverless (auto-scales, no pod management needed)
         result_bytes = await comfyui_api.run_inpaint(
             image_bytes=image_bytes,
             mask_bytes=mask_bytes,
@@ -136,11 +126,8 @@ async def api_inpaint(request: Request):
         if result_bytes is None:
             return JSONResponse(
                 status_code=500,
-                content={"error": "Inpainting failed. Check ComfyUI logs."},
+                content={"error": "Inpainting failed. Check RunPod logs."},
             )
-
-        # Mark activity for idle timer
-        runpod_manager.touch_activity()
 
         # Return image as base64
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
@@ -152,16 +139,6 @@ async def api_inpaint(request: Request):
             status_code=500,
             content={"error": str(e)},
         )
-
-
-@app.get("/api/pod-status")
-async def pod_status():
-    """Check if the RunPod pod is currently running."""
-    try:
-        ready = await runpod_manager._check_comfyui_ready()
-        return {"running": ready}
-    except Exception:
-        return {"running": False}
 
 
 # ============================================================
@@ -203,10 +180,9 @@ async def cmd_start(message: types.Message):
 # ============================================================
 async def main():
     logger.info("=" * 50)
-    logger.info("  Telegram Inpaint Bot")
+    logger.info("  Telegram Inpaint Bot (Serverless)")
     logger.info("  WebApp URL: %s", WEBAPP_URL)
-    logger.info("  ComfyUI URL: %s", config.COMFYUI_BASE_URL)
-    logger.info("  Pod ID: %s", config.RUNPOD_POD_ID)
+    logger.info("  RunPod Endpoint: %s", config.RUNPOD_ENDPOINT_ID)
     logger.info("=" * 50)
 
     # Start FastAPI server
