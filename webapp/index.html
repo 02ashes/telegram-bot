@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎨 Inpaint Editor</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 Inpaint Editor</h1>
+            <div class="pod-status" id="podStatus">
+                <span class="status-dot offline"></span>
+                <span class="status-text">RunPod: Offline</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Upload -->
+        <div class="section" id="uploadSection">
+            <div class="section-title">📷 Фото</div>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <span class="upload-icon">📁</span>
+                    <span>Нажми чтобы загрузить фото</span>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+        </div>
+
+        <!-- Step 2: Canvas + Mask -->
+        <div class="section" id="canvasSection" style="display:none;">
+            <div class="section-title">🖌️ Маска</div>
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="mainCanvas"></canvas>
+                <canvas id="maskCanvas"></canvas>
+            </div>
+            <div class="tools">
+                <button class="tool-btn active" id="brushBtn" data-tool="brush">🖌️ Кисть</button>
+                <button class="tool-btn" id="eraserBtn" data-tool="eraser">⬜ Ластик</button>
+                <button class="tool-btn danger" id="clearBtn">🗑️ Очистить</button>
+                <div class="brush-size-control">
+                    <label>Размер: <span id="brushSizeLabel">20</span>px</label>
+                    <input type="range" id="brushSize" min="5" max="100" value="20">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Prompts -->
+        <div class="section" id="promptSection" style="display:none;">
+            <div class="section-title">✏️ Промпт</div>
+            <textarea id="promptInput" placeholder="Опиши что нарисовать в маске..." rows="3"></textarea>
+            
+            <div class="section-title sub">❌ Негатив</div>
+            <textarea id="negativeInput" rows="2">blurry, ugly, deformed, watermark, text, low quality, cartoon</textarea>
+        </div>
+
+        <!-- Step 4: Settings -->
+        <div class="section settings-row" id="settingsSection" style="display:none;">
+            <div class="setting">
+                <label>CFG: <span id="cfgLabel">3.5</span></label>
+                <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
+            </div>
+            <div class="setting">
+                <label>Steps: <span id="stepsLabel">25</span></label>
+                <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="section" id="generateSection" style="display:none;">
+            <button class="generate-btn" id="generateBtn">
+                <span class="btn-text">🚀 Генерировать</span>
+                <span class="btn-loader" style="display:none;">
+                    <span class="spinner"></span> Генерация...
+                </span>
+            </button>
+            <div class="progress-info" id="progressInfo" style="display:none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="progressText">Запуск RunPod...</span>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="section" id="resultSection" style="display:none;">
+            <div class="section-title">🖼️ Результат</div>
+            <div class="result-container">
+                <img id="resultImage" src="" alt="Result">
+            </div>
+            <div class="result-actions">
+                <button class="action-btn" id="downloadBtn">💾 Скачать</button>
+                <button class="action-btn secondary" id="retryBtn">🔄 Ещё раз</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

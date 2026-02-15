@@ -1,0 +1,423 @@
+/* ========================================
+   Inpaint Bot — Telegram Mini App Styles
+   Dark Premium Theme
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-primary: #0f0f14;
+    --bg-secondary: #1a1a24;
+    --bg-card: #1e1e2e;
+    --bg-hover: #2a2a3e;
+    --text-primary: #e8e8f0;
+    --text-secondary: #9898b0;
+    --accent: #7c5bf5;
+    --accent-hover: #9478ff;
+    --accent-glow: rgba(124, 91, 245, 0.3);
+    --danger: #f54040;
+    --danger-hover: #ff6060;
+    --success: #40d68a;
+    --border: rgba(255, 255, 255, 0.08);
+    --radius: 14px;
+    --radius-sm: 10px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+.app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 16px 100px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 16px;
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #7c5bf5, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pod-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.offline { background: var(--danger); }
+.status-dot.online { background: var(--success); animation: pulse 2s infinite; }
+.status-dot.starting { background: #f5a623; animation: pulse 1s infinite; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Sections */
+.section {
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.section-title.sub {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+/* Upload Area */
+.upload-area {
+    background: var(--bg-card);
+    border: 2px dashed rgba(124, 91, 245, 0.3);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.upload-area:hover {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.upload-icon {
+    font-size: 36px;
+}
+
+.upload-area img {
+    width: 100%;
+    display: block;
+}
+
+/* Canvas */
+.canvas-container {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    touch-action: none;
+    border: 1px solid var(--border);
+}
+
+.canvas-container canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#maskCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: crosshair;
+}
+
+/* Tools */
+.tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.tool-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: var(--bg-hover);
+}
+
+.tool-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 2px 12px var(--accent-glow);
+}
+
+.tool-btn.danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: white;
+}
+
+.brush-size-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.brush-size-control label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.brush-size-control input[type="range"] {
+    flex: 1;
+}
+
+/* Range Sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--bg-hover);
+    border-radius: 2px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+/* Textareas */
+textarea {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    border-color: var(--accent);
+}
+
+textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Settings */
+.settings-row {
+    display: flex;
+    gap: 16px;
+}
+
+.setting {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    border: 1px solid var(--border);
+}
+
+.setting label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.setting label span {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.setting input[type="range"] {
+    width: 100%;
+}
+
+/* Generate Button */
+.generate-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #7c5bf5, #5b3fd4);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.generate-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #9478ff, #7c5bf5);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+.generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.generate-btn .btn-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Progress */
+.progress-info {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.progress-bar {
+    height: 4px;
+    background: var(--bg-hover);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c5bf5, #c084fc);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.5s ease;
+    animation: progressPulse 2s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+#progressText {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Result */
+.result-container {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+}
+
+.result-container img {
+    width: 100%;
+    display: block;
+}
+
+.result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: var(--accent-hover);
+}
+
+.action-btn.secondary {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.action-btn.secondary:hover {
+    background: var(--bg-hover);
+}
