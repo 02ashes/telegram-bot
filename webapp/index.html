@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 Inpaint Editor</title>
+    <title>🎨 NSFW Studio</title>
     <link rel="stylesheet" href="/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
     <div class="app">
         <!-- Header -->
         <div class="header">
-            <h1>🎨 Inpaint Editor</h1>
+            <h1>NSFW Studio</h1>
             <div class="pod-status" id="podStatus">
                 <span class="status-dot offline"></span>
                 <span class="status-text">RunPod: Offline</span>
             </div>
         </div>
 
-        <!-- Step 1: Upload -->
+        <!-- Mode Tabs -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">🎨 Inpaint</button>
+            <button class="mode-tab" id="tabVideo" data-mode="video">🎬 Video</button>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SHARED: Upload Photo -->
+        <!-- ============================================ -->
         <div class="section" id="uploadSection">
             <div class="section-title">📷 Фото</div>
             <div class="upload-area" id="uploadArea">
@@ -30,8 +40,10 @@
             </div>
         </div>
 
-        <!-- Step 2: Canvas + Mask -->
-        <div class="section" id="canvasSection" style="display:none;">
+        <!-- ============================================ -->
+        <!-- INPAINT MODE: Canvas + Mask -->
+        <!-- ============================================ -->
+        <div class="section inpaint-only" id="canvasSection" style="display:none;">
             <div class="section-title">🖌️ Маска</div>
             <div class="canvas-container" id="canvasContainer">
                 <canvas id="mainCanvas"></canvas>
@@ -48,17 +60,22 @@
             </div>
         </div>
 
-        <!-- Step 3: Prompts -->
+        <!-- ============================================ -->
+        <!-- SHARED: Prompt -->
+        <!-- ============================================ -->
         <div class="section" id="promptSection" style="display:none;">
             <div class="section-title">✏️ Промпт</div>
-            <textarea id="promptInput" placeholder="Опиши что нарисовать в маске..." rows="3"></textarea>
-            
+            <textarea id="promptInput" placeholder="Опиши что нарисовать..." rows="3"></textarea>
+
             <div class="section-title sub">❌ Негатив</div>
-            <textarea id="negativeInput" rows="2">blurry, ugly, deformed, watermark, text, low quality, cartoon</textarea>
+            <textarea id="negativeInput"
+                rows="2">blurry, ugly, deformed, watermark, text, low quality, cartoon</textarea>
         </div>
 
-        <!-- Step 4: Settings -->
-        <div class="section settings-row" id="settingsSection" style="display:none;">
+        <!-- ============================================ -->
+        <!-- INPAINT MODE: Settings -->
+        <!-- ============================================ -->
+        <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
             <div class="setting">
                 <label>CFG: <span id="cfgLabel">3.5</span></label>
                 <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
@@ -69,7 +86,55 @@
             </div>
         </div>
 
+        <!-- ============================================ -->
+        <!-- VIDEO MODE: Audio Settings -->
+        <!-- ============================================ -->
+        <div class="section video-only" id="audioSection" style="display:none;">
+            <div class="audio-toggle-row">
+                <div class="section-title">🔊 Звук</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="audioToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="audio-settings" id="audioSettings" style="display:none;">
+                <textarea id="audioPromptInput"
+                    placeholder="Промпт для звука (soft moaning, breathing, water dripping...)" rows="2"></textarea>
+                <div class="section-title sub">❌ Негатив звука</div>
+                <textarea id="audioNegativeInput" rows="1">music, speech, talking, noise, static</textarea>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- VIDEO MODE: Video Settings -->
+        <!-- ============================================ -->
+        <div class="section video-only" id="videoSettingsSection" style="display:none;">
+            <div class="section-title">⚙️ Настройки видео</div>
+            <div class="video-settings-grid">
+                <div class="setting">
+                    <label>Кадры: <span id="framesLabel">33</span></label>
+                    <input type="range" id="framesSlider" min="17" max="129" step="4" value="33">
+                </div>
+                <div class="setting">
+                    <label>FPS: <span id="fpsLabel">16</span></label>
+                    <select id="fpsSelect">
+                        <option value="16" selected>16</option>
+                        <option value="24">24</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Разрешение:</label>
+                    <select id="resolutionSelect">
+                        <option value="480x832">480×832</option>
+                        <option value="720x1280" selected>720×1280</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
         <!-- Generate Button -->
+        <!-- ============================================ -->
         <div class="section" id="generateSection" style="display:none;">
             <button class="generate-btn" id="generateBtn">
                 <span class="btn-text">🚀 Генерировать</span>
@@ -83,13 +148,19 @@
                 </div>
                 <span id="progressText">Запуск RunPod...</span>
             </div>
+            <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
+                <span>🟠 Загрузка модели...</span>
+            </div>
         </div>
 
-        <!-- Result -->
+        <!-- ============================================ -->
+        <!-- Result (Image or Video) -->
+        <!-- ============================================ -->
         <div class="section" id="resultSection" style="display:none;">
             <div class="section-title">🖼️ Результат</div>
             <div class="result-container">
-                <img id="resultImage" src="" alt="Result">
+                <img id="resultImage" src="" alt="Result" style="display:none;">
+                <video id="resultVideo" controls loop style="display:none;"></video>
             </div>
             <div class="result-actions">
                 <button class="action-btn" id="downloadBtn">💾 Скачать</button>
@@ -100,4 +171,5 @@
 
     <script src="/app.js"></script>
 </body>
+
 </html>

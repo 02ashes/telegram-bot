@@ -119,6 +119,242 @@ def build_flux_fill_workflow(
     return workflow
 
 
+def build_wan_i2v_workflow(
+    prompt: str,
+    negative: str = "",
+    audio_enabled: bool = False,
+    audio_prompt: str = "",
+    audio_negative: str = "music, speech, talking, noise, static",
+    frames: int = 33,
+    fps: int = 16,
+    width: int = 720,
+    height: int = 1280,
+    seed: int | None = None,
+) -> dict:
+    """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
+
+    Uses dual-sampler architecture with LoRA 4-step acceleration.
+    Based on Wan2.2-Remix-comfy-i2v-workflow.json (FastUnsharpSharpen removed).
+    """
+    if seed is None:
+        seed = int(uuid.uuid4().int % (2**32))
+
+    if not negative:
+        negative = (
+            "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，"
+            "整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，"
+            "画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，"
+            "静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+        )
+
+    workflow = {
+        # --- Model Loaders ---
+        # CLIP (text encoder)
+        "97": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "nsfw_wan_umt5-xxl_fp8_scaled.safetensors",
+                "type": "wan",
+                "device": "default",
+            },
+        },
+        # UNET high lighting
+        "77": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_fp8_e4m3fn_v2.1.safetensors",
+                "weight_dtype": "fp8_e4m3fn",
+            },
+        },
+        # UNET low lighting
+        "103": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_fp8_e4m3fn_v2.1.safetensors",
+                "weight_dtype": "fp8_e4m3fn",
+            },
+        },
+        # LoRA high noise → high lighting model
+        "112": {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["77", 0],
+                "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+                "strength_model": 1.0,
+            },
+        },
+        # LoRA low noise → low lighting model
+        "113": {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["103", 0],
+                "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+                "strength_model": 1.0,
+            },
+        },
+        # ModelSamplingSD3 shift=8 for high lighting
+        "54": {
+            "class_type": "ModelSamplingSD3",
+            "inputs": {
+                "model": ["112", 0],
+                "shift": 8,
+            },
+        },
+        # ModelSamplingSD3 shift=8 for low lighting
+        "55": {
+            "class_type": "ModelSamplingSD3",
+            "inputs": {
+                "model": ["113", 0],
+                "shift": 8,
+            },
+        },
+        # VAE
+        "39": {
+            "class_type": "VAELoader",
+            "inputs": {
+                "vae_name": "wan_2.1_vae.safetensors",
+            },
+        },
+        # --- Text Encoding ---
+        # Positive prompt
+        "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": prompt,
+                "clip": ["97", 0],
+            },
+        },
+        # Negative prompt
+        "7": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": negative,
+                "clip": ["97", 0],
+            },
+        },
+        # --- Image Input ---
+        "106": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": "video_input.png",
+            },
+        },
+        # --- WAN Image to Video ---
+        "107": {
+            "class_type": "WanImageToVideo",
+            "inputs": {
+                "positive": ["6", 0],
+                "negative": ["7", 0],
+                "vae": ["39", 0],
+                "start_image": ["106", 0],
+                "width": width,
+                "height": height,
+                "length": frames,
+                "batch_size": 1,
+            },
+        },
+        # --- Dual Sampler ---
+        # KSampler #1 (high lighting, steps 0 → split_step)
+        "57": {
+            "class_type": "KSamplerAdvanced",
+            "inputs": {
+                "model": ["54", 0],
+                "positive": ["107", 0],
+                "negative": ["107", 1],
+                "latent_image": ["107", 2],
+                "noise_seed": seed,
+                "add_noise": "enable",
+                "return_with_leftover_noise": "enable",
+                "steps": 4,
+                "cfg": 1,
+                "sampler_name": "euler",
+                "scheduler": "simple",
+                "start_at_step": 0,
+                "end_at_step": 2,
+            },
+        },
+        # KSampler #2 (low lighting, steps split_step → end)
+        "58": {
+            "class_type": "KSamplerAdvanced",
+            "inputs": {
+                "model": ["55", 0],
+                "positive": ["107", 0],
+                "negative": ["107", 1],
+                "latent_image": ["57", 0],
+                "noise_seed": seed,
+                "add_noise": "disable",
+                "return_with_leftover_noise": "disable",
+                "steps": 4,
+                "cfg": 1,
+                "sampler_name": "euler",
+                "scheduler": "simple",
+                "start_at_step": 2,
+                "end_at_step": 10000,
+            },
+        },
+        # --- Decode ---
+        "8": {
+            "class_type": "VAEDecode",
+            "inputs": {
+                "samples": ["58", 0],
+                "vae": ["39", 0],
+            },
+        },
+        # --- Output Video ---
+        "99": {
+            "class_type": "VHS_VideoCombine",
+            "inputs": {
+                "images": ["8", 0],
+                "frame_rate": fps,
+                "loop_count": 0,
+                "filename_prefix": "TGBot_Video",
+                "format": "video/h264-mp4",
+                "pix_fmt": "yuv420p",
+                "crf": 19,
+                "save_metadata": True,
+                "trim_to_audio": False,
+                "pingpong": False,
+                "save_output": True,
+            },
+        },
+    }
+
+    # --- Optional MMAudio ---
+    if audio_enabled and audio_prompt:
+        # MMAudio model loader
+        workflow["109"] = {
+            "class_type": "MMAudioModelLoader",
+            "inputs": {
+                "mmaudio_model": "mmaudio_large_44k_nsfw_gold_8.5k_final.pth",
+                "precision": "fp16",
+            },
+        }
+        # MMAudio feature utils
+        workflow["110"] = {
+            "class_type": "MMAudioFeatureUtilsLoader",
+            "inputs": {},
+        }
+        # MMAudio sampler
+        workflow["111"] = {
+            "class_type": "MMAudioSampler",
+            "inputs": {
+                "mmaudio_model": ["109", 0],
+                "feature_utils": ["110", 0],
+                "images": ["8", 0],
+                "duration": 8.0,
+                "steps": 25,
+                "cfg": 4.5,
+                "seed": seed,
+                "prompt": audio_prompt,
+                "negative_prompt": audio_negative,
+            },
+        }
+        # Connect audio to video combine
+        workflow["99"]["inputs"]["audio"] = ["111", 0]
+
+    return workflow
+
+
 # ============================================================
 # RunPod Serverless API
 # ============================================================
@@ -334,4 +570,128 @@ async def _extract_image_from_output(output) -> bytes | None:
         if "," in output and output.startswith("data:"):
             output = output.split(",", 1)[1]
         return base64.b64decode(output)
+    return None
+
+
+async def run_video(
+    image_bytes: bytes,
+    prompt: str,
+    negative: str = "",
+    audio_enabled: bool = False,
+    audio_prompt: str = "",
+    audio_negative: str = "music, speech, talking, noise, static",
+    frames: int = 33,
+    fps: int = 16,
+    width: int = 720,
+    height: int = 1280,
+) -> bytes | None:
+    """Full video pipeline via RunPod Serverless.
+
+    1. Resize input image to target resolution
+    2. Submit WAN I2V workflow + image to RunPod Serverless
+    3. Poll for result
+    4. Return result video bytes (mp4)
+    """
+
+    # Resize image to target resolution
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    img = img.resize((width, height), Image.LANCZOS)
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    resized_bytes = buf.getvalue()
+
+    # Encode as base64
+    image_b64 = _image_to_base64(resized_bytes)
+
+    # Build workflow
+    logger.info(
+        "Building WAN I2V workflow (prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s)...",
+        prompt[:50], frames, fps, width, height, audio_enabled,
+    )
+    workflow = build_wan_i2v_workflow(
+        prompt=prompt,
+        negative=negative,
+        audio_enabled=audio_enabled,
+        audio_prompt=audio_prompt,
+        audio_negative=audio_negative,
+        frames=frames,
+        fps=fps,
+        width=width,
+        height=height,
+    )
+
+    # Submit job with image
+    images = [
+        {
+            "name": "video_input.png",
+            "image": image_b64,
+        }
+    ]
+
+    logger.info("Submitting video job to RunPod Serverless (endpoint: %s)...", config.RUNPOD_ENDPOINT_ID)
+    job_id = await submit_job(workflow, images)
+
+    if not job_id:
+        logger.error("Failed to submit video job")
+        return None
+
+    # Poll for result (video takes longer, use 600s timeout)
+    logger.info("Waiting for video result (job: %s)...", job_id)
+    output = await poll_job(job_id, timeout=600)
+
+    if not output:
+        return None
+
+    # Extract result video from output
+    logger.info("RunPod video output type: %s", type(output).__name__)
+    if isinstance(output, dict):
+        logger.info("RunPod video output keys: %s", list(output.keys()))
+
+    try:
+        return _extract_video_from_output(output)
+    except Exception as e:
+        logger.error("Failed to parse video result: %s (type: %s)", e, type(e).__name__)
+        logger.error("Output preview: %s", str(output)[:500])
+        return None
+
+
+def _extract_video_from_output(output) -> bytes | None:
+    """Extract video (mp4) bytes from RunPod output.
+
+    VHS_VideoCombine returns output like:
+    {"images": [{"image": "base64data", "type": "output", "filename": "xxx.mp4"}]}
+    or nested structures.
+    """
+    if isinstance(output, dict):
+        # Format: {"images": [{"image": "base64...", ...}]}
+        output_images = output.get("images", [])
+        if output_images:
+            item = output_images[0]
+            if isinstance(item, dict):
+                for key in ("image", "data", "base64"):
+                    if key in item:
+                        b64_str = item[key]
+                        if "," in b64_str and b64_str.startswith("data:"):
+                            b64_str = b64_str.split(",", 1)[1]
+                        return base64.b64decode(b64_str)
+            elif isinstance(item, str):
+                return base64.b64decode(item)
+
+        # Format: {"message": "base64..."}
+        if "message" in output:
+            msg = output["message"]
+            if isinstance(msg, str):
+                return base64.b64decode(msg)
+
+        # Nested output
+        if "output" in output:
+            return _extract_video_from_output(output["output"])
+
+    elif isinstance(output, str):
+        if "," in output and output.startswith("data:"):
+            output = output.split(",", 1)[1]
+        return base64.b64decode(output)
+
+    logger.error("Could not extract video from output")
     return None

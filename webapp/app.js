@@ -1,32 +1,27 @@
 /* ========================================
-   Inpaint Bot — Mini App Logic
-   Canvas mask drawing + API integration
+   NSFW Studio — Mini App Logic
+   Canvas mask drawing + Video generation
    ======================================== */
 
 // ============================================================
 // State
 // ============================================================
-let originalImage = null;        // HTMLImageElement
-let currentTool = 'brush';       // 'brush' | 'eraser'
+let currentMode = 'inpaint'; // 'inpaint' or 'video'
+let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
-let canvasScale = 1;
+let originalImage = null;
+let mainCtx = null;
+let maskCtx = null;
 
-// Canvas references
+// ============================================================
+// DOM Elements
+// ============================================================
 const mainCanvas = document.getElementById('mainCanvas');
 const maskCanvas = document.getElementById('maskCanvas');
-const mainCtx = mainCanvas.getContext('2d');
-const maskCtx = maskCanvas.getContext('2d');
-
-// UI references
 const uploadArea = document.getElementById('uploadArea');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
 const fileInput = document.getElementById('fileInput');
-const canvasSection = document.getElementById('canvasSection');
-const promptSection = document.getElementById('promptSection');
-const settingsSection = document.getElementById('settingsSection');
-const generateSection = document.getElementById('generateSection');
-const resultSection = document.getElementById('resultSection');
 
 const brushBtn = document.getElementById('brushBtn');
 const eraserBtn = document.getElementById('eraserBtn');
@@ -43,24 +38,36 @@ const generateBtn = document.getElementById('generateBtn');
 const progressInfo = document.getElementById('progressInfo');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
-
+const resultSection = document.getElementById('resultSection');
 const resultImage = document.getElementById('resultImage');
+const resultVideo = document.getElementById('resultVideo');
 const downloadBtn = document.getElementById('downloadBtn');
 const retryBtn = document.getElementById('retryBtn');
 
+// Video settings
+const framesSlider = document.getElementById('framesSlider');
+const framesLabel = document.getElementById('framesLabel');
+const fpsSelect = document.getElementById('fpsSelect');
+const resolutionSelect = document.getElementById('resolutionSelect');
+const audioToggle = document.getElementById('audioToggle');
+const audioSettings = document.getElementById('audioSettings');
+
+// Tabs
+const tabInpaint = document.getElementById('tabInpaint');
+const tabVideo = document.getElementById('tabVideo');
+
 // ============================================================
-// Telegram WebApp Init
+// Telegram WebApp
 // ============================================================
 const tg = window.Telegram?.WebApp;
 if (tg) {
     tg.ready();
     tg.expand();
-    // Match Telegram theme if available
     document.body.style.backgroundColor = tg.themeParams?.bg_color || '#0f0f14';
 }
 
 // ============================================================
-// Serverless Status (no polling needed)
+// Serverless Status
 // ============================================================
 (function setServerlessStatus() {
     const dot = document.querySelector('.status-dot');
@@ -70,20 +77,63 @@ if (tg) {
 })();
 
 // ============================================================
-// Image Upload
+// Mode Tabs
+// ============================================================
+tabInpaint.addEventListener('click', () => switchMode('inpaint'));
+tabVideo.addEventListener('click', () => switchMode('video'));
+
+function switchMode(mode) {
+    currentMode = mode;
+
+    // Update tabs
+    tabInpaint.classList.toggle('active', mode === 'inpaint');
+    tabVideo.classList.toggle('active', mode === 'video');
+
+    // Show/hide mode-specific sections
+    document.querySelectorAll('.inpaint-only').forEach(el => {
+        el.style.display = mode === 'inpaint' && originalImage ? '' : 'none';
+    });
+    document.querySelectorAll('.video-only').forEach(el => {
+        el.style.display = mode === 'video' && originalImage ? '' : 'none';
+    });
+
+    // Update prompt placeholder
+    const promptInput = document.getElementById('promptInput');
+    if (mode === 'inpaint') {
+        promptInput.placeholder = 'Опиши что нарисовать в маске...';
+    } else {
+        promptInput.placeholder = 'Опиши движение в видео (woman slowly turns her head, smiles...)';
+    }
+
+    // Update negative prompt default
+    const negativeInput = document.getElementById('negativeInput');
+    if (mode === 'video' && negativeInput.value === 'blurry, ugly, deformed, watermark, text, low quality, cartoon') {
+        negativeInput.value = '';
+    } else if (mode === 'inpaint' && negativeInput.value === '') {
+        negativeInput.value = 'blurry, ugly, deformed, watermark, text, low quality, cartoon';
+    }
+
+    // Update generate button text
+    const btnText = generateBtn.querySelector('.btn-text');
+    btnText.textContent = mode === 'inpaint' ? '🚀 Генерировать' : '🎬 Генерировать видео';
+
+    // Hide result if mode changed
+    resultSection.style.display = 'none';
+}
+
+// ============================================================
+// Upload
 // ============================================================
 uploadArea.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    loadImage(file);
+    if (file) loadImage(file);
 });
 
-// Drag-and-drop
 uploadArea.addEventListener('dragover', (e) => {
     e.preventDefault();
-    uploadArea.style.borderColor = 'var(--accent)';
+    uploadArea.style.borderColor = 'rgba(168, 85, 247, 0.6)';
 });
 
 uploadArea.addEventListener('dragleave', () => {
@@ -102,25 +152,35 @@ uploadArea.addEventListener('drop', (e) => {
 function loadImage(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-        const img = new Image();
+        const img = new window.Image();
         img.onload = () => {
             originalImage = img;
-            setupCanvases(img);
 
             // Show preview in upload area
             uploadPlaceholder.style.display = 'none';
-            const preview = uploadArea.querySelector('img');
-            if (preview) preview.remove();
-            const previewImg = document.createElement('img');
+            let previewImg = uploadArea.querySelector('img');
+            if (!previewImg) {
+                previewImg = document.createElement('img');
+                uploadArea.appendChild(previewImg);
+            }
             previewImg.src = e.target.result;
-            uploadArea.appendChild(previewImg);
 
-            // Show other sections
-            canvasSection.style.display = '';
-            promptSection.style.display = '';
-            settingsSection.style.display = '';
-            generateSection.style.display = '';
-            resultSection.style.display = 'none';
+            // Setup canvases for inpaint mode
+            setupCanvases(img);
+
+            // Show relevant sections
+            document.getElementById('canvasSection').style.display = currentMode === 'inpaint' ? '' : 'none';
+            document.getElementById('promptSection').style.display = '';
+            document.getElementById('settingsSection').style.display = currentMode === 'inpaint' ? '' : 'none';
+            document.getElementById('generateSection').style.display = '';
+
+            // Show video-only sections if in video mode
+            document.querySelectorAll('.video-only').forEach(el => {
+                el.style.display = currentMode === 'video' ? '' : 'none';
+            });
+            document.querySelectorAll('.inpaint-only').forEach(el => {
+                el.style.display = currentMode === 'inpaint' ? '' : 'none';
+            });
         };
         img.src = e.target.result;
     };
@@ -132,26 +192,21 @@ function loadImage(file) {
 // ============================================================
 function setupCanvases(img) {
     const container = document.getElementById('canvasContainer');
-    const containerWidth = container.clientWidth;
+    const maxW = container.clientWidth || 460;
+    const scale = Math.min(maxW / img.width, 1);
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
 
-    // Scale image to fit container
-    canvasScale = containerWidth / img.width;
-    const displayW = containerWidth;
-    const displayH = img.height * canvasScale;
+    mainCanvas.width = w;
+    mainCanvas.height = h;
+    maskCanvas.width = w;
+    maskCanvas.height = h;
 
-    // Main canvas — shows the original image
-    mainCanvas.width = img.width;
-    mainCanvas.height = img.height;
-    mainCanvas.style.width = displayW + 'px';
-    mainCanvas.style.height = displayH + 'px';
-    mainCtx.drawImage(img, 0, 0);
+    mainCtx = mainCanvas.getContext('2d');
+    maskCtx = maskCanvas.getContext('2d');
 
-    // Mask canvas — transparent overlay for drawing mask
-    maskCanvas.width = img.width;
-    maskCanvas.height = img.height;
-    maskCanvas.style.width = displayW + 'px';
-    maskCanvas.style.height = displayH + 'px';
-    maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+    mainCtx.drawImage(img, 0, 0, w, h);
+    maskCtx.clearRect(0, 0, w, h);
 }
 
 // ============================================================
@@ -178,30 +233,26 @@ function getCanvasPos(e) {
 }
 
 function drawAt(x, y) {
-    const realBrushSize = brushSize / canvasScale;
+    maskCtx.beginPath();
+    maskCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
 
     if (currentTool === 'brush') {
-        maskCtx.globalCompositeOperation = 'source-over';
-        maskCtx.fillStyle = 'rgba(255, 50, 50, 0.45)';
-        maskCtx.beginPath();
-        maskCtx.arc(x, y, realBrushSize / 2, 0, Math.PI * 2);
+        maskCtx.fillStyle = 'rgba(255, 0, 100, 0.45)';
         maskCtx.fill();
     } else {
+        maskCtx.save();
         maskCtx.globalCompositeOperation = 'destination-out';
-        maskCtx.beginPath();
-        maskCtx.arc(x, y, realBrushSize / 2, 0, Math.PI * 2);
+        maskCtx.fillStyle = 'rgba(0,0,0,1)';
         maskCtx.fill();
-        maskCtx.globalCompositeOperation = 'source-over';
+        maskCtx.restore();
     }
 }
 
 let lastPos = null;
 
 function drawLine(from, to) {
-    const realBrushSize = brushSize / canvasScale;
-    const dist = Math.hypot(to.x - from.x, to.y - from.y);
-    const steps = Math.max(1, Math.floor(dist / (realBrushSize / 4)));
-
+    const dist = Math.sqrt((to.x - from.x) ** 2 + (to.y - from.y) ** 2);
+    const steps = Math.max(Math.ceil(dist / (brushSize / 4)), 1);
     for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const x = from.x + (to.x - from.x) * t;
@@ -222,12 +273,14 @@ maskCanvas.addEventListener('mousedown', (e) => {
 maskCanvas.addEventListener('mousemove', (e) => {
     if (!isDrawing) return;
     const pos = getCanvasPos(e);
-    if (lastPos) drawLine(lastPos, pos);
+    drawLine(lastPos, pos);
     lastPos = pos;
 });
 
-maskCanvas.addEventListener('mouseup', () => { isDrawing = false; lastPos = null; });
-maskCanvas.addEventListener('mouseleave', () => { isDrawing = false; lastPos = null; });
+window.addEventListener('mouseup', () => {
+    isDrawing = false;
+    lastPos = null;
+});
 
 // Touch events
 maskCanvas.addEventListener('touchstart', (e) => {
@@ -242,12 +295,14 @@ maskCanvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
     if (!isDrawing) return;
     const pos = getCanvasPos(e);
-    if (lastPos) drawLine(lastPos, pos);
+    drawLine(lastPos, pos);
     lastPos = pos;
 }, { passive: false });
 
-maskCanvas.addEventListener('touchend', () => { isDrawing = false; lastPos = null; });
-maskCanvas.addEventListener('touchcancel', () => { isDrawing = false; lastPos = null; });
+window.addEventListener('touchend', () => {
+    isDrawing = false;
+    lastPos = null;
+});
 
 // ============================================================
 // Tools
@@ -265,7 +320,9 @@ eraserBtn.addEventListener('click', () => {
 });
 
 clearBtn.addEventListener('click', () => {
-    maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+    if (maskCtx) {
+        maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+    }
 });
 
 brushSizeSlider.addEventListener('input', (e) => {
@@ -281,41 +338,53 @@ stepsSlider.addEventListener('input', (e) => {
     stepsLabel.textContent = e.target.value;
 });
 
+framesSlider.addEventListener('input', (e) => {
+    framesLabel.textContent = e.target.value;
+});
+
+// Audio toggle
+audioToggle.addEventListener('change', () => {
+    audioSettings.style.display = audioToggle.checked ? '' : 'none';
+});
+
 // ============================================================
 // Get mask as black/white image
 // ============================================================
 function getMaskDataURL() {
-    // Create a temporary canvas for the mask
+    const w = maskCanvas.width;
+    const h = maskCanvas.height;
+
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = maskCanvas.width;
-    tempCanvas.height = maskCanvas.height;
+    tempCanvas.width = w;
+    tempCanvas.height = h;
     const tempCtx = tempCanvas.getContext('2d');
 
-    // Get mask pixel data
-    const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+    // Fill black (keep)
+    tempCtx.fillStyle = '#000';
+    tempCtx.fillRect(0, 0, w, h);
 
-    // Create black-and-white mask: white where painted, black elsewhere
-    const output = tempCtx.createImageData(maskCanvas.width, maskCanvas.height);
+    // Get mask pixels
+    const maskData = maskCtx.getImageData(0, 0, w, h);
+    const tempData = tempCtx.getImageData(0, 0, w, h);
+
     for (let i = 0; i < maskData.data.length; i += 4) {
-        const alpha = maskData.data[i + 3]; // alpha channel
-        const isWhite = alpha > 30;  // any painted area
-        output.data[i] = isWhite ? 255 : 0;     // R
-        output.data[i + 1] = isWhite ? 255 : 0; // G
-        output.data[i + 2] = isWhite ? 255 : 0; // B
-        output.data[i + 3] = 255;                // A
+        if (maskData.data[i + 3] > 10) {
+            tempData.data[i] = 255;
+            tempData.data[i + 1] = 255;
+            tempData.data[i + 2] = 255;
+            tempData.data[i + 3] = 255;
+        }
     }
-    tempCtx.putImageData(output, 0, 0);
-
+    tempCtx.putImageData(tempData, 0, 0);
     return tempCanvas.toDataURL('image/png');
 }
 
 function getImageDataURL() {
-    // Export original image from main canvas
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = originalImage.width;
     tempCanvas.height = originalImage.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.drawImage(originalImage, 0, 0);
+    const ctx = tempCanvas.getContext('2d');
+    ctx.drawImage(originalImage, 0, 0);
     return tempCanvas.toDataURL('image/png');
 }
 
@@ -334,25 +403,28 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Check if mask has any content
-    const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
-    let hasMask = false;
-    for (let i = 3; i < maskData.data.length; i += 4) {
-        if (maskData.data[i] > 30) { hasMask = true; break; }
+    if (currentMode === 'inpaint') {
+        await generateInpaint(prompt);
+    } else {
+        await generateVideo(prompt);
     }
-    if (!hasMask) {
-        alert('Нарисуй маску!');
-        return;
-    }
+});
 
-    // Disable button, show progress
+// ============================================================
+// Inpaint Generation
+// ============================================================
+async function generateInpaint(prompt) {
+    const negative = document.getElementById('negativeInput').value;
+    const cfg = parseFloat(cfgSlider.value);
+    const steps = parseInt(stepsSlider.value);
+
+    // UI state
     generateBtn.disabled = true;
     generateBtn.querySelector('.btn-text').style.display = 'none';
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     resultSection.style.display = 'none';
 
-    // Progress animation
     let progress = 0;
     const progressInterval = setInterval(() => {
         progress = Math.min(progress + 1, 90);
@@ -360,8 +432,6 @@ generateBtn.addEventListener('click', async () => {
 
         if (progress < 20) {
             progressText.textContent = '⚡ Запуск RunPod...';
-            document.querySelector('.status-dot').className = 'status-dot starting';
-            document.querySelector('.status-text').textContent = 'RunPod: Starting...';
         } else if (progress < 50) {
             progressText.textContent = '🧠 Загрузка модели...';
         } else {
@@ -372,39 +442,24 @@ generateBtn.addEventListener('click', async () => {
     }, 1000);
 
     try {
-        // Get image and mask as base64
         const imageDataURL = getImageDataURL();
         const maskDataURL = getMaskDataURL();
 
-        // Strip data:image/png;base64, prefix
         const imageB64 = imageDataURL.split(',')[1];
         const maskB64 = maskDataURL.split(',')[1];
-
-        const cfg = parseFloat(cfgSlider.value);
-        const steps = parseInt(stepsSlider.value);
-        const negative = document.getElementById('negativeInput').value.trim();
-
-        // Send request as JSON
-        const payload = {
-            image: imageB64,
-            mask: maskB64,
-            prompt: prompt,
-            negative: negative,
-            cfg: cfg,
-            steps: steps,
-        };
-
-        // 5 min timeout for cold start + generation
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000);
 
         const resp = await fetch('/api/inpaint', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            signal: controller.signal,
+            body: JSON.stringify({
+                image: imageB64,
+                mask: maskB64,
+                prompt: prompt,
+                negative: negative,
+                cfg: cfg,
+                steps: steps,
+            }),
         });
-        clearTimeout(timeoutId);
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
@@ -419,42 +474,171 @@ generateBtn.addEventListener('click', async () => {
             throw new Error(data.error);
         }
 
-        // Show result
         progressFill.style.width = '100%';
         progressText.textContent = '✅ Готово!';
 
         resultImage.src = 'data:image/png;base64,' + data.image;
+        resultImage.style.display = '';
+        resultVideo.style.display = 'none';
         resultSection.style.display = '';
 
-        // Scroll to result
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
     } catch (err) {
         clearInterval(progressInterval);
-        progressText.textContent = '❌ Ошибка: ' + err.message;
         progressFill.style.width = '0%';
+        progressText.textContent = '❌ ' + err.message;
         alert('Ошибка: ' + err.message);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
         generateBtn.querySelector('.btn-loader').style.display = 'none';
     }
-});
+}
 
 // ============================================================
-// Result Actions
+// Video Generation
+// ============================================================
+async function generateVideo(prompt) {
+    const negative = document.getElementById('negativeInput').value;
+    const frames = parseInt(framesSlider.value);
+    const fps = parseInt(fpsSelect.value);
+    const resolution = resolutionSelect.value.split('x');
+    const width = parseInt(resolution[0]);
+    const height = parseInt(resolution[1]);
+    const audioEnabled = audioToggle.checked;
+    const audioPrompt = document.getElementById('audioPromptInput')?.value || '';
+    const audioNegative = document.getElementById('audioNegativeInput')?.value || 'music, speech, talking, noise, static';
+
+    // UI state
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+    progressInfo.style.display = '';
+    resultSection.style.display = 'none';
+
+    const videoDuration = frames / fps;
+    const estimatedTime = Math.max(60, frames * 3); // rough estimate
+
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress = Math.min(progress + (90 / (estimatedTime)), 90);
+        progressFill.style.width = progress + '%';
+
+        if (progress < 10) {
+            progressText.textContent = '⚡ Запуск RunPod...';
+        } else if (progress < 25) {
+            progressText.textContent = '🧠 Загрузка WAN модели (~27GB)...';
+        } else if (progress < 80) {
+            progressText.textContent = `🎬 Генерация видео (${frames} кадров, ~${videoDuration.toFixed(1)}с)...`;
+        } else if (audioEnabled) {
+            progressText.textContent = '🔊 Генерация звука (MMAudio)...';
+        } else {
+            progressText.textContent = '📦 Кодирование mp4...';
+        }
+    }, 1000);
+
+    try {
+        const imageDataURL = getImageDataURL();
+        const imageB64 = imageDataURL.split(',')[1];
+
+        const body = {
+            image: imageB64,
+            prompt: prompt,
+            negative: negative,
+            frames: frames,
+            fps: fps,
+            width: width,
+            height: height,
+            audio_enabled: audioEnabled,
+        };
+
+        if (audioEnabled) {
+            body.audio_prompt = audioPrompt;
+            body.audio_negative = audioNegative;
+        }
+
+        const resp = await fetch('/api/video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+
+        if (!resp.ok) {
+            const errData = await resp.json().catch(() => null);
+            throw new Error(errData?.error || errData?.detail || `Ошибка сервера: ${resp.status}`);
+        }
+
+        const data = await resp.json();
+
+        clearInterval(progressInterval);
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        progressFill.style.width = '100%';
+        progressText.textContent = '✅ Видео готово!';
+
+        // Show video result
+        const videoBlob = base64ToBlob(data.video, 'video/mp4');
+        const videoUrl = URL.createObjectURL(videoBlob);
+        resultVideo.src = videoUrl;
+        resultVideo.style.display = '';
+        resultImage.style.display = 'none';
+        resultSection.style.display = '';
+
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+        clearInterval(progressInterval);
+        progressFill.style.width = '0%';
+        progressText.textContent = '❌ ' + err.message;
+        alert('Ошибка: ' + err.message);
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
+    }
+}
+
+// ============================================================
+// Utility: base64 to Blob
+// ============================================================
+function base64ToBlob(b64, type) {
+    const byteChars = atob(b64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteChars.length; offset += 512) {
+        const slice = byteChars.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+    }
+    return new Blob(byteArrays, { type: type });
+}
+
+// ============================================================
+// Download & Retry
 // ============================================================
 downloadBtn.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = 'inpaint_result.png';
-    link.href = resultImage.src;
-    link.click();
+    if (currentMode === 'inpaint' && resultImage.src) {
+        const a = document.createElement('a');
+        a.href = resultImage.src;
+        a.download = 'inpaint_result.png';
+        a.click();
+    } else if (currentMode === 'video' && resultVideo.src) {
+        const a = document.createElement('a');
+        a.href = resultVideo.src;
+        a.download = 'video_result.mp4';
+        a.click();
+    }
 });
 
 retryBtn.addEventListener('click', () => {
     resultSection.style.display = 'none';
-    progressInfo.style.display = 'none';
     progressFill.style.width = '0%';
-    // Scroll back to prompt
-    promptSection.scrollIntoView({ behavior: 'smooth' });
+    progressInfo.style.display = 'none';
+    document.getElementById('generateSection').scrollIntoView({ behavior: 'smooth' });
 });

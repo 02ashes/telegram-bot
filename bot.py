@@ -141,6 +141,62 @@ async def api_inpaint(request: Request):
         )
 
 
+@app.post("/api/video")
+async def api_video(request: Request):
+    """Generate video via WAN 2.2 I2V on RunPod Serverless."""
+    try:
+        body = await request.json()
+        image_b64 = body.get("image", "")
+        prompt = body.get("prompt", "")
+        negative = body.get("negative", "")
+        audio_enabled = body.get("audio_enabled", False)
+        audio_prompt = body.get("audio_prompt", "")
+        audio_negative = body.get("audio_negative", "music, speech, talking, noise, static")
+        frames = int(body.get("frames", 33))
+        fps = int(body.get("fps", 16))
+        width = int(body.get("width", 720))
+        height = int(body.get("height", 1280))
+
+        if not image_b64 or not prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        image_bytes = base64.b64decode(image_b64)
+
+        logger.info(
+            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s",
+            prompt[:60], frames, fps, width, height, audio_enabled,
+        )
+
+        result_bytes = await comfyui_api.run_video(
+            image_bytes=image_bytes,
+            prompt=prompt,
+            negative=negative,
+            audio_enabled=audio_enabled,
+            audio_prompt=audio_prompt,
+            audio_negative=audio_negative,
+            frames=frames,
+            fps=fps,
+            width=width,
+            height=height,
+        )
+
+        if result_bytes is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Video generation failed. Check RunPod logs."},
+            )
+
+        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+        return JSONResponse(content={"video": result_b64})
+
+    except Exception as e:
+        logger.exception("Video error")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
+
+
 # ============================================================
 # Telegram Bot (aiogram 3)
 # ============================================================
