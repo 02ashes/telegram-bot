@@ -160,7 +160,7 @@ async def submit_job(workflow: dict, images: list[dict]) -> str | None:
             return job_id
 
 
-async def poll_job(job_id: str, timeout: int = 300) -> dict | None:
+async def poll_job(job_id: str, timeout: int = 600) -> dict | None:
     """Poll RunPod Serverless for job completion.
     
     Returns the output dict or None on timeout/failure.
