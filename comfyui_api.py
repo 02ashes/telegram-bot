@@ -327,12 +327,17 @@ def build_wan_i2v_workflow(
             "inputs": {
                 "mmaudio_model": "mmaudio_large_44k_nsfw_gold_8.5k_final.pth",
                 "precision": "fp16",
+                "base_precision": "fp16",
             },
         }
-        # MMAudio feature utils
+        # MMAudio feature utils (requires explicit model file names)
         workflow["110"] = {
             "class_type": "MMAudioFeatureUtilsLoader",
-            "inputs": {},
+            "inputs": {
+                "vae_model": "mmaudio_vae_44k_fp16.safetensors",
+                "synchformer_model": "mmaudio_synchformer_fp32.safetensors",
+                "clip_model": "apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors",
+            },
         }
         # MMAudio sampler
         workflow["111"] = {
@@ -347,6 +352,8 @@ def build_wan_i2v_workflow(
                 "seed": seed,
                 "prompt": audio_prompt,
                 "negative_prompt": audio_negative,
+                "force_offload": True,
+                "mask_away_clip": False,
             },
         }
         # Connect audio to VHS_VideoCombine
