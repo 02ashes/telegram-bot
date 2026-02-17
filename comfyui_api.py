@@ -6,11 +6,45 @@ import io
 import json
 import logging
 import uuid
+import os
+import tempfile
 
 import aiohttp
 from PIL import Image, ImageOps
+from moviepy.editor import VideoFileClip
 
 import config
+
+
+async def _convert_webp_to_mp4(webp_bytes: bytes) -> bytes | None:
+    """Convert WEBP bytes to MP4 bytes using moviepy."""
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".webp", delete=False) as temp_webp:
+            temp_webp.write(webp_bytes)
+            temp_webp_path = temp_webp.name
+            
+        temp_mp4_path = temp_webp_path.replace(".webp", ".mp4")
+        
+        def _convert():
+            clip = VideoFileClip(temp_webp_path)
+            clip.write_videofile(temp_mp4_path, codec="libx264", audio=False, logger=None)
+            clip.close()
+            
+        await asyncio.to_thread(_convert)
+        
+        with open(temp_mp4_path, "rb") as f:
+            mp4_bytes = f.read()
+            
+        # Cleanup
+        if os.path.exists(temp_webp_path):
+            os.remove(temp_webp_path)
+        if os.path.exists(temp_mp4_path):
+            os.remove(temp_mp4_path)
+            
+        return mp4_bytes
+    except Exception as e:
+        logger.error("Failed to convert WEBP to MP4: %s", e)
+        return None
 
 logger = logging.getLogger(__name__)
 
@@ -645,7 +679,17 @@ async def run_video(
         logger.info("RunPod video output payload: %s", json.dumps(output, default=str)[:2000])
 
     try:
-        return _extract_video_from_output(output)
+        video_bytes = _extract_video_from_output(output)
+        if not video_bytes:
+            return None
+            
+        # Convert WEBP to MP4 if needed (SaveAnimatedWEBP output)
+        # Check signature: WEBP starts with RIFF...WEBP
+        if len(video_bytes) > 12 and video_bytes[:4] == b'RIFF' and video_bytes[8:12] == b'WEBP':
+            logger.info("Converting WEBP to MP4...")
+            return await _convert_webp_to_mp4(video_bytes)
+            
+        return video_bytes
     except Exception as e:
         logger.error("Failed to parse video result: %s (type: %s)", e, type(e).__name__)
         logger.error("Output preview: %s", str(output)[:500])
