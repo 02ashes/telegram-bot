@@ -337,6 +337,8 @@ def build_wan_i2v_workflow(
                 "vae_model": "mmaudio_vae_44k_fp16.safetensors",
                 "synchformer_model": "mmaudio_synchformer_fp32.safetensors",
                 "clip_model": "apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors",
+                "precision": "fp16",
+                "mode": "44k",
             },
         }
         # MMAudio sampler
