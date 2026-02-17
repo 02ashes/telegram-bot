@@ -154,8 +154,8 @@ async def api_video(request: Request):
         audio_negative = body.get("audio_negative", "music, speech, talking, noise, static")
         frames = int(body.get("frames", 33))
         fps = int(body.get("fps", 16))
-        width = int(body.get("width", 720))
-        height = int(body.get("height", 1280))
+        width = int(body.get("width", 0))
+        height = int(body.get("height", 0))
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})

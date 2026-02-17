@@ -542,8 +542,8 @@ async def run_video(
     audio_negative: str = "music, speech, talking, noise, static",
     frames: int = 33,
     fps: int = 16,
-    width: int = 720,
-    height: int = 1280,
+    width: int = 0,
+    height: int = 0,
 ) -> bytes | None:
     """Full video pipeline via RunPod Serverless.
 
@@ -553,8 +553,25 @@ async def run_video(
     4. Return result video bytes (mp4)
     """
 
-    # Resize image to target resolution
+    # Open image and auto-detect resolution if not explicitly set
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    orig_w, orig_h = img.size
+
+    if width == 0 or height == 0:
+        # Auto-detect: scale so longest side = 1280, round to multiple of 16
+        max_side = 1280
+        if max(orig_w, orig_h) > max_side:
+            scale = max_side / max(orig_w, orig_h)
+            width = int(orig_w * scale)
+            height = int(orig_h * scale)
+        else:
+            width = orig_w
+            height = orig_h
+        # Round to nearest multiple of 16 (required by WAN model)
+        width = max(16, (width // 16) * 16)
+        height = max(16, (height // 16) * 16)
+        logger.info("Auto-detected resolution: %dx%d → %dx%d", orig_w, orig_h, width, height)
+
     img = img.resize((width, height), Image.LANCZOS)
 
     buf = io.BytesIO()
