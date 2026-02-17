@@ -162,7 +162,7 @@ def build_wan_i2v_workflow(
         "77": {
             "class_type": "UNETLoader",
             "inputs": {
-                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_fp8_e4m3fn_v2.1.safetensors",
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_fp16_v2.1.safetensors",
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
@@ -170,7 +170,7 @@ def build_wan_i2v_workflow(
         "103": {
             "class_type": "UNETLoader",
             "inputs": {
-                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_fp8_e4m3fn_v2.1.safetensors",
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_fp16_v2.1.safetensors",
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
