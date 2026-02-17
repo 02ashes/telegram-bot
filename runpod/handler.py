@@ -23,10 +23,16 @@ import socket
 import traceback
 import logging
 
-from network_volume import (
-    is_network_volume_debug_enabled,
-    run_network_volume_diagnostics,
-)
+try:
+    from network_volume import (
+        is_network_volume_debug_enabled,
+        run_network_volume_diagnostics,
+    )
+except ImportError:
+    def is_network_volume_debug_enabled():
+        return False
+    def run_network_volume_diagnostics():
+        pass
 
 # ---------------------------------------------------------------------------
 logging.basicConfig(level=logging.INFO)
