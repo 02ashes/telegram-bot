@@ -302,19 +302,14 @@ def build_wan_i2v_workflow(
         },
         # --- Output Video ---
         "99": {
-            "class_type": "VHS_VideoCombine",
+            "class_type": "SaveAnimatedWEBP",
             "inputs": {
                 "images": ["8", 0],
-                "frame_rate": fps,
-                "loop_count": 0,
                 "filename_prefix": "TGBot_Video",
-                "format": "video/webm",
-                "pix_fmt": "yuv420p",
-                "crf": 19,
-                "save_metadata": True,
-                "trim_to_audio": False,
-                "pingpong": False,
-                "save_output": True,
+                "fps": fps,
+                "lossless": False,
+                "quality": 85,
+                "method": "default",
             },
         },
     }
