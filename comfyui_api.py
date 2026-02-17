@@ -308,21 +308,13 @@ def build_wan_i2v_workflow(
                 "frame_rate": fps,
                 "loop_count": 0,
                 "filename_prefix": "TGBot_Video",
-                "format": "video/webp",
+                "format": "video/webm",
                 "pix_fmt": "yuv420p",
                 "crf": 19,
                 "save_metadata": True,
                 "trim_to_audio": False,
                 "pingpong": False,
                 "save_output": True,
-            },
-        },
-        # --- Debug: Save Last Frame ---
-        "100": {
-            "class_type": "SaveImage",
-            "inputs": {
-                "images": ["8", 0],
-                "filename_prefix": "TGBot_Debug",
             },
         },
     }
