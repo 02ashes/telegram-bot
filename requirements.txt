@@ -4,6 +4,4 @@ uvicorn
 aiohttp
 python-multipart
 Pillow
-runpod
-moviepy
-imageio-ffmpeg
+

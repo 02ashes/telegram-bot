@@ -6,45 +6,11 @@ import io
 import json
 import logging
 import uuid
-import os
-import tempfile
 
 import aiohttp
 from PIL import Image, ImageOps
-from moviepy.editor import VideoFileClip
 
 import config
-
-
-async def _convert_webp_to_mp4(webp_bytes: bytes) -> bytes | None:
-    """Convert WEBP bytes to MP4 bytes using moviepy."""
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".webp", delete=False) as temp_webp:
-            temp_webp.write(webp_bytes)
-            temp_webp_path = temp_webp.name
-            
-        temp_mp4_path = temp_webp_path.replace(".webp", ".mp4")
-        
-        def _convert():
-            clip = VideoFileClip(temp_webp_path)
-            clip.write_videofile(temp_mp4_path, codec="libx264", audio=False, logger=None)
-            clip.close()
-            
-        await asyncio.to_thread(_convert)
-        
-        with open(temp_mp4_path, "rb") as f:
-            mp4_bytes = f.read()
-            
-        # Cleanup
-        if os.path.exists(temp_webp_path):
-            os.remove(temp_webp_path)
-        if os.path.exists(temp_mp4_path):
-            os.remove(temp_mp4_path)
-            
-        return mp4_bytes
-    except Exception as e:
-        logger.error("Failed to convert WEBP to MP4: %s", e)
-        return None
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +162,7 @@ def build_wan_i2v_workflow(
         "77": {
             "class_type": "UNETLoader",
             "inputs": {
-                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_fp16_v2.1.safetensors",
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_fp8_e4m3fn_v2.1.safetensors",
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
@@ -204,7 +170,7 @@ def build_wan_i2v_workflow(
         "103": {
             "class_type": "UNETLoader",
             "inputs": {
-                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_fp16_v2.1.safetensors",
+                "unet_name": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_fp8_e4m3fn_v2.1.safetensors",
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
@@ -334,16 +300,21 @@ def build_wan_i2v_workflow(
                 "vae": ["39", 0],
             },
         },
-        # --- Output Video ---
+        # --- Output Video (VHS_VideoCombine → proper h264-mp4) ---
         "99": {
-            "class_type": "SaveAnimatedWEBP",
+            "class_type": "VHS_VideoCombine",
             "inputs": {
                 "images": ["8", 0],
+                "frame_rate": fps,
+                "loop_count": 0,
                 "filename_prefix": "TGBot_Video",
-                "fps": fps,
-                "lossless": False,
-                "quality": 85,
-                "method": "default",
+                "format": "video/h264-mp4",
+                "pix_fmt": "yuv420p",
+                "crf": 19,
+                "save_metadata": True,
+                "trim_to_audio": False,
+                "pingpong": False,
+                "save_output": True,
             },
         },
     }
@@ -378,8 +349,9 @@ def build_wan_i2v_workflow(
                 "negative_prompt": audio_negative,
             },
         }
-        # Connect audio to video combine
+        # Connect audio to VHS_VideoCombine
         workflow["99"]["inputs"]["audio"] = ["111", 0]
+
 
     return workflow
 
@@ -550,56 +522,15 @@ async def run_inpaint(
         logger.info("RunPod output is a raw string of %d chars", len(output))
     
     try:
-        # Handle dict output
-        if isinstance(output, dict):
-            # Format 1: {"images": [{"image": "base64...", ...}]}
-            output_images = output.get("images", [])
-            if output_images:
-                img_data = output_images[0]
-                # Try various key names for the base64 data
-                for key in ("image", "data", "base64"):
-                    if key in img_data:
-                        b64_str = img_data[key]
-                        # Strip data URI prefix if present
-                        if "," in b64_str and b64_str.startswith("data:"):
-                            b64_str = b64_str.split(",", 1)[1]
-                        return base64.b64decode(b64_str)
-            
-            # Format 2: {"message": "base64..."}
-            if "message" in output:
-                msg = output["message"]
-                if isinstance(msg, str):
-                    return base64.b64decode(msg)
-            
-            # Format 3: {"status": "COMPLETED", ...} with nested output
-            if "output" in output:
-                return await _extract_image_from_output(output["output"])
-        
-        # Handle raw string (base64 directly)
-        elif isinstance(output, str):
-            return base64.b64decode(output)
-            
-        logger.error("Could not extract image from output")
-        return None
+        image_bytes = _extract_file_from_output(output)
+        if not image_bytes:
+            logger.error("Could not extract image from RunPod output")
+            return None
+        return image_bytes
     except Exception as e:
         logger.error("Failed to parse result: %s (type: %s)", e, type(e).__name__)
         logger.error("Output preview: %s", str(output)[:500])
         return None
-
-
-async def _extract_image_from_output(output) -> bytes | None:
-    """Recursively try to extract image from nested output."""
-    if isinstance(output, dict):
-        for key in ("images", "image", "data", "message"):
-            if key in output:
-                return await _extract_image_from_output(output[key])
-    elif isinstance(output, list) and output:
-        return await _extract_image_from_output(output[0])
-    elif isinstance(output, str):
-        if "," in output and output.startswith("data:"):
-            output = output.split(",", 1)[1]
-        return base64.b64decode(output)
-    return None
 
 
 async def run_video(
@@ -673,22 +604,25 @@ async def run_video(
         return None
 
     # Extract result video from output
+    # Worker 5.0+ format: {"images": [{"filename": "...", "type": "base64", "data": "..."}]}
     logger.info("RunPod video output type: %s", type(output).__name__)
     if isinstance(output, dict):
         logger.info("RunPod video output keys: %s", list(output.keys()))
-        logger.info("RunPod video output payload: %s", json.dumps(output, default=str)[:2000])
 
     try:
-        video_bytes = _extract_video_from_output(output)
+        video_bytes = _extract_file_from_output(output, prefer_video=True)
         if not video_bytes:
+            logger.error("Could not extract video from RunPod output")
             return None
-            
-        # Convert WEBP to MP4 if needed (SaveAnimatedWEBP output)
-        # Check signature: WEBP starts with RIFF...WEBP
-        if len(video_bytes) > 12 and video_bytes[:4] == b'RIFF' and video_bytes[8:12] == b'WEBP':
-            logger.info("Converting WEBP to MP4...")
-            return await _convert_webp_to_mp4(video_bytes)
-            
+
+        # Verify it looks like an MP4 (starts with ftyp box or mdat)
+        if len(video_bytes) > 8:
+            logger.info(
+                "Video output: %d bytes, magic: %s",
+                len(video_bytes),
+                video_bytes[:12].hex(),
+            )
+
         return video_bytes
     except Exception as e:
         logger.error("Failed to parse video result: %s (type: %s)", e, type(e).__name__)
@@ -696,42 +630,58 @@ async def run_video(
         return None
 
 
-def _extract_video_from_output(output) -> bytes | None:
-    """Extract video (mp4) bytes from RunPod output.
+def _extract_file_from_output(output, prefer_video: bool = False) -> bytes | None:
+    """Extract file bytes from RunPod worker 5.0+ output.
 
-    VHS_VideoCombine returns output like:
-    {"images": [{"image": "base64data", "type": "output", "filename": "xxx.mp4"}]}
-    or nested structures.
+    Worker output format:
+        {"images": [{"filename": "...", "type": "base64", "data": "..."}]}
+
+    When prefer_video=True, tries to find a video file (.mp4, .webm) first.
+    Falls back to first available file.
     """
-    if isinstance(output, dict):
-        # Format: {"images": [{"image": "base64...", ...}]}
-        output_images = output.get("images", [])
-        if output_images:
-            item = output_images[0]
-            if isinstance(item, dict):
-                for key in ("image", "data", "base64"):
-                    if key in item:
-                        b64_str = item[key]
-                        if "," in b64_str and b64_str.startswith("data:"):
-                            b64_str = b64_str.split(",", 1)[1]
-                        return base64.b64decode(b64_str)
-            elif isinstance(item, str):
-                return base64.b64decode(item)
+    if not isinstance(output, dict):
+        # Raw base64 string fallback
+        if isinstance(output, str):
+            if "," in output and output.startswith("data:"):
+                output = output.split(",", 1)[1]
+            return base64.b64decode(output)
+        logger.error("Unexpected output type: %s", type(output).__name__)
+        return None
 
-        # Format: {"message": "base64..."}
-        if "message" in output:
-            msg = output["message"]
-            if isinstance(msg, str):
-                return base64.b64decode(msg)
+    items = output.get("images", [])
+    if not items:
+        # Legacy format: {"message": "base64..."}
+        if "message" in output and isinstance(output["message"], str):
+            return base64.b64decode(output["message"])
+        logger.error("No 'images' in output. Keys: %s", list(output.keys()))
+        return None
 
-        # Nested output
-        if "output" in output:
-            return _extract_video_from_output(output["output"])
+    VIDEO_EXTS = {".mp4", ".webm", ".mkv", ".avi", ".mov"}
 
-    elif isinstance(output, str):
-        if "," in output and output.startswith("data:"):
-            output = output.split(",", 1)[1]
-        return base64.b64decode(output)
+    target_item = None
+    if prefer_video:
+        # Find a video file first
+        for item in items:
+            fn = item.get("filename", "")
+            ext = fn[fn.rfind("."):].lower() if "." in fn else ""
+            if ext in VIDEO_EXTS:
+                target_item = item
+                logger.info("Found video file: %s", fn)
+                break
 
-    logger.error("Could not extract video from output")
-    return None
+    if target_item is None:
+        target_item = items[0]
+        logger.info("Using first output file: %s", target_item.get("filename", "unknown"))
+
+    # Extract base64 data
+    b64_str = target_item.get("data") or target_item.get("image") or target_item.get("base64")
+    if not b64_str:
+        logger.error("No data field in output item: %s", list(target_item.keys()))
+        return None
+
+    # Strip data URI prefix if present
+    if isinstance(b64_str, str) and b64_str.startswith("data:") and "," in b64_str:
+        b64_str = b64_str.split(",", 1)[1]
+
+    return base64.b64decode(b64_str)
+
