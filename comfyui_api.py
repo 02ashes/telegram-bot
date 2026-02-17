@@ -647,6 +647,7 @@ async def run_video(
     logger.info("RunPod video output type: %s", type(output).__name__)
     if isinstance(output, dict):
         logger.info("RunPod video output keys: %s", list(output.keys()))
+        logger.info("RunPod video output payload: %s", json.dumps(output, default=str)[:2000])
 
     try:
         return _extract_video_from_output(output)
