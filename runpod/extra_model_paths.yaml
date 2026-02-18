@@ -16,3 +16,4 @@ network_volume:
     upscale_models: upscale_models/
     vae: vae/
     mmaudio: mmaudio/
+    depthanything: depthanything/

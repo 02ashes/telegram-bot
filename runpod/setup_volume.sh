@@ -15,7 +15,7 @@
 
 set +e  # Don't stop on errors — continue downloading remaining models
 
-VOLUME_PATH="${VOLUME_PATH:-/runpod-volume}"
+VOLUME_PATH="${VOLUME_PATH:-/workspace}"
 MODELS_DIR="${VOLUME_PATH}/models"
 
 # HuggingFace token for gated/NSFW repos
