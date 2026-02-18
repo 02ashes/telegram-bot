@@ -182,6 +182,13 @@ download \
     "https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/vae/flux2-vae.safetensors" \
     "${MODELS_DIR}/vae/flux2-vae.safetensors"
 
+# DepthAnything V2 (body shape preservation for Klein advanced edit)
+# Small model (~25MB) — auto-downloaded by node, but pre-download for cold starts
+mkdir -p "${MODELS_DIR}/depthanything"
+download \
+    "https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.safetensors" \
+    "${MODELS_DIR}/depthanything/depth_anything_v2_vits.safetensors"
+
 # =============================================================================
 # [6] MMAudio (ALL required files — 5 total)
 # Sources: cloud19/NSFW_MMaudio + kijai/MMAudio_safetensors

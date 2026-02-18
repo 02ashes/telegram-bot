@@ -121,9 +121,9 @@ def build_flux_fill_workflow(
 
 def build_flux_klein_edit_workflow(
     prompt: str,
-    negative: str = "blurry, ugly, deformed, watermark, text, low quality",
-    denoise: float = 0.5,
-    steps: int = 4,
+    negative: str = "",
+    denoise: float = 1.0,
+    steps: int = 8,
     cfg: float = 1.0,
     seed: int | None = None,
     has_reference: bool = False,
@@ -132,58 +132,177 @@ def build_flux_klein_edit_workflow(
     crop_w: int = 0,
     crop_h: int = 0,
     lora_name: str = "",
-    lora_strength: float = 1.0,
+    lora_strength: float = 0.7,
 ) -> dict:
-    """Build a Flux 2 Klein 9B image editing workflow for ComfyUI API.
+    """Build Flux 2 Klein 9B advanced image editing workflow for ComfyUI API.
 
-    Single image: loads 'edit_input.png', applies edit via prompt + denoise.
-    Two images: loads 'edit_input.png' (stitched canvas), edits, crops right half.
+    Uses ReferenceLatent conditioning with depth and canny edge maps to
+    preserve face and body shape while allowing strong edits (denoise=1.0).
+
+    Pipeline:
+        1. Load + resize image to 1024 (keep proportions)
+        2. Extract depth map (DepthAnything V2) and canny edges
+        3. Encode original, depth, canny as latents
+        4. Chain ReferenceLatent nodes for positive conditioning:
+           prompt → ref(original) → ref(depth) → ref(canny) → KSampler
+        5. Chain ReferenceLatent nodes for negative conditioning:
+           negative → ref(original) → ref(depth) → ref(canny) → KSampler
+        6. KSampler (euler/simple, denoise=1.0) → VAEDecode → SaveImage
     """
     if seed is None:
         seed = int(uuid.uuid4().int % (2**32))
 
     workflow = {
-        "1": {
-            "class_type": "LoadImage",
-            "inputs": {"image": "edit_input.png"},
-        },
-        "2": {
+        # ---- Models ----
+        "106": {
             "class_type": "UNETLoader",
             "inputs": {
                 "unet_name": "flux-2-klein-9b.safetensors",
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
-        "3": {
+        "107": {
             "class_type": "CLIPLoader",
             "inputs": {
                 "clip_name": "qwen_3_8b.safetensors",
                 "type": "flux2",
             },
         },
-        "4": {
+        "110": {
             "class_type": "VAELoader",
             "inputs": {"vae_name": "flux2-vae.safetensors"},
         },
-        "5": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {"text": prompt, "clip": ["3", 0]},
+
+        # ---- Load & Resize Image ----
+        "139": {
+            "class_type": "LoadImage",
+            "inputs": {"image": "edit_input.png"},
         },
-        "6": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {"text": negative, "clip": ["3", 0]},
+        "146": {
+            "class_type": "ImageResize+",
+            "inputs": {
+                "image": ["139", 0],
+                "width": 1024,
+                "height": 1024,
+                "interpolation": "lanczos",
+                "method": "keep proportion",
+                "condition": "always",
+                "multiple_of": 0,
+            },
         },
-        "7": {
+
+        # ---- Encode original image as latent ----
+        "141": {
             "class_type": "VAEEncode",
-            "inputs": {"pixels": ["1", 0], "vae": ["4", 0]},
+            "inputs": {
+                "pixels": ["146", 0],
+                "vae": ["110", 0],
+            },
         },
-        "8": {
+
+        # ---- Depth map extraction + encode ----
+        "148": {
+            "class_type": "DownloadAndLoadDepthAnythingV2Model",
+            "inputs": {
+                "model_name": "depth_anything_v2_vits_fp16.safetensors",
+            },
+        },
+        "147": {
+            "class_type": "DepthAnything_V2",
+            "inputs": {
+                "da_model": ["148", 0],
+                "images": ["146", 0],
+            },
+        },
+        "152": {
+            "class_type": "VAEEncode",
+            "inputs": {
+                "pixels": ["147", 0],
+                "vae": ["110", 0],
+            },
+        },
+
+        # ---- Canny edge extraction + encode ----
+        "161": {
+            "class_type": "Canny",
+            "inputs": {
+                "image": ["146", 0],
+                "low_threshold": 0.2,
+                "high_threshold": 0.7,
+            },
+        },
+        "162": {
+            "class_type": "VAEEncode",
+            "inputs": {
+                "pixels": ["161", 0],
+                "vae": ["110", 0],
+            },
+        },
+
+        # ---- CLIP Text Encode ----
+        "108": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": prompt, "clip": ["107", 0]},
+        },
+        "109": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": negative, "clip": ["107", 0]},
+        },
+
+        # ---- Positive conditioning: chain ReferenceLatent (original → depth → canny) ----
+        "140": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["108", 0],
+                "latent": ["141", 0],
+            },
+        },
+        "151": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["140", 0],
+                "latent": ["152", 0],
+            },
+        },
+        "160": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["151", 0],
+                "latent": ["162", 0],
+            },
+        },
+
+        # ---- Negative conditioning: chain ReferenceLatent (original → depth → canny) ----
+        "149": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["109", 0],
+                "latent": ["141", 0],
+            },
+        },
+        "156": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["149", 0],
+                "latent": ["152", 0],
+            },
+        },
+        "159": {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["156", 0],
+                "latent": ["162", 0],
+            },
+        },
+
+        # ---- KSampler ----
+        "138": {
             "class_type": "KSampler",
             "inputs": {
-                "model": ["2", 0],  # will be updated to LoRA output if lora_name set
-                "positive": ["5", 0],
-                "negative": ["6", 0],
-                "latent_image": ["7", 0],
+                "model": ["106", 0],  # updated to LoRA output if lora_name set
+                "positive": ["160", 0],
+                "negative": ["159", 0],
+                "latent_image": ["141", 0],
                 "seed": seed,
                 "control_after_generate": "randomize",
                 "steps": steps,
@@ -193,45 +312,47 @@ def build_flux_klein_edit_workflow(
                 "denoise": denoise,
             },
         },
-        "9": {
+
+        # ---- Decode + Save ----
+        "104": {
             "class_type": "VAEDecode",
-            "inputs": {"samples": ["8", 0], "vae": ["4", 0]},
+            "inputs": {"samples": ["138", 0], "vae": ["110", 0]},
         },
     }
 
     # Optional LoRA (e.g. NSFW LoRA for Klein)
     if lora_name:
-        workflow["20"] = {
+        workflow["144"] = {
             "class_type": "LoraLoaderModelOnly",
             "inputs": {
-                "model": ["2", 0],
+                "model": ["106", 0],
                 "lora_name": lora_name,
                 "strength_model": lora_strength,
             },
         }
         # Redirect KSampler model input to LoRA output
-        workflow["8"]["inputs"]["model"] = ["20", 0]
+        workflow["138"]["inputs"]["model"] = ["144", 0]
 
     if has_reference and crop_w > 0 and crop_h > 0:
         # Crop right half of stitched canvas
-        workflow["10"] = {
+        workflow["200"] = {
             "class_type": "ImageCrop",
             "inputs": {
-                "image": ["9", 0],
+                "image": ["104", 0],
                 "width": crop_w,
                 "height": crop_h,
                 "x": crop_x,
                 "y": crop_y,
             },
         }
-        workflow["11"] = {
+        workflow["201"] = {
             "class_type": "SaveImage",
-            "inputs": {"images": ["10", 0], "filename_prefix": "TGBot_Edit"},
+            "inputs": {"images": ["200", 0], "filename_prefix": "TGBot_Edit"},
         }
     else:
-        workflow["10"] = {
+        workflow["201"] = {
             "class_type": "SaveImage",
-            "inputs": {"images": ["9", 0], "filename_prefix": "TGBot_Edit"},
+            "inputs": {"images": ["104", 0], "filename_prefix": "TGBot_Edit"},
         }
 
     return workflow

@@ -35,6 +35,14 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-MMAudio.git && \
 RUN git clone --depth 1 https://github.com/vrgamegirl19/comfyui-vrgamedevgirl.git && \
     (cd comfyui-vrgamedevgirl && pip install -r requirements.txt --quiet 2>/dev/null || true)
 
+# ComfyUI Essentials (ImageResize+ for Klein advanced edit)
+RUN git clone --depth 1 https://github.com/cubiq/ComfyUI_essentials.git && \
+    (cd ComfyUI_essentials && pip install -r requirements.txt --quiet 2>/dev/null || true)
+
+# DepthAnything V2 (body shape preservation for Klein advanced edit)
+RUN git clone --depth 1 https://github.com/kijai/ComfyUI-DepthAnythingV2.git && \
+    (cd ComfyUI-DepthAnythingV2 && pip install -r requirements.txt --quiet 2>/dev/null || true)
+
 # ---- Install additional Python deps ----
 # Matching user's verified working setup
 RUN pip install --no-cache-dir \

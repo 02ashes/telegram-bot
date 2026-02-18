@@ -205,12 +205,12 @@ async def api_image_edit(request: Request):
         image_b64 = body.get("image", "")
         image2_b64 = body.get("image2", "")  # optional reference
         prompt = body.get("prompt", "")
-        negative = body.get("negative", "blurry, ugly, deformed, watermark, text, low quality")
-        denoise = float(body.get("denoise", 0.5))
-        steps = int(body.get("steps", 4))
+        negative = body.get("negative", "")
+        denoise = float(body.get("denoise", 1.0))
+        steps = int(body.get("steps", 8))
         cfg = float(body.get("cfg", 1.0))
         lora_name = body.get("lora_name", "")
-        lora_strength = float(body.get("lora_strength", 1.0))
+        lora_strength = float(body.get("lora_strength", 0.7))
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
