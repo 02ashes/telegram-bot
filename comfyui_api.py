@@ -158,7 +158,7 @@ def build_flux_klein_edit_workflow(
             "class_type": "CLIPLoader",
             "inputs": {
                 "clip_name": "qwen_3_8b.safetensors",
-                "type": "flux_klein",
+                "type": "qwen_image",
             },
         },
         "4": {
