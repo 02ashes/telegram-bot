@@ -204,7 +204,7 @@ def build_flux_klein_edit_workflow(
         "148": {
             "class_type": "DownloadAndLoadDepthAnythingV2Model",
             "inputs": {
-                "model_name": "depth_anything_v2_vits_fp16.safetensors",
+                "model": "depth_anything_v2_vits_fp16.safetensors",
             },
         },
         "147": {
