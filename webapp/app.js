@@ -386,34 +386,36 @@ if (loraStrengthSlider) {
 }
 
 // ============================================================
-// Upload 2 (Reference Image for Image mode)
+// Upload 2 (Reference Image for Image mode) — optional, elements may not exist
 // ============================================================
-uploadArea2.addEventListener('click', () => fileInput2.click());
+if (uploadArea2 && fileInput2) {
+    uploadArea2.addEventListener('click', () => fileInput2.click());
 
-fileInput2.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        loadImage2(file);
-    }
-});
+    fileInput2.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            loadImage2(file);
+        }
+    });
 
-uploadArea2.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea2.style.borderColor = '#a855f7';
-});
+    uploadArea2.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea2.style.borderColor = '#a855f7';
+    });
 
-uploadArea2.addEventListener('dragleave', () => {
-    uploadArea2.style.borderColor = '';
-});
+    uploadArea2.addEventListener('dragleave', () => {
+        uploadArea2.style.borderColor = '';
+    });
 
-uploadArea2.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea2.style.borderColor = '';
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        loadImage2(file);
-    }
-});
+    uploadArea2.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea2.style.borderColor = '';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            loadImage2(file);
+        }
+    });
+}
 
 function loadImage2(file) {
     const reader = new FileReader();
