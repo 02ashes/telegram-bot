@@ -163,6 +163,10 @@ body {
     overflow: hidden;
 }
 
+.upload-area-small {
+    min-height: 80px;
+}
+
 .upload-area:hover {
     border-color: rgba(168, 85, 247, 0.6);
     background: rgba(168, 85, 247, 0.05);

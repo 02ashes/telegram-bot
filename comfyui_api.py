@@ -119,6 +119,124 @@ def build_flux_fill_workflow(
     return workflow
 
 
+def build_flux_klein_edit_workflow(
+    prompt: str,
+    negative: str = "blurry, ugly, deformed, watermark, text, low quality",
+    denoise: float = 0.5,
+    steps: int = 28,
+    cfg: float = 3.5,
+    seed: int | None = None,
+    has_reference: bool = False,
+    crop_x: int = 0,
+    crop_y: int = 0,
+    crop_w: int = 0,
+    crop_h: int = 0,
+    lora_name: str = "",
+    lora_strength: float = 1.0,
+) -> dict:
+    """Build a Flux 2 Klein 9B image editing workflow for ComfyUI API.
+
+    Single image: loads 'edit_input.png', applies edit via prompt + denoise.
+    Two images: loads 'edit_input.png' (stitched canvas), edits, crops right half.
+    """
+    if seed is None:
+        seed = int(uuid.uuid4().int % (2**32))
+
+    workflow = {
+        "1": {
+            "class_type": "LoadImage",
+            "inputs": {"image": "edit_input.png"},
+        },
+        "2": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "flux-2-klein-9b.safetensors",
+                "weight_dtype": "fp8_e4m3fn",
+            },
+        },
+        "3": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "qwen_3_8b.safetensors",
+                "type": "flux_klein",
+            },
+        },
+        "4": {
+            "class_type": "VAELoader",
+            "inputs": {"vae_name": "flux2-vae.safetensors"},
+        },
+        "5": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": prompt, "clip": ["3", 0]},
+        },
+        "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": negative, "clip": ["3", 0]},
+        },
+        "7": {
+            "class_type": "VAEEncode",
+            "inputs": {"pixels": ["1", 0], "vae": ["4", 0]},
+        },
+        "8": {
+            "class_type": "KSampler",
+            "inputs": {
+                "model": ["2", 0],  # will be updated to LoRA output if lora_name set
+                "positive": ["5", 0],
+                "negative": ["6", 0],
+                "latent_image": ["7", 0],
+                "seed": seed,
+                "control_after_generate": "randomize",
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "euler",
+                "scheduler": "normal",
+                "denoise": denoise,
+            },
+        },
+        "9": {
+            "class_type": "VAEDecode",
+            "inputs": {"samples": ["8", 0], "vae": ["4", 0]},
+        },
+    }
+
+    # Optional LoRA (e.g. NSFW LoRA for Klein)
+    if lora_name:
+        workflow["20"] = {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["2", 0],
+                "lora_name": lora_name,
+                "strength_model": lora_strength,
+            },
+        }
+        # Redirect KSampler model input to LoRA output
+        workflow["8"]["inputs"]["model"] = ["20", 0]
+
+    if has_reference and crop_w > 0 and crop_h > 0:
+        # Crop right half of stitched canvas
+        workflow["10"] = {
+            "class_type": "ImageCrop",
+            "inputs": {
+                "image": ["9", 0],
+                "width": crop_w,
+                "height": crop_h,
+                "x": crop_x,
+                "y": crop_y,
+            },
+        }
+        workflow["11"] = {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["10", 0], "filename_prefix": "TGBot_Edit"},
+        }
+    else:
+        workflow["10"] = {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["9", 0], "filename_prefix": "TGBot_Edit"},
+        }
+
+    return workflow
+
+
 def build_wan_i2v_workflow(
     prompt: str,
     negative: str = "",
@@ -539,6 +657,89 @@ async def run_inpaint(
     except Exception as e:
         logger.error("Failed to parse result: %s (type: %s)", e, type(e).__name__)
         logger.error("Output preview: %s", str(output)[:500])
+        return None
+
+
+async def run_image_edit(
+    image_bytes: bytes,
+    prompt: str,
+    negative: str = "blurry, ugly, deformed, watermark, text, low quality",
+    denoise: float = 0.5,
+    steps: int = 28,
+    cfg: float = 3.5,
+    image2_bytes: bytes | None = None,
+    lora_name: str = "",
+    lora_strength: float = 1.0,
+) -> bytes | None:
+    """Full image editing pipeline via Flux 2 Klein on RunPod Serverless.
+
+    1 image:  Simple img2img edit by prompt
+    2 images: Stitch side-by-side → edit → crop right half as result
+    """
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    orig_w, orig_h = img.size
+
+    has_reference = image2_bytes is not None
+    crop_x, crop_y, crop_w, crop_h = 0, 0, 0, 0
+
+    if has_reference:
+        # Stitch reference (left) + target (right) side by side
+        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
+        # Resize img2 to same height as img
+        img2 = img2.resize((int(img2.width * orig_h / img2.height), orig_h), Image.LANCZOS)
+        stitched_w = img2.width + orig_w
+        stitched = Image.new("RGB", (stitched_w, orig_h))
+        stitched.paste(img2, (0, 0))
+        stitched.paste(img, (img2.width, 0))
+        img = stitched
+        # Crop params: right half = the target image area
+        crop_x = img2.width
+        crop_y = 0
+        crop_w = orig_w
+        crop_h = orig_h
+        logger.info("Stitched canvas: %dx%d (ref=%dx%d + target=%dx%d)",
+                     stitched_w, orig_h, img2.width, orig_h, orig_w, orig_h)
+
+    # Convert to PNG bytes
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    edit_png_bytes = buf.getvalue()
+    edit_b64 = base64.b64encode(edit_png_bytes).decode("utf-8")
+
+    workflow = build_flux_klein_edit_workflow(
+        prompt=prompt,
+        negative=negative,
+        denoise=denoise,
+        steps=steps,
+        cfg=cfg,
+        has_reference=has_reference,
+        crop_x=crop_x,
+        crop_y=crop_y,
+        crop_w=crop_w,
+        crop_h=crop_h,
+        lora_name=lora_name,
+        lora_strength=lora_strength,
+    )
+
+    images = [{"name": "edit_input.png", "image": edit_b64}]
+
+    logger.info("Submitting image edit job (denoise=%.2f, ref=%s)", denoise, has_reference)
+    job_id = await submit_job(workflow, images)
+    if not job_id:
+        return None
+
+    output = await poll_job(job_id, timeout=300)
+    if not output:
+        return None
+
+    try:
+        image_bytes = _extract_file_from_output(output)
+        if not image_bytes:
+            logger.error("Could not extract image from RunPod output")
+            return None
+        return image_bytes
+    except Exception as e:
+        logger.error("Failed to parse edit result: %s", e)
         return None
 
 

@@ -6,11 +6,12 @@
 // ============================================================
 // State
 // ============================================================
-let currentMode = 'inpaint'; // 'inpaint' or 'video'
+let currentMode = 'inpaint'; // 'inpaint', 'video', or 'image'
 let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
 let originalImage = null;
+let originalImage2 = null;  // reference image for Image mode
 let mainCtx = null;
 let maskCtx = null;
 
@@ -52,9 +53,19 @@ const resolutionSelect = document.getElementById('resolutionSelect');
 const audioToggle = document.getElementById('audioToggle');
 const audioSettings = document.getElementById('audioSettings');
 
+// Image edit settings
+const denoiseSlider = document.getElementById('denoiseSlider');
+const denoiseLabel = document.getElementById('denoiseLabel');
+const editStepsSlider = document.getElementById('editStepsSlider');
+const editStepsLabel = document.getElementById('editStepsLabel');
+const uploadArea2 = document.getElementById('uploadArea2');
+const uploadPlaceholder2 = document.getElementById('uploadPlaceholder2');
+const fileInput2 = document.getElementById('fileInput2');
+
 // Tabs
 const tabInpaint = document.getElementById('tabInpaint');
 const tabVideo = document.getElementById('tabVideo');
+const tabImage = document.getElementById('tabImage');
 
 // ============================================================
 // Telegram WebApp
@@ -81,6 +92,7 @@ if (tg) {
 // ============================================================
 tabInpaint.addEventListener('click', () => switchMode('inpaint'));
 tabVideo.addEventListener('click', () => switchMode('video'));
+tabImage.addEventListener('click', () => switchMode('image'));
 
 function switchMode(mode) {
     currentMode = mode;
@@ -88,6 +100,7 @@ function switchMode(mode) {
     // Update tabs
     tabInpaint.classList.toggle('active', mode === 'inpaint');
     tabVideo.classList.toggle('active', mode === 'video');
+    tabImage.classList.toggle('active', mode === 'image');
 
     // Show/hide mode-specific sections
     document.querySelectorAll('.inpaint-only').forEach(el => {
@@ -96,26 +109,33 @@ function switchMode(mode) {
     document.querySelectorAll('.video-only').forEach(el => {
         el.style.display = mode === 'video' && originalImage ? '' : 'none';
     });
+    document.querySelectorAll('.image-only').forEach(el => {
+        el.style.display = mode === 'image' && originalImage ? '' : 'none';
+    });
 
     // Update prompt placeholder
     const promptInput = document.getElementById('promptInput');
     if (mode === 'inpaint') {
         promptInput.placeholder = 'Опиши что нарисовать в маске...';
-    } else {
+    } else if (mode === 'video') {
         promptInput.placeholder = 'Опиши движение в видео (woman slowly turns her head, smiles...)';
+    } else {
+        promptInput.placeholder = 'Опиши изменение (add cum on face, finger in ass, remove clothes...)';
     }
 
     // Update negative prompt default
     const negativeInput = document.getElementById('negativeInput');
     if (mode === 'video' && negativeInput.value === 'blurry, ugly, deformed, watermark, text, low quality, cartoon') {
         negativeInput.value = '';
-    } else if (mode === 'inpaint' && negativeInput.value === '') {
+    } else if ((mode === 'inpaint' || mode === 'image') && negativeInput.value === '') {
         negativeInput.value = 'blurry, ugly, deformed, watermark, text, low quality, cartoon';
     }
 
     // Update generate button text
     const btnText = generateBtn.querySelector('.btn-text');
-    btnText.textContent = mode === 'inpaint' ? '🚀 Генерировать' : '🎬 Генерировать видео';
+    if (mode === 'inpaint') btnText.textContent = '🚀 Генерировать';
+    else if (mode === 'video') btnText.textContent = '🎬 Генерировать видео';
+    else btnText.textContent = '🖼️ Редактировать';
 
     // Hide result if mode changed
     resultSection.style.display = 'none';
@@ -347,6 +367,77 @@ audioToggle.addEventListener('change', () => {
     audioSettings.style.display = audioToggle.checked ? '' : 'none';
 });
 
+// Denoise slider
+denoiseSlider.addEventListener('input', (e) => {
+    denoiseLabel.textContent = parseFloat(e.target.value).toFixed(2);
+});
+
+editStepsSlider.addEventListener('input', (e) => {
+    editStepsLabel.textContent = e.target.value;
+});
+
+// LoRA strength slider
+const loraStrengthSlider = document.getElementById('loraStrengthSlider');
+const loraStrengthLabel = document.getElementById('loraStrengthLabel');
+if (loraStrengthSlider) {
+    loraStrengthSlider.addEventListener('input', (e) => {
+        loraStrengthLabel.textContent = parseFloat(e.target.value).toFixed(1);
+    });
+}
+
+// ============================================================
+// Upload 2 (Reference Image for Image mode)
+// ============================================================
+uploadArea2.addEventListener('click', () => fileInput2.click());
+
+fileInput2.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        loadImage2(file);
+    }
+});
+
+uploadArea2.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea2.style.borderColor = '#a855f7';
+});
+
+uploadArea2.addEventListener('dragleave', () => {
+    uploadArea2.style.borderColor = '';
+});
+
+uploadArea2.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea2.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        loadImage2(file);
+    }
+});
+
+function loadImage2(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+            originalImage2 = img;
+            uploadPlaceholder2.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:150px;border-radius:8px;">`;
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function getImage2DataURL() {
+    if (!originalImage2) return null;
+    const c = document.createElement('canvas');
+    c.width = originalImage2.naturalWidth;
+    c.height = originalImage2.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(originalImage2, 0, 0);
+    return c.toDataURL('image/png');
+}
+
 // ============================================================
 // Get mask as black/white image
 // ============================================================
@@ -405,8 +496,10 @@ generateBtn.addEventListener('click', async () => {
 
     if (currentMode === 'inpaint') {
         await generateInpaint(prompt);
-    } else {
+    } else if (currentMode === 'video') {
         await generateVideo(prompt);
+    } else {
+        await generateImageEdit(prompt);
     }
 });
 
@@ -503,9 +596,13 @@ async function generateVideo(prompt) {
     const negative = document.getElementById('negativeInput').value;
     const frames = parseInt(framesSlider.value);
     const fps = parseInt(fpsSelect.value);
-    const resolution = resolutionSelect.value.split('x');
-    const width = parseInt(resolution[0]);
-    const height = parseInt(resolution[1]);
+    const resVal = resolutionSelect.value;
+    let width = 0, height = 0;
+    if (resVal !== 'auto') {
+        const resolution = resVal.split('x');
+        width = parseInt(resolution[0]);
+        height = parseInt(resolution[1]);
+    }
     const audioEnabled = audioToggle.checked;
     const audioPrompt = document.getElementById('audioPromptInput')?.value || '';
     const audioNegative = document.getElementById('audioNegativeInput')?.value || 'music, speech, talking, noise, static';
@@ -586,6 +683,92 @@ async function generateVideo(prompt) {
         resultVideo.src = videoUrl;
         resultVideo.style.display = '';
         resultImage.style.display = 'none';
+        resultSection.style.display = '';
+
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+        clearInterval(progressInterval);
+        progressFill.style.width = '0%';
+        progressText.textContent = '❌ ' + err.message;
+        alert('Ошибка: ' + err.message);
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
+    }
+}
+
+// ============================================================
+// Image Edit Generation (Flux 2 Klein)
+// ============================================================
+async function generateImageEdit(prompt) {
+    const negative = document.getElementById('negativeInput').value.trim();
+    const denoise = parseFloat(denoiseSlider.value);
+    const steps = parseInt(editStepsSlider.value);
+    const imageDataURL = getImageDataURL();
+    const image2DataURL = getImage2DataURL();
+
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+    progressInfo.style.display = '';
+    progressFill.style.width = '10%';
+    progressText.textContent = '🚀 Отправка на RunPod...';
+    resultSection.style.display = 'none';
+
+    let progressInterval;
+
+    try {
+        progressInterval = setInterval(() => {
+            const cur = parseFloat(progressFill.style.width);
+            if (cur < 85) {
+                progressFill.style.width = (cur + 1.5) + '%';
+                if (cur > 30) progressText.textContent = '⏳ Flux 2 Klein генерирует...';
+                if (cur > 70) progressText.textContent = '🔄 Почти готово...';
+            }
+        }, 1500);
+
+        const body = {
+            image: imageDataURL.split(',')[1],
+            prompt: prompt,
+            negative: negative,
+            denoise: denoise,
+            steps: steps,
+        };
+
+        // LoRA (optional)
+        const loraName = document.getElementById('loraNameInput')?.value?.trim() || '';
+        const loraStrength = parseFloat(document.getElementById('loraStrengthSlider')?.value || 1.0);
+        if (loraName) {
+            body.lora_name = loraName;
+            body.lora_strength = loraStrength;
+        }
+
+        if (image2DataURL) {
+            body.image2 = image2DataURL.split(',')[1];
+        }
+
+        const response = await fetch('/api/image-edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+
+        clearInterval(progressInterval);
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        progressFill.style.width = '100%';
+        progressText.textContent = '✅ Готово!';
+
+        // Show image result
+        resultImage.src = 'data:image/png;base64,' + data.image;
+        resultImage.style.display = '';
+        resultVideo.style.display = 'none';
         resultSection.style.display = '';
 
         resultSection.scrollIntoView({ behavior: 'smooth' });

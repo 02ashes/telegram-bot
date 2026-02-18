@@ -197,6 +197,61 @@ async def api_video(request: Request):
         )
 
 
+@app.post("/api/image-edit")
+async def api_image_edit(request: Request):
+    """Edit image via Flux 2 Klein 9B on RunPod Serverless."""
+    try:
+        body = await request.json()
+        image_b64 = body.get("image", "")
+        image2_b64 = body.get("image2", "")  # optional reference
+        prompt = body.get("prompt", "")
+        negative = body.get("negative", "blurry, ugly, deformed, watermark, text, low quality")
+        denoise = float(body.get("denoise", 0.5))
+        steps = int(body.get("steps", 28))
+        cfg = float(body.get("cfg", 3.5))
+        lora_name = body.get("lora_name", "")
+        lora_strength = float(body.get("lora_strength", 1.0))
+
+        if not image_b64 or not prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        image_bytes = base64.b64decode(image_b64)
+        image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
+
+        logger.info(
+            "Image edit request: prompt=%s, denoise=%.2f, has_ref=%s, lora=%s",
+            prompt[:60], denoise, image2_bytes is not None, lora_name or "none",
+        )
+
+        result_bytes = await comfyui_api.run_image_edit(
+            image_bytes=image_bytes,
+            prompt=prompt,
+            negative=negative,
+            denoise=denoise,
+            steps=steps,
+            cfg=cfg,
+            image2_bytes=image2_bytes,
+            lora_name=lora_name,
+            lora_strength=lora_strength,
+        )
+
+        if result_bytes is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Image editing failed. Check RunPod logs."},
+            )
+
+        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+        return JSONResponse(content={"image": result_b64})
+
+    except Exception as e:
+        logger.exception("Image edit error")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
+
+
 # ============================================================
 # Telegram Bot (aiogram 3)
 # ============================================================

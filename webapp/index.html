@@ -24,6 +24,7 @@
         <div class="mode-tabs">
             <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">🎨 Inpaint</button>
             <button class="mode-tab" id="tabVideo" data-mode="video">🎬 Video</button>
+            <button class="mode-tab" id="tabImage" data-mode="image">🖼️ Image</button>
         </div>
 
         <!-- ============================================ -->
@@ -87,6 +88,44 @@
         </div>
 
         <!-- ============================================ -->
+        <!-- IMAGE MODE: Second Photo (Reference) -->
+        <!-- ============================================ -->
+        <div class="section image-only" id="upload2Section" style="display:none;">
+            <div class="section-title">📷 Фото 2 — референс (необязательно)</div>
+            <div class="upload-area upload-area-small" id="uploadArea2">
+                <div class="upload-placeholder" id="uploadPlaceholder2">
+                    <span class="upload-icon">📁</span>
+                    <span>Добавь фото-референс</span>
+                </div>
+                <input type="file" id="fileInput2" accept="image/*" hidden>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- IMAGE MODE: Edit Settings -->
+        <!-- ============================================ -->
+        <div class="section settings-row image-only" id="imageSettingsSection" style="display:none;">
+            <div class="setting">
+                <label>Denoise: <span id="denoiseLabel">0.50</span></label>
+                <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="0.5">
+            </div>
+            <div class="setting">
+                <label>Steps: <span id="editStepsLabel">28</span></label>
+                <input type="range" id="editStepsSlider" min="10" max="50" step="1" value="28">
+            </div>
+            <div class="setting" style="flex-basis:100%">
+                <label>LoRA (файл .safetensors):</label>
+                <input type="text" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors"
+                    placeholder="напр. nsfw_klein_v2.safetensors"
+                    style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;">
+            </div>
+            <div class="setting">
+                <label>LoRA Strength: <span id="loraStrengthLabel">1.0</span></label>
+                <input type="range" id="loraStrengthSlider" min="0.1" max="2.0" step="0.1" value="1.0">
+            </div>
+        </div>
+
+        <!-- ============================================ -->
         <!-- VIDEO MODE: Audio Settings -->
         <!-- ============================================ -->
         <div class="section video-only" id="audioSection" style="display:none;">
@@ -125,8 +164,9 @@
                 <div class="setting">
                     <label>Разрешение:</label>
                     <select id="resolutionSelect">
+                        <option value="auto" selected>Авто (по фото)</option>
                         <option value="480x832">480×832</option>
-                        <option value="720x1280" selected>720×1280</option>
+                        <option value="720x1280">720×1280</option>
                     </select>
                 </div>
             </div>

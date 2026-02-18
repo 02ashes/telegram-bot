@@ -142,7 +142,7 @@ download \
 # [5] Flux Fill Models (for inpainting)
 # =============================================================================
 echo ""
-echo "--- [5/6] Flux Fill Models ---"
+echo "--- [5/8] Flux Fill Models ---"
 
 download \
     "https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev/resolve/main/flux1-fill-dev.safetensors" \
@@ -161,11 +161,33 @@ download \
     "${MODELS_DIR}/vae/ae.safetensors"
 
 # =============================================================================
+# [6] Flux 2 Klein 9B (image editing)
+# Source: black-forest-labs/FLUX.2-klein-9B (gated — requires HF_TOKEN)
+# Reuses same CLIP encoders and VAE as Flux Fill above
+# =============================================================================
+echo ""
+echo "--- [6/8] Flux 2 Klein 9B ---"
+
+download \
+    "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B/resolve/main/flux-2-klein-9b.safetensors" \
+    "${MODELS_DIR}/diffusion_models/flux-2-klein-9b.safetensors"
+
+# Qwen3 8B text encoder (required by Flux 2 Klein, NOT the same as Flux 1 encoders)
+download \
+    "https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/text_encoders/qwen_3_8b.safetensors" \
+    "${MODELS_DIR}/text_encoders/qwen_3_8b.safetensors"
+
+# Flux 2 VAE (different from Flux 1 ae.safetensors)
+download \
+    "https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/vae/flux2-vae.safetensors" \
+    "${MODELS_DIR}/vae/flux2-vae.safetensors"
+
+# =============================================================================
 # [6] MMAudio (ALL required files — 5 total)
 # Sources: cloud19/NSFW_MMaudio + kijai/MMAudio_safetensors
 # =============================================================================
 echo ""
-echo "--- [6/6] MMAudio (5 files) ---"
+echo "--- [7/8] MMAudio (5 files) ---"
 
 download \
     "https://huggingface.co/cloud19/NSFW_MMaudio/resolve/main/nsfw_gold_8.5k_final.pth" \
