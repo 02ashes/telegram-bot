@@ -207,8 +207,8 @@ async def api_image_edit(request: Request):
         prompt = body.get("prompt", "")
         negative = body.get("negative", "blurry, ugly, deformed, watermark, text, low quality")
         denoise = float(body.get("denoise", 0.5))
-        steps = int(body.get("steps", 28))
-        cfg = float(body.get("cfg", 3.5))
+        steps = int(body.get("steps", 4))
+        cfg = float(body.get("cfg", 1.0))
         lora_name = body.get("lora_name", "")
         lora_strength = float(body.get("lora_strength", 1.0))
 
