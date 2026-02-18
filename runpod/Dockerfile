@@ -4,7 +4,7 @@
 # Adds: custom nodes, patched handler for video output
 # Models: loaded from Network Volume at runtime
 # ============================================================
-FROM runpod/worker-comfyui:5.5.1-base AS base
+FROM runpod/worker-comfyui:5.7.0-base AS base
 
 # ---- Install custom nodes ----
 WORKDIR /comfyui/custom_nodes
