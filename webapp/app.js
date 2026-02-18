@@ -808,10 +808,10 @@ function base64ToBlob(b64, type) {
 // Download & Retry
 // ============================================================
 downloadBtn.addEventListener('click', () => {
-    if (currentMode === 'inpaint' && resultImage.src) {
+    if ((currentMode === 'inpaint' || currentMode === 'image') && resultImage.src) {
         const a = document.createElement('a');
         a.href = resultImage.src;
-        a.download = 'inpaint_result.png';
+        a.download = currentMode === 'image' ? 'edit_result.png' : 'inpaint_result.png';
         a.click();
     } else if (currentMode === 'video' && resultVideo.src) {
         const a = document.createElement('a');
