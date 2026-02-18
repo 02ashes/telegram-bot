@@ -728,7 +728,7 @@ async def run_image_edit(
     if not job_id:
         return None
 
-    output = await poll_job(job_id, timeout=300)
+    output = await poll_job(job_id, timeout=600)
     if not output:
         return None
 

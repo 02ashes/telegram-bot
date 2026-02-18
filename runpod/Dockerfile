@@ -8,7 +8,8 @@ FROM runpod/worker-comfyui:5.7.0-base AS base
 
 # ---- Update ComfyUI to latest (need Flux 2 Klein / Qwen3 support) ----
 WORKDIR /comfyui
-RUN git fetch origin && git checkout main && git pull origin main && \
+ARG CACHEBUST=1
+RUN git fetch origin && git reset --hard origin/master && \
     pip install -r requirements.txt --quiet 2>/dev/null || true
 
 # ---- Install custom nodes ----
