@@ -15,10 +15,10 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 
 def _ensure_data_dir():
     os.makedirs(DATA_DIR, exist_ok=True)
-    if not os.path.exists(CODES_FILE):
-        _save_json(CODES_FILE, {})
-    if not os.path.exists(USERS_FILE):
-        _save_json(USERS_FILE, {})
+    for fpath in (CODES_FILE, USERS_FILE):
+        if not os.path.exists(fpath):
+            with open(fpath, "w", encoding="utf-8") as f:
+                json.dump({}, f)
 
 
 def _load_json(path: str) -> dict:
@@ -30,7 +30,7 @@ def _load_json(path: str) -> dict:
 
 
 def _save_json(path: str, data: dict):
-    _ensure_data_dir()
+    os.makedirs(DATA_DIR, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
