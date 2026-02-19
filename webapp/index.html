@@ -96,16 +96,8 @@
                 <label>Steps: <span id="editStepsLabel">8</span></label>
                 <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
             </div>
-            <div class="setting" style="flex-basis:100%">
-                <label>LoRA:</label>
-                <input type="text" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors"
-                    placeholder="model.safetensors"
-                    style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.4);color:var(--text);font-size:13px;">
-            </div>
-            <div class="setting">
-                <label>LoRA Strength: <span id="loraStrengthLabel">0.7</span></label>
-                <input type="range" id="loraStrengthSlider" min="0.1" max="2.0" step="0.1" value="0.7">
-            </div>
+            <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
+            <input type="hidden" id="loraStrengthSlider" value="0.7">
         </div>
 
         <!-- ============================================ -->
