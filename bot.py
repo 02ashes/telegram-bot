@@ -64,7 +64,7 @@ app.add_middleware(
 
 # ── Auth middleware ───────────────────────────────────────────
 
-async def require_auth(request: Request) -> dict | None:
+async def require_auth(request: Request):
     """Validate Telegram WebApp initData. Returns user dict or None."""
     init_data = request.headers.get("X-Telegram-Init-Data", "")
     if not init_data:

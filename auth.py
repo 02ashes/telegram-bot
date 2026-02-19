@@ -5,6 +5,7 @@ import hmac
 import json
 import os
 import time
+from typing import Optional
 from urllib.parse import parse_qs
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -110,7 +111,7 @@ def list_users() -> dict:
 # ── Telegram WebApp initData validation ───────────────────────
 
 
-def validate_webapp_data(init_data: str, bot_token: str) -> dict | None:
+def validate_webapp_data(init_data: str, bot_token: str) -> Optional[dict]:
     """
     Validate Telegram WebApp initData using HMAC-SHA256.
     Returns parsed user dict if valid, None if invalid.
