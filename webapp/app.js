@@ -1,7 +1,32 @@
 /* ========================================
-   NSFW Studio — Mini App Logic
+   Angel Arena — Mini App Logic
    Canvas mask drawing + Video generation
    ======================================== */
+
+// ============================================================
+// Auth — Telegram WebApp initData
+// ============================================================
+const tgInitData = window.Telegram?.WebApp?.initData || '';
+
+// Expand webapp to full width
+if (window.Telegram?.WebApp?.expand) {
+    window.Telegram.WebApp.expand();
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'X-Telegram-Init-Data': tgInitData,
+    };
+}
+
+function handleAuthError(resp) {
+    if (resp.status === 401) {
+        alert('❌ Доступ запрещён. Введите инвайт-код в боте: /invite КОД');
+        return true;
+    }
+    return false;
+}
 
 // ============================================================
 // State
@@ -526,13 +551,11 @@ async function generateInpaint(prompt) {
         progressFill.style.width = progress + '%';
 
         if (progress < 20) {
-            progressText.textContent = '⚡ Запуск RunPod...';
+            progressText.textContent = '⚡ Запуск...';
         } else if (progress < 50) {
-            progressText.textContent = '🧠 Загрузка модели...';
+            progressText.textContent = '🧠 Подготовка...';
         } else {
             progressText.textContent = '🎨 Генерация...';
-            document.querySelector('.status-dot').className = 'status-dot online';
-            document.querySelector('.status-text').textContent = 'RunPod: Online';
         }
     }, 1000);
 
@@ -545,7 +568,7 @@ async function generateInpaint(prompt) {
 
         const resp = await fetch('/api/inpaint', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify({
                 image: imageB64,
                 mask: maskB64,
@@ -625,13 +648,13 @@ async function generateVideo(prompt) {
         progressFill.style.width = progress + '%';
 
         if (progress < 10) {
-            progressText.textContent = '⚡ Запуск RunPod...';
+            progressText.textContent = '⚡ Запуск...';
         } else if (progress < 25) {
-            progressText.textContent = '🧠 Загрузка WAN модели (~27GB)...';
+            progressText.textContent = '🧠 Подготовка...';
         } else if (progress < 80) {
             progressText.textContent = `🎬 Генерация видео (${frames} кадров, ~${videoDuration.toFixed(1)}с)...`;
         } else if (audioEnabled) {
-            progressText.textContent = '🔊 Генерация звука (MMAudio)...';
+            progressText.textContent = '🔊 Генерация звука...';
         } else {
             progressText.textContent = '📦 Кодирование mp4...';
         }
@@ -659,16 +682,24 @@ async function generateVideo(prompt) {
 
         const resp = await fetch('/api/video', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify(body),
         });
+
+        console.log('Video response status:', resp.status);
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
             throw new Error(errData?.error || errData?.detail || `Ошибка сервера: ${resp.status}`);
         }
 
-        const data = await resp.json();
+        console.log('Parsing video response JSON...');
+        const text = await resp.text();
+        console.log('Response text length:', text.length);
+        const data = JSON.parse(text);
+        console.log('Video response keys:', Object.keys(data));
+        console.log('Has video key:', !!data.video);
+        console.log('Video base64 length:', data.video?.length || 0);
 
         clearInterval(progressInterval);
 
@@ -681,6 +712,7 @@ async function generateVideo(prompt) {
 
         // Show video result
         const videoBlob = base64ToBlob(data.video, 'video/mp4');
+        console.log('Video blob size:', videoBlob.size);
         const videoUrl = URL.createObjectURL(videoBlob);
         resultVideo.src = videoUrl;
         resultVideo.style.display = '';
@@ -716,7 +748,7 @@ async function generateImageEdit(prompt) {
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
-    progressText.textContent = '🚀 Отправка на RunPod...';
+    progressText.textContent = '🚀 Отправка...';
     resultSection.style.display = 'none';
 
     let progressInterval;
@@ -726,7 +758,7 @@ async function generateImageEdit(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 1.5) + '%';
-                if (cur > 30) progressText.textContent = '⏳ Flux 2 Klein генерирует...';
+                if (cur > 30) progressText.textContent = '⏳ Генерация...';
                 if (cur > 70) progressText.textContent = '🔄 Почти готово...';
             }
         }, 1500);
@@ -753,7 +785,7 @@ async function generateImageEdit(prompt) {
 
         const response = await fetch('/api/image-edit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify(body),
         });
 

@@ -1,6 +1,6 @@
 /* ========================================
-   NSFW Studio — Mini App Styles
-   Premium dark theme with glassmorphism
+   Angel Arena — Mini App Styles
+   Monochrome angelic theme
    ======================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -12,16 +12,31 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+    --bg: #0a0a0a;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.20);
+    --text: #e8e8e8;
+    --text-dim: #777;
+    --text-muted: #555;
+    --accent: #ffffff;
+    --accent-glow: rgba(255, 255, 255, 0.12);
+    --accent-soft: rgba(255, 255, 255, 0.06);
+    --danger: #888;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: #0f0f14;
-    color: #e0e0e8;
+    background-color: var(--bg);
+    color: var(--text);
     min-height: 100vh;
     overscroll-behavior: none;
 }
 
 .app {
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 12px;
 }
@@ -31,59 +46,17 @@ body {
    ============================================================ */
 .header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 8px 4px 12px;
+    padding: 12px 4px 16px;
 }
 
 .header h1 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.pod-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: #888;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.status-dot.online {
-    background: #22c55e;
-    box-shadow: 0 0 6px #22c55e88;
-}
-
-.status-dot.offline {
-    background: #555;
-}
-
-.status-dot.starting {
-    background: #f59e0b;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 /* ============================================================
@@ -93,9 +66,10 @@ body {
     display: flex;
     gap: 4px;
     margin-bottom: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface);
     border-radius: 12px;
     padding: 4px;
+    border: 1px solid var(--border);
 }
 
 .mode-tab {
@@ -104,7 +78,7 @@ body {
     border: none;
     border-radius: 10px;
     background: transparent;
-    color: #888;
+    color: var(--text-dim);
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 600;
@@ -113,13 +87,13 @@ body {
 }
 
 .mode-tab.active {
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+    background: #fff;
+    color: #000;
+    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.15);
 }
 
 .mode-tab:not(.active):hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-hover);
     color: #ccc;
 }
 
@@ -128,10 +102,10 @@ body {
    ============================================================ */
 .section {
     margin-bottom: 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface);
     border-radius: 14px;
     padding: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
     backdrop-filter: blur(8px);
 }
 
@@ -139,20 +113,20 @@ body {
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #c8c8d4;
+    color: #bbb;
 }
 
 .section-title.sub {
     margin-top: 10px;
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-dim);
 }
 
 /* ============================================================
    Upload Area
    ============================================================ */
 .upload-area {
-    border: 2px dashed rgba(168, 85, 247, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     min-height: 120px;
     display: flex;
@@ -168,13 +142,13 @@ body {
 }
 
 .upload-area:hover {
-    border-color: rgba(168, 85, 247, 0.6);
-    background: rgba(168, 85, 247, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: var(--accent-soft);
 }
 
 .upload-placeholder {
     text-align: center;
-    color: #666;
+    color: var(--text-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -232,9 +206,9 @@ body {
 
 .tool-btn {
     padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--surface);
     color: #ccc;
     font-family: inherit;
     font-size: 0.8rem;
@@ -243,14 +217,14 @@ body {
 }
 
 .tool-btn.active {
-    background: rgba(168, 85, 247, 0.25);
-    border-color: rgba(168, 85, 247, 0.5);
-    color: #e9d5ff;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #fff;
 }
 
 .tool-btn.danger {
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.2);
+    color: var(--danger);
+    border-color: rgba(136, 136, 136, 0.3);
 }
 
 .brush-size-control {
@@ -259,7 +233,7 @@ body {
     gap: 8px;
     margin-left: auto;
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-dim);
 }
 
 .brush-size-control input[type="range"] {
@@ -272,10 +246,10 @@ body {
 textarea {
     width: 100%;
     padding: 10px 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: #e0e0e8;
+    color: var(--text);
     font-family: inherit;
     font-size: 0.85rem;
     resize: vertical;
@@ -284,19 +258,20 @@ textarea {
 }
 
 textarea:focus {
-    border-color: rgba(168, 85, 247, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 textarea::placeholder {
-    color: #555;
+    color: var(--text-muted);
 }
 
 /* ============================================================
-   Settings Row (Inpaint)
+   Settings Row
    ============================================================ */
 .settings-row {
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
 .setting {
@@ -305,7 +280,7 @@ textarea::placeholder {
 
 .setting label {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-dim);
     display: block;
     margin-bottom: 4px;
 }
@@ -313,17 +288,17 @@ textarea::placeholder {
 .setting select {
     width: 100%;
     padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    color: #e0e0e8;
+    color: var(--text);
     font-family: inherit;
     font-size: 0.85rem;
     outline: none;
 }
 
 .setting select:focus {
-    border-color: rgba(168, 85, 247, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================================
@@ -344,9 +319,9 @@ input[type="range"]::-webkit-slider-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #a855f7, #ec4899);
+    background: #fff;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.25);
 }
 
 /* ============================================================
@@ -391,18 +366,18 @@ input[type="range"]::-webkit-slider-thumb {
     width: 20px;
     left: 3px;
     bottom: 3px;
-    background: #888;
+    background: #555;
     border-radius: 50%;
     transition: 0.3s;
 }
 
 .toggle-switch input:checked+.toggle-slider {
-    background: linear-gradient(135deg, #a855f7, #ec4899);
+    background: #fff;
 }
 
 .toggle-switch input:checked+.toggle-slider::before {
     transform: translateX(22px);
-    background: white;
+    background: #000;
 }
 
 .audio-settings {
@@ -430,19 +405,20 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 14px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    color: white;
+    background: #fff;
+    color: #000;
     font-family: inherit;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+    letter-spacing: 0.5px;
 }
 
 .generate-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
+    box-shadow: 0 6px 25px rgba(255, 255, 255, 0.25);
 }
 
 .generate-btn:active {
@@ -450,7 +426,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .generate-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
     transform: none;
 }
@@ -459,13 +435,14 @@ input[type="range"]::-webkit-slider-thumb {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    color: #000;
 }
 
 .spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: #000;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -476,10 +453,22 @@ input[type="range"]::-webkit-slider-thumb {
     }
 }
 
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
 .progress-info {
     margin-top: 10px;
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-dim);
 }
 
 .progress-bar {
@@ -492,7 +481,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #a855f7, #ec4899);
+    background: #fff;
     width: 0%;
     transition: width 0.5s ease;
     border-radius: 2px;
@@ -501,7 +490,7 @@ input[type="range"]::-webkit-slider-thumb {
 .model-loading-info {
     margin-top: 8px;
     font-size: 0.8rem;
-    color: #f59e0b;
+    color: #888;
     animation: pulse 1.5s infinite;
 }
 
@@ -530,10 +519,10 @@ input[type="range"]::-webkit-slider-thumb {
 .action-btn {
     flex: 1;
     padding: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    background: rgba(168, 85, 247, 0.1);
-    color: #e9d5ff;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ddd;
     font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
@@ -542,15 +531,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .action-btn:hover {
-    background: rgba(168, 85, 247, 0.2);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
 .action-btn.secondary {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    color: #ccc;
+    border-color: var(--border);
+    background: var(--surface);
+    color: #aaa;
 }
 
 .action-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--surface-hover);
 }

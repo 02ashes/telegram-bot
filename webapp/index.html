@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 NSFW Studio</title>
+    <title>Angel Arena</title>
     <link rel="stylesheet" href="/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -13,18 +13,14 @@
     <div class="app">
         <!-- Header -->
         <div class="header">
-            <h1>NSFW Studio</h1>
-            <div class="pod-status" id="podStatus">
-                <span class="status-dot offline"></span>
-                <span class="status-text">RunPod: Offline</span>
-            </div>
+            <h1>Angel Arena</h1>
         </div>
 
         <!-- Mode Tabs -->
         <div class="mode-tabs">
             <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">🎨 Inpaint</button>
             <button class="mode-tab" id="tabVideo" data-mode="video">🎬 Video</button>
-            <button class="mode-tab" id="tabImage" data-mode="image">🖼️ Image</button>
+            <button class="mode-tab" id="tabImage" data-mode="image">🖼️ Edit</button>
         </div>
 
         <!-- ============================================ -->
@@ -101,10 +97,10 @@
                 <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
             </div>
             <div class="setting" style="flex-basis:100%">
-                <label>LoRA (файл .safetensors):</label>
+                <label>LoRA:</label>
                 <input type="text" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors"
-                    placeholder="напр. nsfw_klein_v2.safetensors"
-                    style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;">
+                    placeholder="model.safetensors"
+                    style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.4);color:var(--text);font-size:13px;">
             </div>
             <div class="setting">
                 <label>LoRA Strength: <span id="loraStrengthLabel">0.7</span></label>
@@ -173,10 +169,10 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span id="progressText">Запуск RunPod...</span>
+                <span id="progressText">Запуск...</span>
             </div>
             <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
-                <span>🟠 Загрузка модели...</span>
+                <span>🟠 Подготовка...</span>
             </div>
         </div>
 

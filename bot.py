@@ -20,6 +20,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
+import auth
 import comfyui_api
 import config
 
@@ -60,6 +61,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# ── Auth middleware ───────────────────────────────────────────
+
+async def require_auth(request: Request) -> dict | None:
+    """Validate Telegram WebApp initData. Returns user dict or None."""
+    init_data = request.headers.get("X-Telegram-Init-Data", "")
+    if not init_data:
+        return None
+    user = auth.validate_webapp_data(init_data, config.TELEGRAM_BOT_TOKEN)
+    if not user:
+        return None
+    if not auth.is_user_registered(user["id"]):
+        return None
+    return user
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.error("Validation error: %s", exc.errors())
@@ -91,6 +107,9 @@ async def health():
 @app.post("/api/inpaint")
 async def api_inpaint(request: Request):
     """Run inpainting via RunPod Serverless."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
         # Parse JSON body
         body = await request.json()
@@ -144,6 +163,9 @@ async def api_inpaint(request: Request):
 @app.post("/api/video")
 async def api_video(request: Request):
     """Generate video via WAN 2.2 I2V on RunPod Serverless."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
         body = await request.json()
         image_b64 = body.get("image", "")
@@ -200,6 +222,9 @@ async def api_video(request: Request):
 @app.post("/api/image-edit")
 async def api_image_edit(request: Request):
     """Edit image via Flux 2 Klein 9B on RunPod Serverless."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
         body = await request.json()
         image_b64 = body.get("image", "")
@@ -259,9 +284,38 @@ bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
 
+def is_admin(user_id: int) -> bool:
+    return user_id == config.ADMIN_TELEGRAM_ID
+
+
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    """Handle /start command."""
+    """Handle /start — show WebApp only to registered users."""
+    user_id = message.from_user.id
+
+    if not auth.is_user_registered(user_id) and not is_admin(user_id):
+        await message.answer(
+            "🔒 **Доступ ограничен**\n\n"
+            "Чтобы пользоваться ботом, введи инвайт-код:\n"
+            "`/invite ВАШ_КОД`",
+            parse_mode="Markdown",
+        )
+        return
+
+    # Auto-register admin if not registered
+    if is_admin(user_id) and not auth.is_user_registered(user_id):
+        users = auth.list_users()
+        if str(user_id) not in users:
+            import time as _time
+            auth._save_json(auth.USERS_FILE, {
+                **users,
+                str(user_id): {
+                    "username": message.from_user.username or "admin",
+                    "registered_at": _time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "code_used": "ADMIN",
+                },
+            })
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -274,16 +328,116 @@ async def cmd_start(message: types.Message):
     )
 
     await message.answer(
-        "👋 **Привет! Я Inpaint-бот.**\n\n"
+        "👋 **Добро пожаловать в Angel Arena!**\n\n"
         "Нажми кнопку ниже, чтобы открыть редактор:\n"
-        "1. 📷 Загрузи фото\n"
-        "2. 🖌️ Нарисуй маску кистью\n"
-        "3. ✏️ Напиши промпт\n"
-        "4. 🚀 Нажми «Генерировать»\n\n"
-        "💡 *RunPod запустится автоматически при генерации*",
+        "📷 Загрузи фото → ✏️ Промпт → 🚀 Генерация",
         parse_mode="Markdown",
         reply_markup=keyboard,
     )
+
+
+@dp.message(lambda m: m.text and m.text.startswith("/invite"))
+async def cmd_invite(message: types.Message):
+    """Register with invite code: /invite CODE"""
+    user_id = message.from_user.id
+
+    if auth.is_user_registered(user_id):
+        await message.answer("✅ Ты уже зарегистрирован! Нажми /start")
+        return
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("❌ Использование: `/invite ВАШ_КОД`", parse_mode="Markdown")
+        return
+
+    code = parts[1].strip()
+    username = message.from_user.username or message.from_user.first_name or str(user_id)
+
+    if auth.validate_and_use_code(code, user_id, username):
+        logger.info("User %s (%s) registered with code %s", user_id, username, code)
+        await message.answer(
+            "✅ **Добро пожаловать!**\n\n"
+            "Инвайт-код принят. Нажми /start чтобы открыть редактор.",
+            parse_mode="Markdown",
+        )
+    else:
+        await message.answer("❌ Неверный или уже использованный код.")
+
+
+@dp.message(lambda m: m.text and m.text.startswith("/generate"))
+async def cmd_generate(message: types.Message):
+    """Admin: create invite code: /generate CODE"""
+    if not is_admin(message.from_user.id):
+        return
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("Использование: `/generate КОД`", parse_mode="Markdown")
+        return
+
+    code = parts[1].strip()
+    if auth.create_code(code):
+        await message.answer(f"✅ Инвайт-код создан: `{code}`", parse_mode="Markdown")
+    else:
+        await message.answer(f"❌ Код `{code}` уже существует", parse_mode="Markdown")
+
+
+@dp.message(lambda m: m.text and m.text.startswith("/delete"))
+async def cmd_delete(message: types.Message):
+    """Admin: remove user: /delete USER_ID"""
+    if not is_admin(message.from_user.id):
+        return
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("Использование: `/delete TELEGRAM_ID`", parse_mode="Markdown")
+        return
+
+    try:
+        target_id = int(parts[1].strip())
+    except ValueError:
+        await message.answer("❌ ID должен быть числом")
+        return
+
+    if auth.remove_user(target_id):
+        await message.answer(f"✅ Пользователь {target_id} удалён")
+    else:
+        await message.answer(f"❌ Пользователь {target_id} не найден")
+
+
+@dp.message(lambda m: m.text and m.text.strip() == "/users")
+async def cmd_users(message: types.Message):
+    """Admin: list registered users."""
+    if not is_admin(message.from_user.id):
+        return
+
+    users = auth.list_users()
+    if not users:
+        await message.answer("Нет зарегистрированных пользователей")
+        return
+
+    lines = ["👥 **Пользователи:**\n"]
+    for uid, info in users.items():
+        lines.append(f"• `{uid}` — @{info.get('username', '?')} (код: {info.get('code_used', '?')})")
+    await message.answer("\n".join(lines), parse_mode="Markdown")
+
+
+@dp.message(lambda m: m.text and m.text.strip() == "/codes")
+async def cmd_codes(message: types.Message):
+    """Admin: list invite codes."""
+    if not is_admin(message.from_user.id):
+        return
+
+    codes = auth.list_codes()
+    if not codes:
+        await message.answer("Нет инвайт-кодов")
+        return
+
+    lines = ["🎟 **Инвайт-коды:**\n"]
+    for code, info in codes.items():
+        status = f"✅ использован ({info['used_by']})" if info.get('used_by') else "⏳ свободен"
+        lines.append(f"• `{code}` — {status}")
+    await message.answer("\n".join(lines), parse_mode="Markdown")
 
 
 # ============================================================

@@ -16,3 +16,5 @@ SERVER_PORT = int(os.environ.get("PORT", "8080"))
 # WebApp URL — set automatically by Railway or manually
 WEBAPP_URL = os.environ.get("WEBAPP_URL", "")
 
+# Admin — only this Telegram user can manage invite codes
+ADMIN_TELEGRAM_ID = int(os.environ.get("ADMIN_TELEGRAM_ID", "1946394239"))
