@@ -277,6 +277,62 @@ async def api_image_edit(request: Request):
         )
 
 
+@app.post("/api/image-edit-dark")
+async def api_image_edit_dark(request: Request):
+    """Edit image via Dark Beast Klein model on RunPod Serverless."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    try:
+        body = await request.json()
+        image_b64 = body.get("image", "")
+        image2_b64 = body.get("image2", "")
+        prompt = body.get("prompt", "")
+        negative = body.get("negative", "")
+        denoise = float(body.get("denoise", 0.85))
+        steps = int(body.get("steps", 5))
+        cfg = float(body.get("cfg", 1.0))
+        quality = body.get("quality", "fast")
+
+        if not image_b64 or not prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        image_bytes = base64.b64decode(image_b64)
+        image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
+
+        logger.info(
+            "Dark edit request: prompt=%s, denoise=%.2f, quality=%s",
+            prompt[:60], denoise, quality,
+        )
+
+        result_bytes = await comfyui_api.run_image_edit_dark(
+            image_bytes=image_bytes,
+            prompt=prompt,
+            negative=negative,
+            denoise=denoise,
+            steps=steps,
+            cfg=cfg,
+            quality=quality,
+            image2_bytes=image2_bytes,
+        )
+
+        if result_bytes is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Dark Beast editing failed. Check RunPod logs."},
+            )
+
+        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+        return JSONResponse(content={"image": result_b64})
+
+    except Exception as e:
+        logger.exception("Dark edit error")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
+
+
 # ============================================================
 # Telegram Bot (aiogram 3)
 # ============================================================

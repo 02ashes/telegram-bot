@@ -133,6 +133,8 @@ def build_flux_klein_edit_workflow(
     crop_h: int = 0,
     lora_name: str = "",
     lora_strength: float = 0.7,
+    model_name: str = "flux-2-klein-9b.safetensors",
+    weight_dtype: str = "fp8_e4m3fn",
 ) -> dict:
     """Build Flux 2 Klein 9B advanced image editing workflow for ComfyUI API.
 
@@ -157,8 +159,8 @@ def build_flux_klein_edit_workflow(
         "106": {
             "class_type": "UNETLoader",
             "inputs": {
-                "unet_name": "flux-2-klein-9b.safetensors",
-                "weight_dtype": "fp8_e4m3fn",
+                "unet_name": model_name,
+                "weight_dtype": weight_dtype,
             },
         },
         "107": {
@@ -861,6 +863,98 @@ async def run_image_edit(
         return image_bytes
     except Exception as e:
         logger.error("Failed to parse edit result: %s", e)
+        return None
+
+
+# Dark Beast model filenames
+DARK_BEAST_MODELS = {
+    "fast": {
+        "model_name": "dark_beast_klein_blitz_fp16.safetensors",
+        "weight_dtype": "fp16",
+    },
+    "detailed": {
+        "model_name": "dark_beast_klein_blitz_bf16.safetensors",
+        "weight_dtype": "bf16",
+    },
+}
+
+
+async def run_image_edit_dark(
+    image_bytes: bytes,
+    prompt: str,
+    negative: str = "blurry, ugly, deformed, watermark, text, low quality",
+    denoise: float = 0.5,
+    steps: int = 5,
+    cfg: float = 1.0,
+    quality: str = "fast",
+    image2_bytes: bytes | None = None,
+) -> bytes | None:
+    """Full image editing pipeline via Dark Beast Klein on RunPod Serverless.
+
+    Same pipeline as run_image_edit but uses the Dark Beast fine-tuned model.
+    quality: 'fast' (fp16, 1.23GB) or 'detailed' (bf16, 31GB)
+    """
+    model_cfg = DARK_BEAST_MODELS.get(quality, DARK_BEAST_MODELS["fast"])
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    orig_w, orig_h = img.size
+
+    has_reference = image2_bytes is not None
+    crop_x, crop_y, crop_w, crop_h = 0, 0, 0, 0
+
+    if has_reference:
+        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
+        img2 = img2.resize((int(img2.width * orig_h / img2.height), orig_h), Image.LANCZOS)
+        stitched_w = img2.width + orig_w
+        stitched = Image.new("RGB", (stitched_w, orig_h))
+        stitched.paste(img2, (0, 0))
+        stitched.paste(img, (img2.width, 0))
+        img = stitched
+        crop_x = img2.width
+        crop_y = 0
+        crop_w = orig_w
+        crop_h = orig_h
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    edit_png_bytes = buf.getvalue()
+    edit_b64 = base64.b64encode(edit_png_bytes).decode("utf-8")
+
+    workflow = build_flux_klein_edit_workflow(
+        prompt=prompt,
+        negative=negative,
+        denoise=denoise,
+        steps=steps,
+        cfg=cfg,
+        has_reference=has_reference,
+        crop_x=crop_x,
+        crop_y=crop_y,
+        crop_w=crop_w,
+        crop_h=crop_h,
+        model_name=model_cfg["model_name"],
+        weight_dtype=model_cfg["weight_dtype"],
+    )
+
+    images = [{"name": "edit_input.png", "image": edit_b64}]
+
+    logger.info("Dark Beast edit job (quality=%s, denoise=%.2f, model=%s)",
+                quality, denoise, model_cfg["model_name"])
+    job_id = await submit_job(workflow, images)
+    if not job_id:
+        return None
+
+    output = await poll_job(job_id, timeout=600)
+    if not output:
+        return None
+
+    try:
+        image_bytes = _extract_file_from_output(output)
+        if not image_bytes:
+            logger.error("Could not extract image from RunPod output")
+            return None
+        return image_bytes
+    except Exception as e:
+        logger.error("Failed to parse dark edit result: %s", e)
         return None
 
 

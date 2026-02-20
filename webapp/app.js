@@ -31,7 +31,8 @@ function handleAuthError(resp) {
 // ============================================================
 // State
 // ============================================================
-let currentMode = 'inpaint'; // 'inpaint', 'video', or 'image'
+let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
+let darkQuality = 'fast'; // 'fast' or 'detailed'
 let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
@@ -87,10 +88,17 @@ const uploadArea2 = document.getElementById('uploadArea2');
 const uploadPlaceholder2 = document.getElementById('uploadPlaceholder2');
 const fileInput2 = document.getElementById('fileInput2');
 
+// Dark Beast settings
+const darkDenoiseSlider = document.getElementById('darkDenoiseSlider');
+const darkDenoiseLabel = document.getElementById('darkDenoiseLabel');
+const darkStepsSlider = document.getElementById('darkStepsSlider');
+const darkStepsLabel = document.getElementById('darkStepsLabel');
+
 // Tabs
 const tabInpaint = document.getElementById('tabInpaint');
 const tabVideo = document.getElementById('tabVideo');
 const tabImage = document.getElementById('tabImage');
+const tabDark = document.getElementById('tabDark');
 
 // ============================================================
 // Telegram WebApp
@@ -118,6 +126,7 @@ if (tg) {
 tabInpaint.addEventListener('click', () => switchMode('inpaint'));
 tabVideo.addEventListener('click', () => switchMode('video'));
 tabImage.addEventListener('click', () => switchMode('image'));
+tabDark.addEventListener('click', () => switchMode('dark'));
 
 function switchMode(mode) {
     currentMode = mode;
@@ -126,6 +135,7 @@ function switchMode(mode) {
     tabInpaint.classList.toggle('active', mode === 'inpaint');
     tabVideo.classList.toggle('active', mode === 'video');
     tabImage.classList.toggle('active', mode === 'image');
+    tabDark.classList.toggle('active', mode === 'dark');
 
     // Show/hide mode-specific sections
     document.querySelectorAll('.inpaint-only').forEach(el => {
@@ -137,6 +147,9 @@ function switchMode(mode) {
     document.querySelectorAll('.image-only').forEach(el => {
         el.style.display = mode === 'image' && originalImage ? '' : 'none';
     });
+    document.querySelectorAll('.dark-only').forEach(el => {
+        el.style.display = mode === 'dark' && originalImage ? '' : 'none';
+    });
 
     // Update prompt placeholder
     const promptInput = document.getElementById('promptInput');
@@ -144,6 +157,8 @@ function switchMode(mode) {
         promptInput.placeholder = 'Опиши что нарисовать в маске...';
     } else if (mode === 'video') {
         promptInput.placeholder = 'Опиши движение в видео (woman slowly turns her head, smiles...)';
+    } else if (mode === 'dark') {
+        promptInput.placeholder = 'Dark Beast: опиши NSFW изменение...';
     } else {
         promptInput.placeholder = 'Опиши изменение (add cum on face, finger in ass, remove clothes...)';
     }
@@ -152,7 +167,7 @@ function switchMode(mode) {
     const negativeInput = document.getElementById('negativeInput');
     if (mode === 'video' && negativeInput.value === 'blurry, ugly, deformed, watermark, text, low quality, cartoon') {
         negativeInput.value = '';
-    } else if ((mode === 'inpaint' || mode === 'image') && negativeInput.value === '') {
+    } else if ((mode === 'inpaint' || mode === 'image' || mode === 'dark') && negativeInput.value === '') {
         negativeInput.value = 'blurry, ugly, deformed, watermark, text, low quality, cartoon';
     }
 
@@ -160,6 +175,7 @@ function switchMode(mode) {
     const btnText = generateBtn.querySelector('.btn-text');
     if (mode === 'inpaint') btnText.textContent = '🚀 Генерировать';
     else if (mode === 'video') btnText.textContent = '🎬 Генерировать видео';
+    else if (mode === 'dark') btnText.textContent = '🖤 Dark Beast';
     else btnText.textContent = '🖼️ Редактировать';
 
     // Hide result if mode changed
@@ -225,6 +241,12 @@ function loadImage(file) {
             });
             document.querySelectorAll('.inpaint-only').forEach(el => {
                 el.style.display = currentMode === 'inpaint' ? '' : 'none';
+            });
+            document.querySelectorAll('.image-only').forEach(el => {
+                el.style.display = currentMode === 'image' ? '' : 'none';
+            });
+            document.querySelectorAll('.dark-only').forEach(el => {
+                el.style.display = currentMode === 'dark' ? '' : 'none';
             });
         };
         img.src = e.target.result;
@@ -410,6 +432,27 @@ if (loraStrengthSlider) {
     });
 }
 
+// Dark Beast sliders
+if (darkDenoiseSlider) {
+    darkDenoiseSlider.addEventListener('input', (e) => {
+        darkDenoiseLabel.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+}
+if (darkStepsSlider) {
+    darkStepsSlider.addEventListener('input', (e) => {
+        darkStepsLabel.textContent = e.target.value;
+    });
+}
+
+// Quality toggle (Fast / Detailed)
+document.querySelectorAll('.quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        darkQuality = btn.dataset.quality;
+    });
+});
+
 // ============================================================
 // Upload 2 (Reference Image for Image mode) — optional, elements may not exist
 // ============================================================
@@ -525,6 +568,8 @@ generateBtn.addEventListener('click', async () => {
         await generateInpaint(prompt);
     } else if (currentMode === 'video') {
         await generateVideo(prompt);
+    } else if (currentMode === 'dark') {
+        await generateDarkEdit(prompt);
     } else {
         await generateImageEdit(prompt);
     }
@@ -820,6 +865,79 @@ async function generateImageEdit(prompt) {
 }
 
 // ============================================================
+// Dark Beast Generation
+// ============================================================
+async function generateDarkEdit(prompt) {
+    const negative = document.getElementById('negativeInput').value.trim();
+    const denoise = parseFloat(darkDenoiseSlider.value);
+    const steps = parseInt(darkStepsSlider.value);
+    const imageDataURL = getImageDataURL();
+
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+    progressInfo.style.display = '';
+    progressFill.style.width = '10%';
+    progressText.textContent = '🖤 Dark Beast...';
+    resultSection.style.display = 'none';
+
+    let progressInterval;
+
+    try {
+        progressInterval = setInterval(() => {
+            const cur = parseFloat(progressFill.style.width);
+            if (cur < 85) {
+                progressFill.style.width = (cur + 1.5) + '%';
+                if (cur > 30) progressText.textContent = '✨ Генерация...';
+                if (cur > 70) progressText.textContent = '🔥 Почти готово...';
+            }
+        }, 1500);
+
+        const body = {
+            image: imageDataURL.split(',')[1],
+            prompt: prompt,
+            negative: negative,
+            denoise: denoise,
+            steps: steps,
+            quality: darkQuality,
+        };
+
+        const response = await fetch('/api/image-edit-dark', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(body),
+        });
+
+        clearInterval(progressInterval);
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        progressFill.style.width = '100%';
+        progressText.textContent = '✅ Готово!';
+
+        resultImage.src = 'data:image/png;base64,' + data.image;
+        resultImage.style.display = '';
+        resultVideo.style.display = 'none';
+        resultSection.style.display = '';
+
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+        clearInterval(progressInterval);
+        progressFill.style.width = '0%';
+        progressText.textContent = '❌ ' + err.message;
+        alert('Ошибка: ' + err.message);
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
+    }
+}
+
+// ============================================================
 // Utility: base64 to Blob
 // ============================================================
 function base64ToBlob(b64, type) {
@@ -840,10 +958,11 @@ function base64ToBlob(b64, type) {
 // Download & Retry
 // ============================================================
 downloadBtn.addEventListener('click', () => {
-    if ((currentMode === 'inpaint' || currentMode === 'image') && resultImage.src) {
+    if ((currentMode === 'inpaint' || currentMode === 'image' || currentMode === 'dark') && resultImage.src) {
         const a = document.createElement('a');
         a.href = resultImage.src;
-        a.download = currentMode === 'image' ? 'edit_result.png' : 'inpaint_result.png';
+        const names = { inpaint: 'inpaint_result.png', image: 'edit_result.png', dark: 'dark_result.png' };
+        a.download = names[currentMode] || 'result.png';
         a.click();
     } else if (currentMode === 'video' && resultVideo.src) {
         const a = document.createElement('a');

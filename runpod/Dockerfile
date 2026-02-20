@@ -56,12 +56,22 @@ RUN pip install --no-cache-dir \
     omegaconf \
     toml
 
+# NOTE: xformers/triton skipped — base image PyTorch 2.10+cu128
+# xformers pulls incompatible torchvision, triton needs cu130+
+# HIGH_VRAM + --fast + --gpu-only still provide significant speedup
+
+# ---- Remove ComfyUI-Manager (saves ~2 min on cold start) ----
+RUN rm -rf /comfyui/custom_nodes/ComfyUI-Manager
+
 # ---- Custom extra_model_paths.yaml for Network Volume ----
 WORKDIR /comfyui
 COPY extra_model_paths.yaml ./
 
 # ---- Patched handler that supports VHS video output ----
 COPY handler.py /handler.py
+
+# ---- Patch /start.sh: add gpu-only + fast flags ----
+RUN sed -i 's|python -u /comfyui/main.py|python -u /comfyui/main.py --gpu-only --fast|g' /start.sh
 
 WORKDIR /
 CMD ["/start.sh"]

@@ -544,3 +544,35 @@ input[type="range"]::-webkit-slider-thumb {
 .action-btn.secondary:hover {
     background: var(--surface-hover);
 }
+
+/* ============================================================
+   Quality Toggle (Dark tab)
+   ============================================================ */
+.quality-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+.quality-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quality-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+}
+
+.quality-btn.active {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.30);
+    color: var(--text);
+}

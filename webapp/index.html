@@ -21,6 +21,7 @@
             <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">🎨 Inpaint</button>
             <button class="mode-tab" id="tabVideo" data-mode="video">🎬 Video</button>
             <button class="mode-tab" id="tabImage" data-mode="image">🖼️ Edit</button>
+            <button class="mode-tab" id="tabDark" data-mode="dark">🖤 Dark</button>
         </div>
 
         <!-- ============================================ -->
@@ -98,6 +99,27 @@
             </div>
             <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
             <input type="hidden" id="loraStrengthSlider" value="0.7">
+        </div>
+
+        <!-- ============================================ -->
+        <!-- DARK MODE: Dark Beast Settings -->
+        <!-- ============================================ -->
+        <div class="section settings-row dark-only" id="darkSettingsSection" style="display:none;">
+            <div class="setting">
+                <label>Denoise: <span id="darkDenoiseLabel">0.85</span></label>
+                <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85">
+            </div>
+            <div class="setting">
+                <label>Steps: <span id="darkStepsLabel">5</span></label>
+                <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
+            </div>
+        </div>
+        <div class="section dark-only" id="darkQualitySection" style="display:none;">
+            <div class="section-title">⚡ Качество</div>
+            <div class="quality-toggle">
+                <button class="quality-btn active" id="qualityFast" data-quality="fast">⚡ Fast</button>
+                <button class="quality-btn" id="qualityDetailed" data-quality="detailed">✨ Detailed</button>
+            </div>
         </div>
 
         <!-- ============================================ -->
