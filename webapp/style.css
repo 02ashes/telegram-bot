@@ -637,11 +637,15 @@ input[type="range"]::-webkit-slider-thumb {
    ============================================================ */
 .gallery-strip {
     display: flex;
+    flex-wrap: nowrap;
     gap: 8px;
-    overflow-x: auto;
-    padding: 4px 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    padding: 4px 0 8px 0;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .gallery-strip::-webkit-scrollbar {
