@@ -744,6 +744,7 @@ async function generateVideo(prompt) {
             width: width,
             height: height,
             audio_enabled: audioEnabled,
+            action: document.getElementById('actionSelect')?.value || 'none',
         };
 
         if (audioEnabled) {

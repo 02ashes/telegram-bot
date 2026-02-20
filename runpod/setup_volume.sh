@@ -123,20 +123,72 @@ download \
     "${MODELS_DIR}/vae/wan_2.1_vae.safetensors"
 
 # =============================================================================
-# [4] LightX2V 4-step LoRAs (acceleration)
-# Source: lightx2v/Wan2.2-Distill-Loras (original author)
-# Renamed to match workflow expectations
+# [4] WAN 2.2 NSFW Action LoRAs (video generation)
+# Source: tamin-akin/wan2.2-nsfw-lora
+# Action-specific LoRAs for realistic NSFW video interactions
 # =============================================================================
 echo ""
-echo "--- [4/6] LightX2V LoRAs ---"
+echo "--- [4/8] WAN 2.2 NSFW Action LoRAs ---"
+
+# POV Blowjob
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/pov-blowjob-i2v-v1.2.safetensors" \
+    "${MODELS_DIR}/loras/pov-blowjob-i2v-v1.2.safetensors"
+
+# Deepthroat (high + low noise for dual sampler)
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/jfj-deepthroat-W22-I2V-HN.safetensors" \
+    "${MODELS_DIR}/loras/jfj-deepthroat-W22-I2V-HN.safetensors"
 
 download \
-    "https://huggingface.co/lightx2v/Wan2.2-Distill-Loras/resolve/main/wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors" \
-    "${MODELS_DIR}/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors"
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/jfj-deepthroat-W22-I2V-LN.safetensors" \
+    "${MODELS_DIR}/loras/jfj-deepthroat-W22-I2V-LN.safetensors"
+
+# Front doggy
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/front_doggy_plow_v1_1_wan.safetensors" \
+    "${MODELS_DIR}/loras/front_doggy_plow_v1_1_wan.safetensors"
+
+# POV Missionary (high + low noise)
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/pov-missionary-i2v-high-v1.0.safetensors" \
+    "${MODELS_DIR}/loras/pov-missionary-i2v-high-v1.0.safetensors"
 
 download \
-    "https://huggingface.co/lightx2v/Wan2.2-Distill-Loras/resolve/main/wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors" \
-    "${MODELS_DIR}/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/pov-missionary-i2v-low-v1.0.safetensors" \
+    "${MODELS_DIR}/loras/pov-missionary-i2v-low-v1.0.safetensors"
+
+# Side sex
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/side-sex-i2v-v10.safetensors" \
+    "${MODELS_DIR}/loras/side-sex-i2v-v10.safetensors"
+
+# Reverse cowgirl (high + low noise)
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/wan22.r3v3rs3_c0wg1rl-14b-High-i2v_e70.safetensors" \
+    "${MODELS_DIR}/loras/wan22.r3v3rs3_c0wg1rl-14b-High-i2v_e70.safetensors"
+
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/wan22.r3v3rs3_c0wg1rl-14b-Low-i2v_e70.safetensors" \
+    "${MODELS_DIR}/loras/wan22.r3v3rs3_c0wg1rl-14b-Low-i2v_e70.safetensors"
+
+# Fingering (high + low noise)
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/fingering-high-v1.0.safetensors" \
+    "${MODELS_DIR}/loras/fingering-high-v1.0.safetensors"
+
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/fingering-low-v1.0.safetensors" \
+    "${MODELS_DIR}/loras/fingering-low-v1.0.safetensors"
+
+# Nipple stroke (high + low noise)
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/nipple_stroke_WAN22_I2V_v1_high_noise.safetensors" \
+    "${MODELS_DIR}/loras/nipple_stroke_WAN22_I2V_v1_high_noise.safetensors"
+
+download \
+    "https://huggingface.co/tamin-akin/wan2.2-nsfw-lora/resolve/main/nipple_stroke_WAN22_I2V_v1_low_noise.safetensors" \
+    "${MODELS_DIR}/loras/nipple_stroke_WAN22_I2V_v1_low_noise.safetensors"
 
 # =============================================================================
 # [5] Flux Fill Models (for inpainting)

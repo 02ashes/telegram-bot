@@ -485,6 +485,57 @@ def build_dark_img2img_workflow(
     return workflow
 
 
+# -------------------------------------------------------------------------
+# WAN 2.2 NSFW Video Action LoRAs
+# Source: tamin-akin/wan2.2-nsfw-lora
+# Actions with high/low = separate LoRA per sampler (dual noise architecture)
+# Actions with single = same LoRA for both samplers
+# -------------------------------------------------------------------------
+VIDEO_ACTIONS = {
+    "none": {"label": "None", "high": None, "low": None},
+    "blowjob": {
+        "label": "🍆 POV Blowjob",
+        "high": "pov-blowjob-i2v-v1.2.safetensors",
+        "low": "pov-blowjob-i2v-v1.2.safetensors",
+    },
+    "deepthroat": {
+        "label": "🫦 Deepthroat",
+        "high": "jfj-deepthroat-W22-I2V-HN.safetensors",
+        "low": "jfj-deepthroat-W22-I2V-LN.safetensors",
+    },
+    "doggy": {
+        "label": "🐕 Front Doggy",
+        "high": "front_doggy_plow_v1_1_wan.safetensors",
+        "low": "front_doggy_plow_v1_1_wan.safetensors",
+    },
+    "missionary": {
+        "label": "🛏️ POV Missionary",
+        "high": "pov-missionary-i2v-high-v1.0.safetensors",
+        "low": "pov-missionary-i2v-low-v1.0.safetensors",
+    },
+    "side_sex": {
+        "label": "🔄 Side Sex",
+        "high": "side-sex-i2v-v10.safetensors",
+        "low": "side-sex-i2v-v10.safetensors",
+    },
+    "cowgirl": {
+        "label": "🤠 Reverse Cowgirl",
+        "high": "wan22.r3v3rs3_c0wg1rl-14b-High-i2v_e70.safetensors",
+        "low": "wan22.r3v3rs3_c0wg1rl-14b-Low-i2v_e70.safetensors",
+    },
+    "fingering": {
+        "label": "👆 Fingering",
+        "high": "fingering-high-v1.0.safetensors",
+        "low": "fingering-low-v1.0.safetensors",
+    },
+    "nipple": {
+        "label": "💋 Nipple Stroke",
+        "high": "nipple_stroke_WAN22_I2V_v1_high_noise.safetensors",
+        "low": "nipple_stroke_WAN22_I2V_v1_low_noise.safetensors",
+    },
+}
+
+
 def build_wan_i2v_workflow(
     prompt: str,
     negative: str = "",
@@ -496,10 +547,12 @@ def build_wan_i2v_workflow(
     width: int = 720,
     height: int = 1280,
     seed: int | None = None,
+    action: str = "none",
 ) -> dict:
     """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
 
     Uses dual-sampler architecture (20 high + 10 low steps, no LoRA).
+    Optional action LoRA for specific NSFW interactions.
     Based on Wan2.2-Remix-comfy-i2v-workflow.json (FastUnsharpSharpen removed).
     """
     if seed is None:
@@ -512,6 +565,11 @@ def build_wan_i2v_workflow(
             "画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，"
             "静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
         )
+
+    # Get action LoRA config
+    action_cfg = VIDEO_ACTIONS.get(action, VIDEO_ACTIONS["none"])
+    lora_high = action_cfg.get("high")
+    lora_low = action_cfg.get("low")
 
     workflow = {
         # --- Model Loaders ---
@@ -541,11 +599,12 @@ def build_wan_i2v_workflow(
             },
         },
         # LoRA removed — connect ModelSamplingSD3 directly to UNET models
+        # (unless action LoRA is set, see below)
         # ModelSamplingSD3 shift=8 for high lighting
         "54": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["77", 0],
+                "model": ["77", 0],  # updated below if LoRA
                 "shift": 8,
             },
         },
@@ -553,7 +612,7 @@ def build_wan_i2v_workflow(
         "55": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["103", 0],
+                "model": ["103", 0],  # updated below if LoRA
                 "shift": 8,
             },
         },
@@ -667,6 +726,31 @@ def build_wan_i2v_workflow(
             },
         },
     }
+
+    # --- Optional Action LoRA ---
+    if lora_high:
+        workflow["112"] = {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["77", 0],
+                "lora_name": lora_high,
+                "strength_model": 1.0,
+            },
+        }
+        # Redirect ModelSamplingSD3 high to LoRA output
+        workflow["54"]["inputs"]["model"] = ["112", 0]
+
+    if lora_low:
+        workflow["113"] = {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["103", 0],
+                "lora_name": lora_low,
+                "strength_model": 1.0,
+            },
+        }
+        # Redirect ModelSamplingSD3 low to LoRA output
+        workflow["55"]["inputs"]["model"] = ["113", 0]
 
     # --- Optional MMAudio ---
     if audio_enabled and audio_prompt:
@@ -1142,6 +1226,7 @@ async def run_video(
     fps: int = 16,
     width: int = 0,
     height: int = 0,
+    action: str = "none",
 ) -> bytes | None:
     """Full video pipeline via RunPod Serverless.
 
@@ -1194,6 +1279,7 @@ async def run_video(
         fps=fps,
         width=width,
         height=height,
+        action=action,
     )
 
     # Submit job with image

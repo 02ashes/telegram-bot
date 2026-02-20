@@ -178,6 +178,7 @@ async def api_video(request: Request):
         fps = int(body.get("fps", 16))
         width = int(body.get("width", 0))
         height = int(body.get("height", 0))
+        action = body.get("action", "none")
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
@@ -185,8 +186,8 @@ async def api_video(request: Request):
         image_bytes = base64.b64decode(image_b64)
 
         logger.info(
-            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s",
-            prompt[:60], frames, fps, width, height, audio_enabled,
+            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s",
+            prompt[:60], frames, fps, width, height, audio_enabled, action,
         )
 
         result_bytes = await comfyui_api.run_video(
@@ -200,6 +201,7 @@ async def api_video(request: Request):
             fps=fps,
             width=width,
             height=height,
+            action=action,
         )
 
         if result_bytes is None:
