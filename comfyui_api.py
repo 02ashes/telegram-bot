@@ -499,7 +499,7 @@ def build_wan_i2v_workflow(
 ) -> dict:
     """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
 
-    Uses dual-sampler architecture (8 high + 4 low steps, no LoRA).
+    Uses dual-sampler architecture (20 high + 10 low steps, no LoRA).
     Based on Wan2.2-Remix-comfy-i2v-workflow.json (FastUnsharpSharpen removed).
     """
     if seed is None:
@@ -602,8 +602,8 @@ def build_wan_i2v_workflow(
                 "batch_size": 1,
             },
         },
-        # --- Dual Sampler (no LoRA, 8 high + 4 low = 12 total) ---
-        # KSampler #1 (high lighting, steps 0 → 8)
+        # --- Dual Sampler (no LoRA, 20 high + 10 low = 30 total) ---
+        # KSampler #1 (high lighting, steps 0 → 20)
         "57": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -614,15 +614,15 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "enable",
                 "return_with_leftover_noise": "enable",
-                "steps": 12,
+                "steps": 30,
                 "cfg": 1,
                 "sampler_name": "euler",
                 "scheduler": "simple",
                 "start_at_step": 0,
-                "end_at_step": 8,
+                "end_at_step": 20,
             },
         },
-        # KSampler #2 (low lighting, steps 8 → end)
+        # KSampler #2 (low lighting, steps 20 → end)
         "58": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -633,11 +633,11 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "disable",
                 "return_with_leftover_noise": "disable",
-                "steps": 12,
+                "steps": 30,
                 "cfg": 1,
                 "sampler_name": "euler",
                 "scheduler": "simple",
-                "start_at_step": 8,
+                "start_at_step": 20,
                 "end_at_step": 10000,
             },
         },
