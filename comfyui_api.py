@@ -869,12 +869,12 @@ async def run_image_edit(
 # Dark Beast model filenames
 DARK_BEAST_MODELS = {
     "fast": {
-        "model_name": "dark_beast_klein_blitz_fp16.safetensors",
-        "weight_dtype": "fp16",
+        "model_name": "dark_beast_klein_v1.5_blitz_fp16.safetensors",
+        "weight_dtype": "default",
     },
     "detailed": {
         "model_name": "dark_beast_klein_blitz_bf16.safetensors",
-        "weight_dtype": "bf16",
+        "weight_dtype": "default",
     },
 }
 
