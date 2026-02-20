@@ -587,6 +587,40 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* ============================================================
+   Preset Prompt Buttons
+   ============================================================ */
+.preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.preset-btn {
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.preset-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-hover);
+    color: var(--text);
+}
+
+.preset-btn:active {
+    transform: scale(0.95);
+}
+
+/* ============================================================
    Batch Selector
    ============================================================ */
 .batch-row {

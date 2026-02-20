@@ -183,6 +183,9 @@ function switchMode(mode) {
 
     // Hide result if mode changed
     resultSection.style.display = 'none';
+
+    // Update preset buttons
+    renderPresets();
 }
 
 // ============================================================
@@ -1134,3 +1137,91 @@ if (lightboxDelete) {
         renderGallery();
     });
 }
+
+// ============================================================
+// Preset Prompt Buttons
+// ============================================================
+const PRESETS = {
+    inpaint: [
+        {
+            label: '💋 Name',
+            prompt: 'The word "Name" handwritten in dark crimson lipstick on bare skin. Semi-transparent smeared lipstick, skin texture visible through the letters. Faded messy imperfect handwritten letters, slightly uneven and crooked. Dark burgundy red lipstick lightly applied on skin. Photorealistic.',
+            negative: 'blurry, ugly, deformed, font, low quality, cartoon',
+        },
+    ],
+    dark: [
+        {
+            label: '💦 Cum',
+            prompt: 'thick white cum dripping on skin, semen splattered, creampie leaking, wet glistening cum drops, realistic bodily fluid, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '💛 Pee',
+            prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '💩 Shit',
+            prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '🔞 Nude',
+            prompt: 'completely naked, fully nude, no clothes, bare breasts with erect nipples, exposed pussy, smooth skin, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, clothes, dressed, fabric',
+        },
+        {
+            label: '🍆 Anal',
+            prompt: 'man\'s thick cock deep inside her ass, anal penetration from behind, stretched anus around penis, doggy style anal sex, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, extra limbs',
+        },
+    ],
+    image: [
+        {
+            label: '\ud83d\udca6 Cum',
+            prompt: 'thick white cum dripping on skin, semen splattered, wet glistening cum drops, realistic bodily fluid, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '\ud83d\udc9b Pee',
+            prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '\ud83d\udca9 Shit',
+            prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
+        },
+        {
+            label: '\ud83d\udd1e Nude',
+            prompt: 'completely naked, fully nude, no clothes, bare breasts with erect nipples, exposed pussy, smooth skin, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, clothes, dressed, fabric',
+        },
+        {
+            label: '\ud83c\udf46 Anal',
+            prompt: 'man\'s thick cock deep inside her ass, anal penetration from behind, stretched anus around penis, doggy style anal sex, photorealistic',
+            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, extra limbs',
+        },
+    ],
+    video: [],
+};
+
+function renderPresets() {
+    const row = document.getElementById('presetRow');
+    if (!row) return;
+    const presets = PRESETS[currentMode] || [];
+    row.innerHTML = '';
+    presets.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn';
+        btn.textContent = p.label;
+        btn.addEventListener('click', () => {
+            document.getElementById('promptInput').value = p.prompt;
+            document.getElementById('negativeInput').value = p.negative;
+        });
+        row.appendChild(btn);
+    });
+}
+
+// Initial render
+renderPresets();
