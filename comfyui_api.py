@@ -360,6 +360,131 @@ def build_flux_klein_edit_workflow(
     return workflow
 
 
+def build_dark_img2img_workflow(
+    prompt: str,
+    negative: str = "",
+    denoise: float = 0.85,
+    steps: int = 10,
+    cfg: float = 1.0,
+    seed: int | None = None,
+    model_name: str = "dark_beast_klein_blitz_bf16.safetensors",
+    weight_dtype: str = "default",
+    lora_name: str = "",
+    lora_strength: float = 1.0,
+) -> dict:
+    """Build a simple img2img workflow for Flux models (Dark Beast).
+
+    NO ReferenceLatent, NO depth/canny — the model has full creative
+    freedom to reshape the image based on the prompt.
+
+    Pipeline:
+        LoadImage → Resize(1024) → VAEEncode → KSampler(denoise) → VAEDecode → Save
+    """
+    if seed is None:
+        seed = int(uuid.uuid4().int % (2**32))
+
+    workflow = {
+        # ---- Models ----
+        "106": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": model_name,
+                "weight_dtype": weight_dtype,
+            },
+        },
+        "107": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "qwen_3_8b.safetensors",
+                "type": "flux2",
+            },
+        },
+        "110": {
+            "class_type": "VAELoader",
+            "inputs": {"vae_name": "flux2-vae.safetensors"},
+        },
+
+        # ---- Load & Resize Image ----
+        "139": {
+            "class_type": "LoadImage",
+            "inputs": {"image": "edit_input.png"},
+        },
+        "146": {
+            "class_type": "ImageResize+",
+            "inputs": {
+                "image": ["139", 0],
+                "width": 1024,
+                "height": 1024,
+                "interpolation": "lanczos",
+                "method": "keep proportion",
+                "condition": "always",
+                "multiple_of": 0,
+            },
+        },
+
+        # ---- Encode image to latent ----
+        "141": {
+            "class_type": "VAEEncode",
+            "inputs": {
+                "pixels": ["146", 0],
+                "vae": ["110", 0],
+            },
+        },
+
+        # ---- CLIP Text Encode ----
+        "108": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": prompt, "clip": ["107", 0]},
+        },
+        "109": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": negative, "clip": ["107", 0]},
+        },
+
+        # ---- KSampler (simple img2img — no ReferenceLatent!) ----
+        "138": {
+            "class_type": "KSampler",
+            "inputs": {
+                "model": ["106", 0],
+                "positive": ["108", 0],
+                "negative": ["109", 0],
+                "latent_image": ["141", 0],
+                "seed": seed,
+                "control_after_generate": "randomize",
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "euler",
+                "scheduler": "simple",
+                "denoise": denoise,
+            },
+        },
+
+        # ---- Decode + Save ----
+        "104": {
+            "class_type": "VAEDecode",
+            "inputs": {"samples": ["138", 0], "vae": ["110", 0]},
+        },
+        "201": {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["104", 0], "filename_prefix": "TGBot_DarkGen"},
+        },
+    }
+
+    # Optional LoRA
+    if lora_name:
+        workflow["144"] = {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["106", 0],
+                "lora_name": lora_name,
+                "strength_model": lora_strength,
+            },
+        }
+        workflow["138"]["inputs"]["model"] = ["144", 0]
+
+    return workflow
+
+
 def build_wan_i2v_workflow(
     prompt: str,
     negative: str = "",
@@ -866,15 +991,21 @@ async def run_image_edit(
         return None
 
 
-# Dark Beast model filenames
+# Dark Beast model config
+# Fast  = base Klein 9B + Dark Beast LoRA (fp16, 1.23 GB) — fast cold-start
+# Detailed = full Dark Beast bf16 checkpoint (31 GB) — better quality
 DARK_BEAST_MODELS = {
     "fast": {
-        "model_name": "dark_beast_klein_v1.5_blitz_fp16.safetensors",
-        "weight_dtype": "default",
+        "model_name": "flux-2-klein-9b.safetensors",
+        "weight_dtype": "fp8_e4m3fn",
+        "lora_name": "dark_beast_klein_v1.5_blitz_fp16.safetensors",
+        "lora_strength": 1.0,
     },
     "detailed": {
         "model_name": "dark_beast_klein_blitz_bf16.safetensors",
         "weight_dtype": "default",
+        "lora_name": "",
+        "lora_strength": 0.0,
     },
 }
 
@@ -892,7 +1023,7 @@ async def run_image_edit_dark(
     """Full image editing pipeline via Dark Beast Klein on RunPod Serverless.
 
     Same pipeline as run_image_edit but uses the Dark Beast fine-tuned model.
-    quality: 'fast' (fp16, 1.23GB) or 'detailed' (bf16, 31GB)
+    quality: 'fast' (Klein 9B + LoRA) or 'detailed' (full bf16 checkpoint)
     """
     model_cfg = DARK_BEAST_MODELS.get(quality, DARK_BEAST_MODELS["fast"])
 
@@ -933,12 +1064,14 @@ async def run_image_edit_dark(
         crop_h=crop_h,
         model_name=model_cfg["model_name"],
         weight_dtype=model_cfg["weight_dtype"],
+        lora_name=model_cfg["lora_name"],
+        lora_strength=model_cfg["lora_strength"],
     )
 
     images = [{"name": "edit_input.png", "image": edit_b64}]
 
-    logger.info("Dark Beast edit job (quality=%s, denoise=%.2f, model=%s)",
-                quality, denoise, model_cfg["model_name"])
+    logger.info("Dark Beast edit job (quality=%s, denoise=%.2f, model=%s, lora=%s)",
+                quality, denoise, model_cfg["model_name"], model_cfg["lora_name"])
     job_id = await submit_job(workflow, images)
     if not job_id:
         return None
@@ -955,6 +1088,63 @@ async def run_image_edit_dark(
         return image_bytes
     except Exception as e:
         logger.error("Failed to parse dark edit result: %s", e)
+        return None
+
+
+async def run_dark_generate(
+    image_bytes: bytes,
+    prompt: str,
+    negative: str = "blurry, ugly, deformed, watermark, text, low quality",
+    denoise: float = 0.85,
+    steps: int = 10,
+    cfg: float = 1.0,
+    quality: str = "fast",
+) -> bytes | None:
+    """img2img generation via Dark Beast — allows radical pose/content changes.
+
+    Unlike run_image_edit_dark, this uses simple img2img (no ReferenceLatent,
+    no depth/canny preservation), giving the model full creative freedom.
+    """
+    model_cfg = DARK_BEAST_MODELS.get(quality, DARK_BEAST_MODELS["fast"])
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    edit_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    workflow = build_dark_img2img_workflow(
+        prompt=prompt,
+        negative=negative,
+        denoise=denoise,
+        steps=steps,
+        cfg=cfg,
+        model_name=model_cfg["model_name"],
+        weight_dtype=model_cfg["weight_dtype"],
+        lora_name=model_cfg["lora_name"],
+        lora_strength=model_cfg["lora_strength"],
+    )
+
+    images = [{"name": "edit_input.png", "image": edit_b64}]
+
+    logger.info("Dark Beast GENERATE job (quality=%s, denoise=%.2f, model=%s)",
+                quality, denoise, model_cfg["model_name"])
+    job_id = await submit_job(workflow, images)
+    if not job_id:
+        return None
+
+    output = await poll_job(job_id, timeout=600)
+    if not output:
+        return None
+
+    try:
+        result = _extract_file_from_output(output)
+        if not result:
+            logger.error("Could not extract image from RunPod output")
+            return None
+        return result
+    except Exception as e:
+        logger.error("Failed to parse dark generate result: %s", e)
         return None
 
 

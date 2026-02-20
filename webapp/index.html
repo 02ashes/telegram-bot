@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=2">
+    <link rel="stylesheet" href="/style.css?v=3">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -114,6 +114,13 @@
                 <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
             </div>
         </div>
+        <div class="section dark-only" id="darkModeSection" style="display:none;">
+            <div class="section-title">🎨 Режим</div>
+            <div class="quality-toggle">
+                <button class="quality-btn active" id="darkModeEdit" data-darkmode="edit">✏️ Edit</button>
+                <button class="quality-btn" id="darkModeGenerate" data-darkmode="generate">🔥 Generate</button>
+            </div>
+        </div>
         <div class="section dark-only" id="darkQualitySection" style="display:none;">
             <div class="section-title">⚡ Качество</div>
             <div class="quality-toggle">
@@ -206,7 +213,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=2"></script>
+    <script src="/app.js?v=3"></script>
 </body>
 
 </html>

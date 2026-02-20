@@ -33,6 +33,7 @@ function handleAuthError(resp) {
 // ============================================================
 let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
 let darkQuality = 'fast'; // 'fast' or 'detailed'
+let darkMode = 'edit'; // 'edit' or 'generate'
 let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
@@ -445,11 +446,20 @@ if (darkStepsSlider) {
 }
 
 // Quality toggle (Fast / Detailed)
-document.querySelectorAll('.quality-btn').forEach(btn => {
+document.querySelectorAll('#darkQualitySection .quality-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#darkQualitySection .quality-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         darkQuality = btn.dataset.quality;
+    });
+});
+
+// Dark mode toggle (Edit / Generate)
+document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#darkModeSection .quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        darkMode = btn.dataset.darkmode;
     });
 });
 
@@ -900,6 +910,7 @@ async function generateDarkEdit(prompt) {
             denoise: denoise,
             steps: steps,
             quality: darkQuality,
+            mode: darkMode,
         };
 
         const response = await fetch('/api/image-edit-dark', {
