@@ -751,11 +751,17 @@ async function generateVideo(prompt) {
             body.audio_negative = audioNegative;
         }
 
+        const controller = new AbortController();
+        const fetchTimeout = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 min
+
         const resp = await fetch('/api/video', {
             method: 'POST',
             headers: authHeaders(),
             body: JSON.stringify(body),
+            signal: controller.signal,
         });
+
+        clearTimeout(fetchTimeout);
 
         console.log('Video response status:', resp.status);
 
@@ -764,10 +770,23 @@ async function generateVideo(prompt) {
             throw new Error(errData?.error || errData?.detail || `Server error: ${resp.status}`);
         }
 
-        console.log('Parsing video response JSON...');
-        const text = await resp.text();
+        console.log('Reading video response body...');
+        let text;
+        try {
+            text = await resp.text();
+        } catch (readErr) {
+            console.error('Failed to read response body:', readErr);
+            throw new Error('Failed to read video response — file may be too large for Telegram WebApp');
+        }
         console.log('Response text length:', text.length);
-        const data = JSON.parse(text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseErr) {
+            console.error('Failed to parse JSON:', parseErr);
+            throw new Error('Failed to parse video response JSON');
+        }
         console.log('Video response keys:', Object.keys(data));
         console.log('Has video key:', !!data.video);
         console.log('Video base64 length:', data.video?.length || 0);
@@ -795,8 +814,9 @@ async function generateVideo(prompt) {
     } catch (err) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
-        progressText.textContent = '❌ ' + err.message;
-        alert('Error: ' + err.message);
+        const msg = err.name === 'AbortError' ? 'Request timed out (10 min limit)' : err.message;
+        progressText.textContent = '❌ ' + msg;
+        alert('Error: ' + msg);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
