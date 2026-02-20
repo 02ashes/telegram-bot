@@ -499,7 +499,7 @@ def build_wan_i2v_workflow(
 ) -> dict:
     """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
 
-    Uses dual-sampler architecture with LoRA 4-step acceleration.
+    Uses dual-sampler architecture (8 high + 4 low steps, no LoRA).
     Based on Wan2.2-Remix-comfy-i2v-workflow.json (FastUnsharpSharpen removed).
     """
     if seed is None:
@@ -540,29 +540,12 @@ def build_wan_i2v_workflow(
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
-        # LoRA high noise → high lighting model
-        "112": {
-            "class_type": "LoraLoaderModelOnly",
-            "inputs": {
-                "model": ["77", 0],
-                "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
-                "strength_model": 1.0,
-            },
-        },
-        # LoRA low noise → low lighting model
-        "113": {
-            "class_type": "LoraLoaderModelOnly",
-            "inputs": {
-                "model": ["103", 0],
-                "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
-                "strength_model": 1.0,
-            },
-        },
+        # LoRA removed — connect ModelSamplingSD3 directly to UNET models
         # ModelSamplingSD3 shift=8 for high lighting
         "54": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["112", 0],
+                "model": ["77", 0],
                 "shift": 8,
             },
         },
@@ -570,7 +553,7 @@ def build_wan_i2v_workflow(
         "55": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["113", 0],
+                "model": ["103", 0],
                 "shift": 8,
             },
         },
@@ -619,8 +602,8 @@ def build_wan_i2v_workflow(
                 "batch_size": 1,
             },
         },
-        # --- Dual Sampler ---
-        # KSampler #1 (high lighting, steps 0 → split_step)
+        # --- Dual Sampler (no LoRA, 8 high + 4 low = 12 total) ---
+        # KSampler #1 (high lighting, steps 0 → 8)
         "57": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -631,15 +614,15 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "enable",
                 "return_with_leftover_noise": "enable",
-                "steps": 4,
+                "steps": 12,
                 "cfg": 1,
                 "sampler_name": "euler",
                 "scheduler": "simple",
                 "start_at_step": 0,
-                "end_at_step": 2,
+                "end_at_step": 8,
             },
         },
-        # KSampler #2 (low lighting, steps split_step → end)
+        # KSampler #2 (low lighting, steps 8 → end)
         "58": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -650,11 +633,11 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "disable",
                 "return_with_leftover_noise": "disable",
-                "steps": 4,
+                "steps": 12,
                 "cfg": 1,
                 "sampler_name": "euler",
                 "scheduler": "simple",
-                "start_at_step": 2,
+                "start_at_step": 8,
                 "end_at_step": 10000,
             },
         },
