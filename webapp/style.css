@@ -641,42 +641,29 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .gallery-strip {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    padding: 4px 0 8px 0;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    min-width: 0;
-    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 4px 0;
 }
 
 .gallery-strip::-webkit-scrollbar {
-    height: 4px;
-}
-
-.gallery-strip::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 2px;
+    display: none;
 }
 
 .gallery-thumb {
-    flex-shrink: 0;
-    width: 80px;
-    height: 80px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     border-radius: 8px;
     object-fit: cover;
     cursor: pointer;
     border: 2px solid transparent;
     transition: all 0.2s;
-    scroll-snap-align: start;
 }
 
 .gallery-thumb:hover {
     border-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 /* ============================================================
