@@ -635,6 +635,11 @@ input[type="range"]::-webkit-slider-thumb {
 /* ============================================================
    Gallery Strip
    ============================================================ */
+#gallerySection {
+    overflow: visible;
+    backdrop-filter: none;
+}
+
 .gallery-strip {
     display: flex;
     flex-wrap: nowrap;
