@@ -74,16 +74,25 @@ body {
 
 .mode-tab {
     flex: 1;
-    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
     border: none;
     border-radius: 10px;
     background: transparent;
     color: var(--text-dim);
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s ease;
+}
+
+.tab-emoji {
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .mode-tab.active {
@@ -575,4 +584,138 @@ input[type="range"]::-webkit-slider-thumb {
     background: rgba(255, 255, 255, 0.10);
     border-color: rgba(255, 255, 255, 0.30);
     color: var(--text);
+}
+
+/* ============================================================
+   Batch Selector
+   ============================================================ */
+.batch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.batch-label {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+.batch-selector {
+    display: flex;
+    gap: 4px;
+}
+
+.batch-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.batch-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+}
+
+.batch-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: var(--text);
+}
+
+/* ============================================================
+   Gallery Strip
+   ============================================================ */
+.gallery-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gallery-strip::-webkit-scrollbar {
+    height: 4px;
+}
+
+.gallery-strip::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.gallery-thumb {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    scroll-snap-align: start;
+}
+
+.gallery-thumb:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   Gallery Lightbox
+   ============================================================ */
+.gallery-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.lightbox-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.lightbox-content img {
+    max-width: 90vw;
+    max-height: 70vh;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.lightbox-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
 }

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=3">
+    <link rel="stylesheet" href="/style.css?v=4">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -13,26 +13,27 @@
     <div class="app">
         <!-- Header -->
         <div class="header">
-            <h1>Angel Arena</h1>
+            <h1>ANGEL ARENA</h1>
         </div>
 
         <!-- Mode Tabs -->
         <div class="mode-tabs">
-            <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">🎨 Inpaint</button>
-            <button class="mode-tab" id="tabVideo" data-mode="video">🎬 Video</button>
-            <button class="mode-tab" id="tabImage" data-mode="image">🖼️ Edit</button>
-            <button class="mode-tab" id="tabDark" data-mode="dark">🖤 Dark</button>
+            <button class="mode-tab active" id="tabInpaint" data-mode="inpaint"><span
+                    class="tab-emoji">🎨</span>Inpaint</button>
+            <button class="mode-tab" id="tabVideo" data-mode="video"><span class="tab-emoji">🎬</span>Video</button>
+            <button class="mode-tab" id="tabImage" data-mode="image"><span class="tab-emoji">🖼️</span>Edit</button>
+            <button class="mode-tab" id="tabDark" data-mode="dark"><span class="tab-emoji">🖤</span>Dark</button>
         </div>
 
         <!-- ============================================ -->
         <!-- SHARED: Upload Photo -->
         <!-- ============================================ -->
         <div class="section" id="uploadSection">
-            <div class="section-title">📷 Фото</div>
+            <div class="section-title">📷 Photo</div>
             <div class="upload-area" id="uploadArea">
                 <div class="upload-placeholder" id="uploadPlaceholder">
                     <span class="upload-icon">📁</span>
-                    <span>Нажми чтобы загрузить фото</span>
+                    <span>Tap to upload or paste (Ctrl+V)</span>
                 </div>
                 <input type="file" id="fileInput" accept="image/*" hidden>
             </div>
@@ -42,17 +43,17 @@
         <!-- INPAINT MODE: Canvas + Mask -->
         <!-- ============================================ -->
         <div class="section inpaint-only" id="canvasSection" style="display:none;">
-            <div class="section-title">🖌️ Маска</div>
+            <div class="section-title">🖌️ Mask</div>
             <div class="canvas-container" id="canvasContainer">
                 <canvas id="mainCanvas"></canvas>
                 <canvas id="maskCanvas"></canvas>
             </div>
             <div class="tools">
-                <button class="tool-btn active" id="brushBtn" data-tool="brush">🖌️ Кисть</button>
-                <button class="tool-btn" id="eraserBtn" data-tool="eraser">⬜ Ластик</button>
-                <button class="tool-btn danger" id="clearBtn">🗑️ Очистить</button>
+                <button class="tool-btn active" id="brushBtn" data-tool="brush">🖌️ Brush</button>
+                <button class="tool-btn" id="eraserBtn" data-tool="eraser">⬜ Eraser</button>
+                <button class="tool-btn danger" id="clearBtn">🗑️ Clear</button>
                 <div class="brush-size-control">
-                    <label>Размер: <span id="brushSizeLabel">20</span>px</label>
+                    <label>Size: <span id="brushSizeLabel">20</span>px</label>
                     <input type="range" id="brushSize" min="5" max="100" value="20">
                 </div>
             </div>
@@ -62,10 +63,10 @@
         <!-- SHARED: Prompt -->
         <!-- ============================================ -->
         <div class="section" id="promptSection" style="display:none;">
-            <div class="section-title">✏️ Промпт</div>
-            <textarea id="promptInput" placeholder="Опиши что нарисовать..." rows="3"></textarea>
+            <div class="section-title">✏️ Prompt</div>
+            <textarea id="promptInput" placeholder="Describe what to generate..." rows="3"></textarea>
 
-            <div class="section-title sub">❌ Негатив</div>
+            <div class="section-title sub">❌ Negative</div>
             <textarea id="negativeInput" rows="2"></textarea>
         </div>
 
@@ -82,8 +83,6 @@
                 <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
             </div>
         </div>
-
-        <!-- Фото 2 removed: advanced Klein workflow uses Depth+Canny from single image -->
 
         <!-- ============================================ -->
         <!-- IMAGE MODE: Edit Settings -->
@@ -115,14 +114,14 @@
             </div>
         </div>
         <div class="section dark-only" id="darkModeSection" style="display:none;">
-            <div class="section-title">🎨 Режим</div>
+            <div class="section-title">🎨 Mode</div>
             <div class="quality-toggle">
                 <button class="quality-btn active" id="darkModeEdit" data-darkmode="edit">✏️ Edit</button>
                 <button class="quality-btn" id="darkModeGenerate" data-darkmode="generate">🔥 Generate</button>
             </div>
         </div>
         <div class="section dark-only" id="darkQualitySection" style="display:none;">
-            <div class="section-title">⚡ Качество</div>
+            <div class="section-title">⚡ Quality</div>
             <div class="quality-toggle">
                 <button class="quality-btn active" id="qualityFast" data-quality="fast">⚡ Fast</button>
                 <button class="quality-btn" id="qualityDetailed" data-quality="detailed">✨ Detailed</button>
@@ -134,16 +133,16 @@
         <!-- ============================================ -->
         <div class="section video-only" id="audioSection" style="display:none;">
             <div class="audio-toggle-row">
-                <div class="section-title">🔊 Звук</div>
+                <div class="section-title">🔊 Audio</div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="audioToggle">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="audio-settings" id="audioSettings" style="display:none;">
-                <textarea id="audioPromptInput"
-                    placeholder="Промпт для звука (soft moaning, breathing, water dripping...)" rows="2"></textarea>
-                <div class="section-title sub">❌ Негатив звука</div>
+                <textarea id="audioPromptInput" placeholder="Audio prompt (soft moaning, breathing, water dripping...)"
+                    rows="2"></textarea>
+                <div class="section-title sub">❌ Audio Negative</div>
                 <textarea id="audioNegativeInput" rows="1">music, speech, talking, noise, static</textarea>
             </div>
         </div>
@@ -152,10 +151,10 @@
         <!-- VIDEO MODE: Video Settings -->
         <!-- ============================================ -->
         <div class="section video-only" id="videoSettingsSection" style="display:none;">
-            <div class="section-title">⚙️ Настройки видео</div>
+            <div class="section-title">⚙️ Video Settings</div>
             <div class="video-settings-grid">
                 <div class="setting">
-                    <label>Кадры: <span id="framesLabel">33</span></label>
+                    <label>Frames: <span id="framesLabel">33</span></label>
                     <input type="range" id="framesSlider" min="17" max="129" step="4" value="33">
                 </div>
                 <div class="setting">
@@ -166,9 +165,9 @@
                     </select>
                 </div>
                 <div class="setting">
-                    <label>Разрешение:</label>
+                    <label>Resolution:</label>
                     <select id="resolutionSelect">
-                        <option value="auto" selected>Авто (по фото)</option>
+                        <option value="auto" selected>Auto (from photo)</option>
                         <option value="480x832">480×832</option>
                         <option value="720x1280">720×1280</option>
                     </select>
@@ -177,23 +176,32 @@
         </div>
 
         <!-- ============================================ -->
-        <!-- Generate Button -->
+        <!-- Batch Count + Generate Button -->
         <!-- ============================================ -->
         <div class="section" id="generateSection" style="display:none;">
+            <div class="batch-row">
+                <label class="batch-label">Count:</label>
+                <div class="batch-selector" id="batchSelector">
+                    <button class="batch-btn active" data-count="1">1</button>
+                    <button class="batch-btn" data-count="2">2</button>
+                    <button class="batch-btn" data-count="3">3</button>
+                    <button class="batch-btn" data-count="4">4</button>
+                </div>
+            </div>
             <button class="generate-btn" id="generateBtn">
-                <span class="btn-text">🚀 Генерировать</span>
+                <span class="btn-text">🚀 Generate</span>
                 <span class="btn-loader" style="display:none;">
-                    <span class="spinner"></span> Генерация...
+                    <span class="spinner"></span> Generating...
                 </span>
             </button>
             <div class="progress-info" id="progressInfo" style="display:none;">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span id="progressText">Запуск...</span>
+                <span id="progressText">Starting...</span>
             </div>
             <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
-                <span>🟠 Подготовка...</span>
+                <span>🟠 Loading model...</span>
             </div>
         </div>
 
@@ -201,19 +209,44 @@
         <!-- Result (Image or Video) -->
         <!-- ============================================ -->
         <div class="section" id="resultSection" style="display:none;">
-            <div class="section-title">🖼️ Результат</div>
+            <div class="section-title">🖼️ Result</div>
             <div class="result-container">
                 <img id="resultImage" src="" alt="Result" style="display:none;">
                 <video id="resultVideo" controls loop style="display:none;"></video>
             </div>
             <div class="result-actions">
-                <button class="action-btn" id="downloadBtn">💾 Скачать</button>
-                <button class="action-btn secondary" id="retryBtn">🔄 Ещё раз</button>
+                <button class="action-btn" id="downloadBtn">💾 Save</button>
+                <button class="action-btn" id="copyBtn">📋 Copy</button>
+                <button class="action-btn secondary" id="retryBtn">🔄 Retry</button>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- Gallery (Generation History) -->
+        <!-- ============================================ -->
+        <div class="section" id="gallerySection" style="display:none;">
+            <div class="section-title">📂 Gallery</div>
+            <div class="gallery-strip" id="galleryStrip">
+                <!-- Thumbnails injected by JS -->
+            </div>
+        </div>
+
+        <!-- Gallery Lightbox -->
+        <div class="gallery-lightbox" id="galleryLightbox" style="display:none;">
+            <div class="lightbox-overlay" id="lightboxOverlay"></div>
+            <div class="lightbox-content">
+                <img id="lightboxImage" src="" alt="Preview">
+                <div class="lightbox-actions">
+                    <button class="action-btn" id="lightboxDownload">💾 Save</button>
+                    <button class="action-btn" id="lightboxCopy">📋 Copy</button>
+                    <button class="action-btn danger" id="lightboxDelete">🗑️ Delete</button>
+                    <button class="action-btn secondary" id="lightboxClose">✕ Close</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/app.js?v=3"></script>
+    <script src="/app.js?v=4"></script>
 </body>
 
 </html>

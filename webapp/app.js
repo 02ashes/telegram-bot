@@ -22,7 +22,7 @@ function authHeaders() {
 
 function handleAuthError(resp) {
     if (resp.status === 401) {
-        alert('❌ Доступ запрещён. Введите инвайт-код в боте: /invite КОД');
+        alert('❌ Access denied. Enter invite code in bot: /invite CODE');
         return true;
     }
     return false;
@@ -34,6 +34,7 @@ function handleAuthError(resp) {
 let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
 let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
+let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
@@ -41,6 +42,7 @@ let originalImage = null;
 let originalImage2 = null;  // reference image for Image mode
 let mainCtx = null;
 let maskCtx = null;
+let galleryItems = []; // [{dataUrl, timestamp}]
 
 // ============================================================
 // DOM Elements
@@ -155,13 +157,13 @@ function switchMode(mode) {
     // Update prompt placeholder
     const promptInput = document.getElementById('promptInput');
     if (mode === 'inpaint') {
-        promptInput.placeholder = 'Опиши что нарисовать в маске...';
+        promptInput.placeholder = 'Describe what to paint in the mask...';
     } else if (mode === 'video') {
-        promptInput.placeholder = 'Опиши движение в видео (woman slowly turns her head, smiles...)';
+        promptInput.placeholder = 'Describe motion (woman slowly turns her head, smiles...)';
     } else if (mode === 'dark') {
-        promptInput.placeholder = 'Dark Beast: опиши NSFW изменение...';
+        promptInput.placeholder = 'Dark Beast: describe NSFW edit...';
     } else {
-        promptInput.placeholder = 'Опиши изменение (add cum on face, finger in ass, remove clothes...)';
+        promptInput.placeholder = 'Describe the edit (add cum on face, finger in ass, remove clothes...)';
     }
 
     // Update negative prompt default
@@ -174,10 +176,10 @@ function switchMode(mode) {
 
     // Update generate button text
     const btnText = generateBtn.querySelector('.btn-text');
-    if (mode === 'inpaint') btnText.textContent = '🚀 Генерировать';
-    else if (mode === 'video') btnText.textContent = '🎬 Генерировать видео';
+    if (mode === 'inpaint') btnText.textContent = '🚀 Generate';
+    else if (mode === 'video') btnText.textContent = '🎬 Generate Video';
     else if (mode === 'dark') btnText.textContent = '🖤 Dark Beast';
-    else btnText.textContent = '🖼️ Редактировать';
+    else btnText.textContent = '🖼️ Edit Image';
 
     // Hide result if mode changed
     resultSection.style.display = 'none';
@@ -565,23 +567,33 @@ function getImageDataURL() {
 generateBtn.addEventListener('click', async () => {
     const prompt = document.getElementById('promptInput').value.trim();
     if (!prompt) {
-        alert('Введи промпт!');
+        alert('Enter a prompt!');
         return;
     }
 
     if (!originalImage) {
-        alert('Загрузи фото!');
+        alert('Upload a photo first!');
         return;
     }
 
-    if (currentMode === 'inpaint') {
-        await generateInpaint(prompt);
-    } else if (currentMode === 'video') {
-        await generateVideo(prompt);
-    } else if (currentMode === 'dark') {
-        await generateDarkEdit(prompt);
-    } else {
-        await generateImageEdit(prompt);
+    // Video mode: always 1 (too slow for batch)
+    const count = (currentMode === 'video') ? 1 : batchCount;
+
+    for (let i = 0; i < count; i++) {
+        if (count > 1) {
+            progressInfo.style.display = '';
+            progressText.textContent = `🔄 Generating ${i + 1}/${count}...`;
+        }
+
+        if (currentMode === 'inpaint') {
+            await generateInpaint(prompt);
+        } else if (currentMode === 'video') {
+            await generateVideo(prompt);
+        } else if (currentMode === 'dark') {
+            await generateDarkEdit(prompt);
+        } else {
+            await generateImageEdit(prompt);
+        }
     }
 });
 
@@ -606,11 +618,11 @@ async function generateInpaint(prompt) {
         progressFill.style.width = progress + '%';
 
         if (progress < 20) {
-            progressText.textContent = '⚡ Запуск...';
+            progressText.textContent = '⚡ Starting...';
         } else if (progress < 50) {
-            progressText.textContent = '🧠 Подготовка...';
+            progressText.textContent = '🧠 Preparing...';
         } else {
-            progressText.textContent = '🎨 Генерация...';
+            progressText.textContent = '🎨 Generating...';
         }
     }, 1000);
 
@@ -636,7 +648,7 @@ async function generateInpaint(prompt) {
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
-            throw new Error(errData?.error || errData?.detail || `Ошибка сервера: ${resp.status}`);
+            throw new Error(errData?.error || errData?.detail || `Server error: ${resp.status}`);
         }
 
         const data = await resp.json();
@@ -648,9 +660,10 @@ async function generateInpaint(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Готово!';
+        progressText.textContent = '✅ Done!';
 
         resultImage.src = 'data:image/png;base64,' + data.image;
+        addToGallery(resultImage.src);
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
@@ -661,7 +674,7 @@ async function generateInpaint(prompt) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
         progressText.textContent = '❌ ' + err.message;
-        alert('Ошибка: ' + err.message);
+        alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
@@ -703,15 +716,15 @@ async function generateVideo(prompt) {
         progressFill.style.width = progress + '%';
 
         if (progress < 10) {
-            progressText.textContent = '⚡ Запуск...';
+            progressText.textContent = '⚡ Starting...';
         } else if (progress < 25) {
-            progressText.textContent = '🧠 Подготовка...';
+            progressText.textContent = '🧠 Preparing...';
         } else if (progress < 80) {
-            progressText.textContent = `🎬 Генерация видео (${frames} кадров, ~${videoDuration.toFixed(1)}с)...`;
+            progressText.textContent = `🎬 Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
         } else if (audioEnabled) {
-            progressText.textContent = '🔊 Генерация звука...';
+            progressText.textContent = '🔊 Generating audio...';
         } else {
-            progressText.textContent = '📦 Кодирование mp4...';
+            progressText.textContent = '📦 Encoding mp4...';
         }
     }, 1000);
 
@@ -745,7 +758,7 @@ async function generateVideo(prompt) {
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
-            throw new Error(errData?.error || errData?.detail || `Ошибка сервера: ${resp.status}`);
+            throw new Error(errData?.error || errData?.detail || `Server error: ${resp.status}`);
         }
 
         console.log('Parsing video response JSON...');
@@ -763,7 +776,7 @@ async function generateVideo(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Видео готово!';
+        progressText.textContent = '✅ Video ready!';
 
         // Show video result
         const videoBlob = base64ToBlob(data.video, 'video/mp4');
@@ -780,7 +793,7 @@ async function generateVideo(prompt) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
         progressText.textContent = '❌ ' + err.message;
-        alert('Ошибка: ' + err.message);
+        alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
@@ -803,7 +816,7 @@ async function generateImageEdit(prompt) {
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
-    progressText.textContent = '🚀 Отправка...';
+    progressText.textContent = '🚀 Sending...';
     resultSection.style.display = 'none';
 
     let progressInterval;
@@ -813,8 +826,8 @@ async function generateImageEdit(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 1.5) + '%';
-                if (cur > 30) progressText.textContent = '⏳ Генерация...';
-                if (cur > 70) progressText.textContent = '🔄 Почти готово...';
+                if (cur > 30) progressText.textContent = '⏳ Generating...';
+                if (cur > 70) progressText.textContent = '🔄 Almost done...';
             }
         }, 1500);
 
@@ -852,10 +865,11 @@ async function generateImageEdit(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Готово!';
+        progressText.textContent = '✅ Done!';
 
         // Show image result
         resultImage.src = 'data:image/png;base64,' + data.image;
+        addToGallery(resultImage.src);
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
@@ -866,7 +880,7 @@ async function generateImageEdit(prompt) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
         progressText.textContent = '❌ ' + err.message;
-        alert('Ошибка: ' + err.message);
+        alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
@@ -898,8 +912,8 @@ async function generateDarkEdit(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 1.5) + '%';
-                if (cur > 30) progressText.textContent = '✨ Генерация...';
-                if (cur > 70) progressText.textContent = '🔥 Почти готово...';
+                if (cur > 30) progressText.textContent = '✨ Generating...';
+                if (cur > 70) progressText.textContent = '🔥 Almost done...';
             }
         }, 1500);
 
@@ -927,9 +941,10 @@ async function generateDarkEdit(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Готово!';
+        progressText.textContent = '✅ Done!';
 
         resultImage.src = 'data:image/png;base64,' + data.image;
+        addToGallery(resultImage.src);
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
@@ -940,7 +955,7 @@ async function generateDarkEdit(prompt) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
         progressText.textContent = '❌ ' + err.message;
-        alert('Ошибка: ' + err.message);
+        alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
@@ -966,7 +981,7 @@ function base64ToBlob(b64, type) {
 }
 
 // ============================================================
-// Download & Retry
+// Download, Copy & Retry
 // ============================================================
 downloadBtn.addEventListener('click', () => {
     if ((currentMode === 'inpaint' || currentMode === 'image' || currentMode === 'dark') && resultImage.src) {
@@ -983,9 +998,163 @@ downloadBtn.addEventListener('click', () => {
     }
 });
 
+async function copyImageToClipboard(imgSrc) {
+    try {
+        const resp = await fetch(imgSrc);
+        const blob = await resp.blob();
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        return true;
+    } catch (e) {
+        console.error('Copy failed:', e);
+        return false;
+    }
+}
+
+const copyBtn = document.getElementById('copyBtn');
+if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+        if (resultImage.src) {
+            const ok = await copyImageToClipboard(resultImage.src);
+            copyBtn.textContent = ok ? '✅ Copied!' : '❌ Failed';
+            setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
+        }
+    });
+}
+
 retryBtn.addEventListener('click', () => {
     resultSection.style.display = 'none';
     progressFill.style.width = '0%';
     progressInfo.style.display = 'none';
     document.getElementById('generateSection').scrollIntoView({ behavior: 'smooth' });
 });
+
+// ============================================================
+// Batch Count Selector
+// ============================================================
+document.querySelectorAll('.batch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.batch-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        batchCount = parseInt(btn.dataset.count);
+    });
+});
+
+// ============================================================
+// Ctrl+V Paste Support
+// ============================================================
+document.addEventListener('paste', (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img;
+                        const placeholder = document.getElementById('uploadPlaceholder');
+                        const uploadArea = document.getElementById('uploadArea');
+                        if (placeholder) placeholder.style.display = 'none';
+                        // Show preview
+                        let preview = uploadArea.querySelector('.upload-preview');
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.className = 'upload-preview';
+                            uploadArea.appendChild(preview);
+                        }
+                        preview.src = ev.target.result;
+                        // Trigger same logic as file upload
+                        const event = new Event('imageLoaded');
+                        document.dispatchEvent(event);
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            break;
+        }
+    }
+});
+
+// ============================================================
+// Gallery
+// ============================================================
+const gallerySection = document.getElementById('gallerySection');
+const galleryStrip = document.getElementById('galleryStrip');
+const lightbox = document.getElementById('galleryLightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+const lightboxOverlay = document.getElementById('lightboxOverlay');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxDownload = document.getElementById('lightboxDownload');
+const lightboxCopy = document.getElementById('lightboxCopy');
+const lightboxDelete = document.getElementById('lightboxDelete');
+let activeLightboxIndex = -1;
+
+function addToGallery(dataUrl) {
+    galleryItems.push({ dataUrl, timestamp: Date.now() });
+    renderGallery();
+}
+
+function renderGallery() {
+    if (!galleryStrip) return;
+    if (galleryItems.length === 0) {
+        if (gallerySection) gallerySection.style.display = 'none';
+        return;
+    }
+    if (gallerySection) gallerySection.style.display = '';
+    galleryStrip.innerHTML = '';
+    galleryItems.forEach((item, idx) => {
+        const thumb = document.createElement('img');
+        thumb.className = 'gallery-thumb';
+        thumb.src = item.dataUrl;
+        thumb.addEventListener('click', () => openLightbox(idx));
+        galleryStrip.appendChild(thumb);
+    });
+    // Scroll to end
+    galleryStrip.scrollLeft = galleryStrip.scrollWidth;
+}
+
+function openLightbox(idx) {
+    activeLightboxIndex = idx;
+    lightboxImage.src = galleryItems[idx].dataUrl;
+    lightbox.style.display = '';
+}
+
+function closeLightbox() {
+    lightbox.style.display = 'none';
+    activeLightboxIndex = -1;
+}
+
+if (lightboxOverlay) lightboxOverlay.addEventListener('click', closeLightbox);
+if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+
+if (lightboxDownload) {
+    lightboxDownload.addEventListener('click', () => {
+        if (activeLightboxIndex < 0) return;
+        const a = document.createElement('a');
+        a.href = galleryItems[activeLightboxIndex].dataUrl;
+        a.download = `gallery_${activeLightboxIndex + 1}.png`;
+        a.click();
+    });
+}
+
+if (lightboxCopy) {
+    lightboxCopy.addEventListener('click', async () => {
+        if (activeLightboxIndex < 0) return;
+        const ok = await copyImageToClipboard(galleryItems[activeLightboxIndex].dataUrl);
+        lightboxCopy.textContent = ok ? '✅ Copied!' : '❌ Failed';
+        setTimeout(() => { lightboxCopy.textContent = '📋 Copy'; }, 1500);
+    });
+}
+
+if (lightboxDelete) {
+    lightboxDelete.addEventListener('click', () => {
+        if (activeLightboxIndex < 0) return;
+        galleryItems.splice(activeLightboxIndex, 1);
+        closeLightbox();
+        renderGallery();
+    });
+}
