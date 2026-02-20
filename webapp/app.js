@@ -1049,31 +1049,7 @@ document.addEventListener('paste', (e) => {
         if (item.type.startsWith('image/')) {
             e.preventDefault();
             const file = item.getAsFile();
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        originalImage = img;
-                        const placeholder = document.getElementById('uploadPlaceholder');
-                        const uploadArea = document.getElementById('uploadArea');
-                        if (placeholder) placeholder.style.display = 'none';
-                        // Show preview
-                        let preview = uploadArea.querySelector('.upload-preview');
-                        if (!preview) {
-                            preview = document.createElement('img');
-                            preview.className = 'upload-preview';
-                            uploadArea.appendChild(preview);
-                        }
-                        preview.src = ev.target.result;
-                        // Trigger same logic as file upload
-                        const event = new Event('imageLoaded');
-                        document.dispatchEvent(event);
-                    };
-                    img.src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
+            if (file) loadImage(file);
             break;
         }
     }
