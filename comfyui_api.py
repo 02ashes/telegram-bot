@@ -609,44 +609,19 @@ def build_wan_i2v_workflow(
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
-        # --- TeaCache (2-3x speedup via timestep-aware caching) ---
-        # TeaCache for high lighting model
-        "200": {
-            "class_type": "TeaCache",
-            "inputs": {
-                "model": ["77", 0],  # updated below if LoRA
-                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
-                "rel_l1_thresh": 0.3,
-                "start_percent": 0.1,
-                "end_percent": 1.0,
-                "cache_device": "cuda",
-            },
-        },
-        # TeaCache for low lighting model
-        "201": {
-            "class_type": "TeaCache",
-            "inputs": {
-                "model": ["103", 0],  # updated below if LoRA
-                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
-                "rel_l1_thresh": 0.3,
-                "start_percent": 0.1,
-                "end_percent": 1.0,
-                "cache_device": "cuda",
-            },
-        },
-        # ModelSamplingSD3 shift for high lighting
+        # --- TeaCache (2-3x speedup, requires ComfyUI-TeaCache custom node) ---
+        # Set to True after Docker image is rebuilt with TeaCache installed
         "54": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["200", 0],  # from TeaCache
+                "model": ["77", 0],  # default: direct from UNET (overridden below if TeaCache)
                 "shift": shift,
             },
         },
-        # ModelSamplingSD3 for low lighting
         "55": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["201", 0],  # from TeaCache
+                "model": ["103", 0],  # default: direct from UNET
                 "shift": shift,
             },
         },
@@ -761,6 +736,37 @@ def build_wan_i2v_workflow(
         },
     }
 
+    # --- Optional TeaCache (flip to True after Docker rebuild with ComfyUI-TeaCache) ---
+    TEACACHE_ENABLED = True
+
+    if TEACACHE_ENABLED:
+        # Insert TeaCache between UNET and ModelSamplingSD3
+        workflow["200"] = {
+            "class_type": "TeaCache",
+            "inputs": {
+                "model": ["77", 0],
+                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
+                "rel_l1_thresh": 0.3,
+                "start_percent": 0.1,
+                "end_percent": 1.0,
+                "cache_device": "cuda",
+            },
+        }
+        workflow["201"] = {
+            "class_type": "TeaCache",
+            "inputs": {
+                "model": ["103", 0],
+                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
+                "rel_l1_thresh": 0.3,
+                "start_percent": 0.1,
+                "end_percent": 1.0,
+                "cache_device": "cuda",
+            },
+        }
+        # Wire: UNET → TeaCache → ModelSamplingSD3
+        workflow["54"]["inputs"]["model"] = ["200", 0]
+        workflow["55"]["inputs"]["model"] = ["201", 0]
+
     # --- Optional Action LoRA ---
     if lora_high:
         workflow["112"] = {
@@ -771,8 +777,12 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        # Redirect TeaCache high to LoRA output (chain: UNET→LoRA→TeaCache→ModelSamplingSD3)
-        workflow["200"]["inputs"]["model"] = ["112", 0]
+        if TEACACHE_ENABLED:
+            # Chain: UNET → LoRA → TeaCache → ModelSamplingSD3
+            workflow["200"]["inputs"]["model"] = ["112", 0]
+        else:
+            # Chain: UNET → LoRA → ModelSamplingSD3
+            workflow["54"]["inputs"]["model"] = ["112", 0]
 
     if lora_low:
         workflow["113"] = {
@@ -783,8 +793,10 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        # Redirect TeaCache low to LoRA output
-        workflow["201"]["inputs"]["model"] = ["113", 0]
+        if TEACACHE_ENABLED:
+            workflow["201"]["inputs"]["model"] = ["113", 0]
+        else:
+            workflow["55"]["inputs"]["model"] = ["113", 0]
 
     # --- Optional MMAudio ---
     if audio_enabled and audio_prompt:
