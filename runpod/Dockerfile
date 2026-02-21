@@ -43,9 +43,7 @@ RUN git clone --depth 1 https://github.com/cubiq/ComfyUI_essentials.git && \
 RUN git clone --depth 1 https://github.com/kijai/ComfyUI-DepthAnythingV2.git && \
     (cd ComfyUI-DepthAnythingV2 && pip install -r requirements.txt --quiet 2>/dev/null || true)
 
-# TeaCache (2-3x speedup for video generation via timestep-aware caching)
-RUN git clone --depth 1 https://github.com/welltop-cn/ComfyUI-TeaCache.git && \
-    (cd ComfyUI-TeaCache && pip install -r requirements.txt --quiet 2>/dev/null || true)
+# NOTE: TeaCache custom node removed — using ComfyUI's built-in EasyCache instead
 
 # ---- Install additional Python deps ----
 # Matching user's verified working setup
@@ -58,7 +56,8 @@ RUN pip install --no-cache-dir \
     open-clip-torch \
     librosa \
     omegaconf \
-    toml
+    toml \
+    "diffusers>=0.31.0"
 
 # NOTE: comfy_kitchen cuda/triton backends require CUDA Runtime 13.0+
 # Base image has CUDA 12.6, so we stay on cu128 (eager backend, ~10% slower but works fine)
