@@ -184,6 +184,7 @@ async def api_video(request: Request):
         cfg_low = float(body.get("cfg_low", 1.0))
         lora_strength = float(body.get("lora_strength", 1.3))
         scheduler = body.get("scheduler", "beta")
+        video_steps = int(body.get("video_steps", 20))
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
@@ -212,6 +213,7 @@ async def api_video(request: Request):
             cfg_low=cfg_low,
             lora_strength=lora_strength,
             scheduler=scheduler,
+            steps=video_steps,
         )
 
         if result_bytes is None:

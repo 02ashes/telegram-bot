@@ -56,14 +56,12 @@ RUN pip install --no-cache-dir \
     omegaconf \
     toml
 
-# ---- Upgrade PyTorch to cu130 (unlock optimized CUDA & Triton backends) ----
-# Base image has PyTorch 2.9.1+cu128, but H100 CUDA 13.0 supports cu130
-# This enables comfy_kitchen cuda/triton backends for faster rope operations
-RUN pip install --no-cache-dir --pre \
-    torch torchvision torchaudio \
-    --index-url https://download.pytorch.org/whl/nightly/cu130
+# NOTE: comfy_kitchen cuda/triton backends require CUDA Runtime 13.0+
+# Base image has CUDA 12.6, so we stay on cu128 (eager backend, ~10% slower but works fine)
+# When RunPod updates base images to CUDA 13.0, uncomment the line below:
+# RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu130
 
-# Install Triton for optimized kernels
+# Install Triton (may still help with some operations)
 RUN pip install --no-cache-dir triton
 
 # ---- Remove ComfyUI-Manager (saves ~2 min on cold start) ----

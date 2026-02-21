@@ -553,6 +553,7 @@ def build_wan_i2v_workflow(
     cfg_low: float = 1.0,
     lora_strength: float = 1.3,
     scheduler: str = "beta",
+    steps: int = 20,
 ) -> dict:
     """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
 
@@ -564,6 +565,9 @@ def build_wan_i2v_workflow(
     """
     if seed is None:
         seed = int(uuid.uuid4().int % (2**32))
+
+    # Dual-sampler step split: 2/3 high noise, 1/3 low noise
+    split_step = max(1, int(steps * 2 / 3))
 
     if not negative:
         negative = (
@@ -668,8 +672,8 @@ def build_wan_i2v_workflow(
                 "batch_size": 1,
             },
         },
-        # --- Dual Sampler (no LoRA, 20 high + 10 low = 30 total) ---
-        # KSampler #1 (high lighting, steps 0 → 20)
+        # --- Dual Sampler (split_step high + rest low) ---
+        # KSampler #1 (high lighting, steps 0 → split_step)
         "57": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -680,15 +684,15 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "enable",
                 "return_with_leftover_noise": "enable",
-                "steps": 30,
+                "steps": steps,
                 "cfg": cfg_high,
                 "sampler_name": "euler",
                 "scheduler": scheduler,
                 "start_at_step": 0,
-                "end_at_step": 20,
+                "end_at_step": split_step,
             },
         },
-        # KSampler #2 (low lighting, steps 20 → end)
+        # KSampler #2 (low lighting, steps split_step → end)
         "58": {
             "class_type": "KSamplerAdvanced",
             "inputs": {
@@ -699,11 +703,11 @@ def build_wan_i2v_workflow(
                 "noise_seed": seed,
                 "add_noise": "disable",
                 "return_with_leftover_noise": "disable",
-                "steps": 30,
+                "steps": steps,
                 "cfg": cfg_low,
                 "sampler_name": "euler",
                 "scheduler": scheduler,
-                "start_at_step": 20,
+                "start_at_step": split_step,
                 "end_at_step": 10000,
             },
         },
@@ -1291,6 +1295,7 @@ async def run_video(
     cfg_low: float = 1.0,
     lora_strength: float = 1.3,
     scheduler: str = "beta",
+    steps: int = 20,
 ) -> bytes | None:
     """Full video pipeline via RunPod Serverless.
 
@@ -1349,6 +1354,7 @@ async def run_video(
         cfg_low=cfg_low,
         lora_strength=lora_strength,
         scheduler=scheduler,
+        steps=steps,
     )
 
     # Submit job with image
