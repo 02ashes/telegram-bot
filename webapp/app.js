@@ -951,6 +951,10 @@ async function generateDarkEdit(prompt) {
     progressText.textContent = '🖤 Dark Beast...';
     resultSection.style.display = 'none';
 
+    // Show cancel button
+    const cancelBtn = document.getElementById('cancelVideoBtn');
+    if (cancelBtn) cancelBtn.style.display = '';
+
     let progressInterval;
 
     try {
@@ -973,12 +977,17 @@ async function generateDarkEdit(prompt) {
             mode: darkMode,
         };
 
+        currentVideoController = new AbortController();
+        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 10 * 60 * 1000); // 10 min
+
         const response = await fetch('/api/image-edit-dark', {
             method: 'POST',
             headers: authHeaders(),
             body: JSON.stringify(body),
+            signal: currentVideoController.signal,
         });
 
+        clearTimeout(fetchTimeout);
         clearInterval(progressInterval);
 
         const data = await response.json();
@@ -1000,12 +1009,15 @@ async function generateDarkEdit(prompt) {
     } catch (err) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
-        progressText.textContent = '❌ ' + err.message;
-        alert('Error: ' + err.message);
+        const msg = err.name === 'AbortError' ? 'Request cancelled' : err.message;
+        progressText.textContent = '❌ ' + msg;
+        if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
+        currentVideoController = null;
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
         generateBtn.querySelector('.btn-loader').style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
     }
 }
 
