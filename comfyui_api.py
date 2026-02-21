@@ -736,34 +736,32 @@ def build_wan_i2v_workflow(
         },
     }
 
-    # --- Optional TeaCache (flip to True after Docker rebuild with ComfyUI-TeaCache) ---
-    TEACACHE_ENABLED = True
+    # --- EasyCache (built-in ComfyUI 0.14+, similar to TeaCache for speedup) ---
+    EASYCACHE_ENABLED = True
 
-    if TEACACHE_ENABLED:
-        # Insert TeaCache between UNET and ModelSamplingSD3
+    if EASYCACHE_ENABLED:
+        # Insert EasyCache between UNET and ModelSamplingSD3
         workflow["200"] = {
-            "class_type": "TeaCache",
+            "class_type": "EasyCache",
             "inputs": {
                 "model": ["77", 0],
-                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
-                "rel_l1_thresh": 0.3,
-                "start_percent": 0.1,
-                "end_percent": 1.0,
-                "cache_device": "cuda",
+                "reuse_threshold": 0.2,
+                "start_percent": 0.15,
+                "end_percent": 0.95,
+                "verbose": False,
             },
         }
         workflow["201"] = {
-            "class_type": "TeaCache",
+            "class_type": "EasyCache",
             "inputs": {
                 "model": ["103", 0],
-                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
-                "rel_l1_thresh": 0.3,
-                "start_percent": 0.1,
-                "end_percent": 1.0,
-                "cache_device": "cuda",
+                "reuse_threshold": 0.2,
+                "start_percent": 0.15,
+                "end_percent": 0.95,
+                "verbose": False,
             },
         }
-        # Wire: UNET → TeaCache → ModelSamplingSD3
+        # Wire: UNET → EasyCache → ModelSamplingSD3
         workflow["54"]["inputs"]["model"] = ["200", 0]
         workflow["55"]["inputs"]["model"] = ["201", 0]
 
@@ -777,8 +775,8 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        if TEACACHE_ENABLED:
-            # Chain: UNET → LoRA → TeaCache → ModelSamplingSD3
+        if EASYCACHE_ENABLED:
+            # Chain: UNET → LoRA → EasyCache → ModelSamplingSD3
             workflow["200"]["inputs"]["model"] = ["112", 0]
         else:
             # Chain: UNET → LoRA → ModelSamplingSD3
@@ -793,7 +791,7 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        if TEACACHE_ENABLED:
+        if EASYCACHE_ENABLED:
             workflow["201"]["inputs"]["model"] = ["113", 0]
         else:
             workflow["55"]["inputs"]["model"] = ["113", 0]
