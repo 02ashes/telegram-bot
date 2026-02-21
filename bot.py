@@ -179,6 +179,11 @@ async def api_video(request: Request):
         width = int(body.get("width", 0))
         height = int(body.get("height", 0))
         action = body.get("action", "none")
+        shift = float(body.get("shift", 5.0))
+        cfg_high = float(body.get("cfg_high", 5.0))
+        cfg_low = float(body.get("cfg_low", 1.0))
+        lora_strength = float(body.get("lora_strength", 1.3))
+        scheduler = body.get("scheduler", "beta")
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
@@ -186,8 +191,8 @@ async def api_video(request: Request):
         image_bytes = base64.b64decode(image_b64)
 
         logger.info(
-            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s",
-            prompt[:60], frames, fps, width, height, audio_enabled, action,
+            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s, shift=%.1f, cfg=%.1f/%.1f",
+            prompt[:60], frames, fps, width, height, audio_enabled, action, shift, cfg_high, cfg_low,
         )
 
         result_bytes = await comfyui_api.run_video(
@@ -202,6 +207,11 @@ async def api_video(request: Request):
             width=width,
             height=height,
             action=action,
+            shift=shift,
+            cfg_high=cfg_high,
+            cfg_low=cfg_low,
+            lora_strength=lora_strength,
+            scheduler=scheduler,
         )
 
         if result_bytes is None:

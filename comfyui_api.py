@@ -548,12 +548,19 @@ def build_wan_i2v_workflow(
     height: int = 1280,
     seed: int | None = None,
     action: str = "none",
+    shift: float = 5.0,
+    cfg_high: float = 5.0,
+    cfg_low: float = 1.0,
+    lora_strength: float = 1.3,
+    scheduler: str = "beta",
 ) -> dict:
     """Build a WAN 2.2 Remix NSFW I2V workflow with optional MMAudio.
 
-    Uses dual-sampler architecture (20 high + 10 low steps, no LoRA).
-    Optional action LoRA for specific NSFW interactions.
-    Based on Wan2.2-Remix-comfy-i2v-workflow.json (FastUnsharpSharpen removed).
+    Uses dual-sampler architecture with multi-stage CFG:
+    - High noise sampler: CFG=5 (stamps the action) with beta scheduler
+    - Low noise sampler: CFG=1 (smooths details) with beta scheduler
+    Optimal shift=5 for dynamic NSFW actions.
+    Optional action LoRA at strength 1.3 to compensate for missing I2V keys.
     """
     if seed is None:
         seed = int(uuid.uuid4().int % (2**32))
@@ -605,15 +612,15 @@ def build_wan_i2v_workflow(
             "class_type": "ModelSamplingSD3",
             "inputs": {
                 "model": ["77", 0],  # updated below if LoRA
-                "shift": 8,
+                "shift": shift,
             },
         },
-        # ModelSamplingSD3 shift=8 for low lighting
+        # ModelSamplingSD3 for low lighting
         "55": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
                 "model": ["103", 0],  # updated below if LoRA
-                "shift": 8,
+                "shift": shift,
             },
         },
         # VAE
@@ -674,9 +681,9 @@ def build_wan_i2v_workflow(
                 "add_noise": "enable",
                 "return_with_leftover_noise": "enable",
                 "steps": 30,
-                "cfg": 1,
+                "cfg": cfg_high,
                 "sampler_name": "euler",
-                "scheduler": "simple",
+                "scheduler": scheduler,
                 "start_at_step": 0,
                 "end_at_step": 20,
             },
@@ -693,9 +700,9 @@ def build_wan_i2v_workflow(
                 "add_noise": "disable",
                 "return_with_leftover_noise": "disable",
                 "steps": 30,
-                "cfg": 1,
+                "cfg": cfg_low,
                 "sampler_name": "euler",
-                "scheduler": "simple",
+                "scheduler": scheduler,
                 "start_at_step": 20,
                 "end_at_step": 10000,
             },
@@ -734,7 +741,7 @@ def build_wan_i2v_workflow(
             "inputs": {
                 "model": ["77", 0],
                 "lora_name": lora_high,
-                "strength_model": 1.0,
+                "strength_model": lora_strength,
             },
         }
         # Redirect ModelSamplingSD3 high to LoRA output
@@ -746,7 +753,7 @@ def build_wan_i2v_workflow(
             "inputs": {
                 "model": ["103", 0],
                 "lora_name": lora_low,
-                "strength_model": 1.0,
+                "strength_model": lora_strength,
             },
         }
         # Redirect ModelSamplingSD3 low to LoRA output
@@ -1279,6 +1286,11 @@ async def run_video(
     width: int = 0,
     height: int = 0,
     action: str = "none",
+    shift: float = 5.0,
+    cfg_high: float = 5.0,
+    cfg_low: float = 1.0,
+    lora_strength: float = 1.3,
+    scheduler: str = "beta",
 ) -> bytes | None:
     """Full video pipeline via RunPod Serverless.
 
@@ -1332,6 +1344,11 @@ async def run_video(
         width=width,
         height=height,
         action=action,
+        shift=shift,
+        cfg_high=cfg_high,
+        cfg_low=cfg_low,
+        lora_strength=lora_strength,
+        scheduler=scheduler,
     )
 
     # Submit job with image

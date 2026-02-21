@@ -751,6 +751,11 @@ async function generateVideo(prompt) {
             height: height,
             audio_enabled: audioEnabled,
             action: document.getElementById('actionSelect')?.value || 'none',
+            shift: parseFloat(document.getElementById('shiftSlider')?.value || 5),
+            cfg_high: parseFloat(document.getElementById('cfgHighSlider')?.value || 5),
+            cfg_low: parseFloat(document.getElementById('cfgLowSlider')?.value || 1),
+            lora_strength: parseFloat(document.getElementById('loraStrSlider')?.value || 1.3),
+            scheduler: 'beta',
         };
 
         if (audioEnabled) {
