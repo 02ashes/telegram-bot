@@ -56,9 +56,15 @@ RUN pip install --no-cache-dir \
     omegaconf \
     toml
 
-# NOTE: xformers/triton skipped — base image PyTorch 2.10+cu128
-# xformers pulls incompatible torchvision, triton needs cu130+
-# HIGH_VRAM + --fast + --gpu-only still provide significant speedup
+# ---- Upgrade PyTorch to cu130 (unlock optimized CUDA & Triton backends) ----
+# Base image has PyTorch 2.9.1+cu128, but H100 CUDA 13.0 supports cu130
+# This enables comfy_kitchen cuda/triton backends for faster rope operations
+RUN pip install --no-cache-dir --pre \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/nightly/cu130
+
+# Install Triton for optimized kernels
+RUN pip install --no-cache-dir triton
 
 # ---- Remove ComfyUI-Manager (saves ~2 min on cold start) ----
 RUN rm -rf /comfyui/custom_nodes/ComfyUI-Manager

@@ -221,6 +221,26 @@ async def api_video(request: Request):
         )
 
 
+@app.post("/api/video/cancel/{job_id}")
+async def api_video_cancel(job_id: str, request: Request):
+    """Cancel a running video generation job on RunPod."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    try:
+        success = await comfyui_api.cancel_job(job_id)
+        if success:
+            return JSONResponse(content={"status": "cancelled", "job_id": job_id})
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Failed to cancel job"},
+            )
+    except Exception as e:
+        logger.exception("Cancel error")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @app.post("/api/image-edit")
 async def api_image_edit(request: Request):
     """Edit image via Flux 2 Klein 9B on RunPod Serverless."""

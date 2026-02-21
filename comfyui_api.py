@@ -839,10 +839,11 @@ async def submit_job(workflow: dict, images: list[dict]) -> str | None:
             return job_id
 
 
-async def poll_job(job_id: str, timeout: int = 600) -> dict | None:
+async def poll_job(job_id: str, timeout: int = 1200) -> dict | None:
     """Poll RunPod Serverless for job completion.
     
     Returns the output dict or None on timeout/failure.
+    Default timeout: 1200s (20 minutes) to handle long NSFW video generation.
     """
     url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
     headers = {
@@ -863,6 +864,9 @@ async def poll_job(job_id: str, timeout: int = 600) -> dict | None:
                     elif status == "FAILED":
                         logger.error("Job %s failed: %s", job_id, data.get("error"))
                         return None
+                    elif status == "CANCELLED":
+                        logger.info("Job %s was cancelled", job_id)
+                        return None
                     elif status in ("IN_QUEUE", "IN_PROGRESS"):
                         if i % 5 == 0:
                             logger.info("Job %s status: %s", job_id, status)
@@ -873,6 +877,54 @@ async def poll_job(job_id: str, timeout: int = 600) -> dict | None:
 
     logger.error("Job %s timed out after %d seconds", job_id, timeout)
     return None
+
+
+async def cancel_job(job_id: str) -> bool:
+    """Cancel a running or queued RunPod job.
+    
+    Returns True if cancel request was sent successfully.
+    """
+    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/cancel/{job_id}"
+    headers = {
+        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers) as resp:
+                if resp.status == 200:
+                    logger.info("Job %s cancel requested", job_id)
+                    return True
+                else:
+                    logger.warning("Failed to cancel job %s: %s", job_id, resp.status)
+                    return False
+    except Exception as e:
+        logger.error("Cancel error: %s", e)
+        return False
+
+
+async def get_job_status(job_id: str) -> dict:
+    """Get current status of a RunPod job.
+    
+    Returns dict with {status, output?}.
+    """
+    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
+    headers = {
+        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as resp:
+                data = await resp.json()
+                return {
+                    "status": data.get("status", "UNKNOWN"),
+                    "output": data.get("output"),
+                    "error": data.get("error"),
+                }
+    except Exception as e:
+        logger.error("Status check error: %s", e)
+        return {"status": "ERROR", "error": str(e)}
 
 
 async def run_inpaint(
@@ -1297,9 +1349,9 @@ async def run_video(
         logger.error("Failed to submit video job")
         return None
 
-    # Poll for result (video takes longer, use 600s timeout)
+    # Poll for result (video takes longer, use 1200s / 20min timeout)
     logger.info("Waiting for video result (job: %s)...", job_id)
-    output = await poll_job(job_id, timeout=600)
+    output = await poll_job(job_id, timeout=1200)
 
     if not output:
         return None

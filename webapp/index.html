@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=7">
+    <link rel="stylesheet" href="/style.css?v=8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -216,6 +216,9 @@
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <span id="progressText">Starting...</span>
+                <button id="cancelVideoBtn" onclick="cancelVideoGeneration()"
+                    style="display:none; margin-top: 8px; padding: 8px 20px; background: #e74c3c; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%;">🚫
+                    Cancel Generation</button>
             </div>
             <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
                 <span>🟠 Loading model...</span>
@@ -263,7 +266,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=7"></script>
+    <script src="/app.js?v=8"></script>
 </body>
 
 </html>

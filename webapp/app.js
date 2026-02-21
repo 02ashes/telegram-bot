@@ -688,6 +688,8 @@ async function generateInpaint(prompt) {
 // ============================================================
 // Video Generation
 // ============================================================
+let currentVideoController = null; // AbortController for cancel support
+
 async function generateVideo(prompt) {
     const negative = document.getElementById('negativeInput').value;
     const frames = parseInt(framesSlider.value);
@@ -709,6 +711,10 @@ async function generateVideo(prompt) {
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     resultSection.style.display = 'none';
+
+    // Show cancel button
+    const cancelBtn = document.getElementById('cancelVideoBtn');
+    if (cancelBtn) cancelBtn.style.display = '';
 
     const videoDuration = frames / fps;
     const estimatedTime = Math.max(60, frames * 3); // rough estimate
@@ -752,14 +758,14 @@ async function generateVideo(prompt) {
             body.audio_negative = audioNegative;
         }
 
-        const controller = new AbortController();
-        const fetchTimeout = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 min
+        currentVideoController = new AbortController();
+        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 25 * 60 * 1000); // 25 min
 
         const resp = await fetch('/api/video', {
             method: 'POST',
             headers: authHeaders(),
             body: JSON.stringify(body),
-            signal: controller.signal,
+            signal: currentVideoController.signal,
         });
 
         clearTimeout(fetchTimeout);
@@ -815,15 +821,26 @@ async function generateVideo(prompt) {
     } catch (err) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
-        const msg = err.name === 'AbortError' ? 'Request timed out (10 min limit)' : err.message;
+        const msg = err.name === 'AbortError' ? 'Request cancelled or timed out' : err.message;
         progressText.textContent = '❌ ' + msg;
-        alert('Error: ' + msg);
+        if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
+        currentVideoController = null;
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
         generateBtn.querySelector('.btn-loader').style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
     }
 }
+
+function cancelVideoGeneration() {
+    if (currentVideoController) {
+        currentVideoController.abort();
+        currentVideoController = null;
+        progressText.textContent = '🚫 Cancelling...';
+    }
+}
+
 
 // ============================================================
 // Image Edit Generation (Flux 2 Klein)
