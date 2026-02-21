@@ -689,6 +689,8 @@ async function generateInpaint(prompt) {
 // Video Generation
 // ============================================================
 let currentVideoController = null; // AbortController for cancel support
+let currentVideoJobId = null; // RunPod job ID for polling
+let videoPollingInterval = null; // Polling timer
 
 async function generateVideo(prompt) {
     const negative = document.getElementById('negativeInput').value;
@@ -716,26 +718,8 @@ async function generateVideo(prompt) {
     const cancelBtn = document.getElementById('cancelVideoBtn');
     if (cancelBtn) cancelBtn.style.display = '';
 
-    const videoDuration = frames / fps;
-    const estimatedTime = Math.max(60, frames * 3); // rough estimate
-
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress = Math.min(progress + (90 / (estimatedTime)), 90);
-        progressFill.style.width = progress + '%';
-
-        if (progress < 10) {
-            progressText.textContent = '⚡ Starting...';
-        } else if (progress < 25) {
-            progressText.textContent = '🧠 Preparing...';
-        } else if (progress < 80) {
-            progressText.textContent = `🎬 Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
-        } else if (audioEnabled) {
-            progressText.textContent = '🔊 Generating audio...';
-        } else {
-            progressText.textContent = '📦 Encoding mp4...';
-        }
-    }, 1000);
+    progressFill.style.width = '5%';
+    progressText.textContent = '⚡ Submitting job...';
 
     try {
         const imageDataURL = getImageDataURL();
@@ -764,57 +748,97 @@ async function generateVideo(prompt) {
             body.audio_negative = audioNegative;
         }
 
-        currentVideoController = new AbortController();
-        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 25 * 60 * 1000); // 25 min
-
-        const resp = await fetch('/api/video', {
+        // Step 1: Submit job (fast — returns immediately)
+        const submitResp = await fetch('/api/video', {
             method: 'POST',
             headers: authHeaders(),
             body: JSON.stringify(body),
-            signal: currentVideoController.signal,
         });
 
-        clearTimeout(fetchTimeout);
-
-        console.log('Video response status:', resp.status);
-
-        if (!resp.ok) {
-            const errData = await resp.json().catch(() => null);
-            throw new Error(errData?.error || errData?.detail || `Server error: ${resp.status}`);
+        if (!submitResp.ok) {
+            const errData = await submitResp.json().catch(() => null);
+            throw new Error(errData?.error || `Server error: ${submitResp.status}`);
         }
 
-        console.log('Reading video response body...');
-        let text;
-        try {
-            text = await resp.text();
-        } catch (readErr) {
-            console.error('Failed to read response body:', readErr);
-            throw new Error('Failed to read video response — file may be too large for Telegram WebApp');
-        }
-        console.log('Response text length:', text.length);
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (parseErr) {
-            console.error('Failed to parse JSON:', parseErr);
-            throw new Error('Failed to parse video response JSON');
-        }
-        console.log('Video response keys:', Object.keys(data));
-        console.log('Has video key:', !!data.video);
-        console.log('Video base64 length:', data.video?.length || 0);
-
-        clearInterval(progressInterval);
-
-        if (data.error) {
-            throw new Error(data.error);
+        const submitData = await submitResp.json();
+        if (!submitData.job_id) {
+            throw new Error('No job_id in response');
         }
 
-        progressFill.style.width = '100%';
-        progressText.textContent = '✅ Video ready!';
+        currentVideoJobId = submitData.job_id;
+        console.log('Video job submitted:', currentVideoJobId);
+        progressFill.style.width = '10%';
+        progressText.textContent = '🧠 Job queued...';
 
-        // Show video result
-        const videoBlob = base64ToBlob(data.video, 'video/mp4');
+        // Step 2: Poll for status every 3 seconds
+        const videoDuration = frames / fps;
+        let pollCount = 0;
+        const maxPolls = 400; // 400 * 3s = 20 min max
+
+        const result = await new Promise((resolve, reject) => {
+            videoPollingInterval = setInterval(async () => {
+                pollCount++;
+
+                if (pollCount > maxPolls) {
+                    clearInterval(videoPollingInterval);
+                    videoPollingInterval = null;
+                    reject(new Error('Video generation timed out (20 min)'));
+                    return;
+                }
+
+                try {
+                    const statusResp = await fetch(`/api/video/status/${currentVideoJobId}`, {
+                        headers: authHeaders(),
+                    });
+
+                    if (!statusResp.ok) {
+                        console.warn('Status poll error:', statusResp.status);
+                        return; // retry on next poll
+                    }
+
+                    const statusData = await statusResp.json();
+                    console.log('Poll #' + pollCount + ':', statusData.status);
+
+                    if (statusData.status === 'IN_QUEUE') {
+                        progressFill.style.width = '15%';
+                        progressText.textContent = '⏳ In queue...';
+                    } else if (statusData.status === 'IN_PROGRESS') {
+                        // Gradually fill progress bar during generation
+                        const progress = Math.min(15 + (pollCount * 2), 85);
+                        progressFill.style.width = progress + '%';
+                        if (progress < 50) {
+                            progressText.textContent = `🎬 Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
+                        } else if (audioEnabled && progress > 70) {
+                            progressText.textContent = '🔊 Generating audio...';
+                        } else {
+                            progressText.textContent = `🎬 Generating... ${Math.round(progress)}%`;
+                        }
+                    } else if (statusData.status === 'COMPLETED') {
+                        clearInterval(videoPollingInterval);
+                        videoPollingInterval = null;
+                        resolve(statusData);
+                    } else if (statusData.status === 'FAILED') {
+                        clearInterval(videoPollingInterval);
+                        videoPollingInterval = null;
+                        reject(new Error(statusData.error || 'Video generation failed'));
+                    } else if (statusData.status === 'CANCELLED') {
+                        clearInterval(videoPollingInterval);
+                        videoPollingInterval = null;
+                        reject(new Error('Video generation was cancelled'));
+                    }
+                } catch (pollErr) {
+                    console.warn('Poll error:', pollErr);
+                    // Don't reject — just retry on next interval
+                }
+            }, 3000);
+        });
+
+        // Step 3: Display video
+        progressFill.style.width = '95%';
+        progressText.textContent = '📦 Loading video...';
+
+        console.log('Video completed. Base64 length:', result.video?.length || 0);
+        const videoBlob = base64ToBlob(result.video, 'video/mp4');
         console.log('Video blob size:', videoBlob.size);
         const videoUrl = URL.createObjectURL(videoBlob);
         resultVideo.src = videoUrl;
@@ -822,16 +846,22 @@ async function generateVideo(prompt) {
         resultImage.style.display = 'none';
         resultSection.style.display = '';
 
+        progressFill.style.width = '100%';
+        progressText.textContent = '✅ Video ready!';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
     } catch (err) {
-        clearInterval(progressInterval);
+        if (videoPollingInterval) {
+            clearInterval(videoPollingInterval);
+            videoPollingInterval = null;
+        }
         progressFill.style.width = '0%';
         const msg = err.name === 'AbortError' ? 'Request cancelled or timed out' : err.message;
         progressText.textContent = '❌ ' + msg;
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
+        currentVideoJobId = null;
         generateBtn.disabled = false;
         generateBtn.querySelector('.btn-text').style.display = '';
         generateBtn.querySelector('.btn-loader').style.display = 'none';
@@ -839,12 +869,34 @@ async function generateVideo(prompt) {
     }
 }
 
-function cancelVideoGeneration() {
+async function cancelVideoGeneration() {
+    // Stop polling
+    if (videoPollingInterval) {
+        clearInterval(videoPollingInterval);
+        videoPollingInterval = null;
+    }
+
+    // Cancel RunPod job
+    if (currentVideoJobId) {
+        progressText.textContent = '🚫 Cancelling...';
+        try {
+            await fetch(`/api/video/cancel/${currentVideoJobId}`, {
+                method: 'POST',
+                headers: authHeaders(),
+            });
+        } catch (e) {
+            console.warn('Cancel request failed:', e);
+        }
+        currentVideoJobId = null;
+    }
+
+    // Abort any pending fetch
     if (currentVideoController) {
         currentVideoController.abort();
         currentVideoController = null;
-        progressText.textContent = '🚫 Cancelling...';
     }
+
+    progressText.textContent = '🚫 Cancelled';
 }
 
 

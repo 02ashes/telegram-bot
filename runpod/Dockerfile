@@ -43,6 +43,10 @@ RUN git clone --depth 1 https://github.com/cubiq/ComfyUI_essentials.git && \
 RUN git clone --depth 1 https://github.com/kijai/ComfyUI-DepthAnythingV2.git && \
     (cd ComfyUI-DepthAnythingV2 && pip install -r requirements.txt --quiet 2>/dev/null || true)
 
+# TeaCache (2-3x speedup for video generation via timestep-aware caching)
+RUN git clone --depth 1 https://github.com/welltop-cn/ComfyUI-TeaCache.git && \
+    (cd ComfyUI-TeaCache && pip install -r requirements.txt --quiet 2>/dev/null || true)
+
 # ---- Install additional Python deps ----
 # Matching user's verified working setup
 RUN pip install --no-cache-dir \

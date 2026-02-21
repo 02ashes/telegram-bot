@@ -162,7 +162,7 @@ async def api_inpaint(request: Request):
 
 @app.post("/api/video")
 async def api_video(request: Request):
-    """Generate video via WAN 2.2 I2V on RunPod Serverless."""
+    """Submit video generation job — returns job_id immediately."""
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
@@ -196,7 +196,8 @@ async def api_video(request: Request):
             prompt[:60], frames, fps, width, height, audio_enabled, action, shift, cfg_high, cfg_low, video_steps,
         )
 
-        result_bytes = await comfyui_api.run_video(
+        # Submit job — returns immediately with job_id
+        job_id = await comfyui_api.submit_video(
             image_bytes=image_bytes,
             prompt=prompt,
             negative=negative,
@@ -216,21 +217,34 @@ async def api_video(request: Request):
             steps=video_steps,
         )
 
-        if result_bytes is None:
+        if job_id is None:
             return JSONResponse(
                 status_code=500,
-                content={"error": "Video generation failed. Check RunPod logs."},
+                content={"error": "Failed to submit video job to RunPod."},
             )
 
-        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
-        return JSONResponse(content={"video": result_b64})
+        return JSONResponse(content={"job_id": job_id})
 
     except Exception as e:
-        logger.exception("Video error")
+        logger.exception("Video submit error")
         return JSONResponse(
             status_code=500,
             content={"error": str(e)},
         )
+
+
+@app.get("/api/video/status/{job_id}")
+async def api_video_status(job_id: str, request: Request):
+    """Poll video generation status. Returns video base64 when complete."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    try:
+        result = await comfyui_api.check_video_status(job_id)
+        return JSONResponse(content=result)
+    except Exception as e:
+        logger.exception("Video status error")
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.post("/api/video/cancel/{job_id}")

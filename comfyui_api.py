@@ -609,13 +609,36 @@ def build_wan_i2v_workflow(
                 "weight_dtype": "fp8_e4m3fn",
             },
         },
-        # LoRA removed — connect ModelSamplingSD3 directly to UNET models
-        # (unless action LoRA is set, see below)
-        # ModelSamplingSD3 shift=8 for high lighting
+        # --- TeaCache (2-3x speedup via timestep-aware caching) ---
+        # TeaCache for high lighting model
+        "200": {
+            "class_type": "TeaCache",
+            "inputs": {
+                "model": ["77", 0],  # updated below if LoRA
+                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
+                "rel_l1_thresh": 0.3,
+                "start_percent": 0.1,
+                "end_percent": 1.0,
+                "cache_device": "cuda",
+            },
+        },
+        # TeaCache for low lighting model
+        "201": {
+            "class_type": "TeaCache",
+            "inputs": {
+                "model": ["103", 0],  # updated below if LoRA
+                "model_type": "wan2.1_i2v_480p_14B_ret_mode",
+                "rel_l1_thresh": 0.3,
+                "start_percent": 0.1,
+                "end_percent": 1.0,
+                "cache_device": "cuda",
+            },
+        },
+        # ModelSamplingSD3 shift for high lighting
         "54": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["77", 0],  # updated below if LoRA
+                "model": ["200", 0],  # from TeaCache
                 "shift": shift,
             },
         },
@@ -623,7 +646,7 @@ def build_wan_i2v_workflow(
         "55": {
             "class_type": "ModelSamplingSD3",
             "inputs": {
-                "model": ["103", 0],  # updated below if LoRA
+                "model": ["201", 0],  # from TeaCache
                 "shift": shift,
             },
         },
@@ -748,8 +771,8 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        # Redirect ModelSamplingSD3 high to LoRA output
-        workflow["54"]["inputs"]["model"] = ["112", 0]
+        # Redirect TeaCache high to LoRA output (chain: UNET→LoRA→TeaCache→ModelSamplingSD3)
+        workflow["200"]["inputs"]["model"] = ["112", 0]
 
     if lora_low:
         workflow["113"] = {
@@ -760,8 +783,8 @@ def build_wan_i2v_workflow(
                 "strength_model": lora_strength,
             },
         }
-        # Redirect ModelSamplingSD3 low to LoRA output
-        workflow["55"]["inputs"]["model"] = ["113", 0]
+        # Redirect TeaCache low to LoRA output
+        workflow["201"]["inputs"]["model"] = ["113", 0]
 
     # --- Optional MMAudio ---
     if audio_enabled and audio_prompt:
@@ -1278,7 +1301,7 @@ async def run_dark_generate(
         return None
 
 
-async def run_video(
+async def submit_video(
     image_bytes: bytes,
     prompt: str,
     negative: str = "",
@@ -1296,13 +1319,13 @@ async def run_video(
     lora_strength: float = 1.3,
     scheduler: str = "beta",
     steps: int = 20,
-) -> bytes | None:
-    """Full video pipeline via RunPod Serverless.
+) -> str | None:
+    """Submit video generation job to RunPod (returns immediately).
 
     1. Resize input image to target resolution
-    2. Submit WAN I2V workflow + image to RunPod Serverless
-    3. Poll for result
-    4. Return result video bytes (mp4)
+    2. Build WAN I2V workflow
+    3. Submit to RunPod Serverless
+    4. Return job_id (does NOT wait for completion)
     """
 
     # Open image and auto-detect resolution if not explicitly set
@@ -1310,7 +1333,6 @@ async def run_video(
     orig_w, orig_h = img.size
 
     if width == 0 or height == 0:
-        # Auto-detect: scale so longest side = 1280, round to multiple of 16
         max_side = 1280
         if max(orig_w, orig_h) > max_side:
             scale = max_side / max(orig_w, orig_h)
@@ -1319,7 +1341,6 @@ async def run_video(
         else:
             width = orig_w
             height = orig_h
-        # Round to nearest multiple of 16 (required by WAN model)
         width = max(16, (width // 16) * 16)
         height = max(16, (height // 16) * 16)
         logger.info("Auto-detected resolution: %dx%d → %dx%d", orig_w, orig_h, width, height)
@@ -1330,10 +1351,8 @@ async def run_video(
     img.save(buf, format="PNG")
     resized_bytes = buf.getvalue()
 
-    # Encode as base64
     image_b64 = _image_to_base64(resized_bytes)
 
-    # Build workflow
     logger.info(
         "Building WAN I2V workflow (prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s)...",
         prompt[:50], frames, fps, width, height, audio_enabled,
@@ -1357,13 +1376,7 @@ async def run_video(
         steps=steps,
     )
 
-    # Submit job with image
-    images = [
-        {
-            "name": "video_input.png",
-            "image": image_b64,
-        }
-    ]
+    images = [{"name": "video_input.png", "image": image_b64}]
 
     logger.info("Submitting video job to RunPod Serverless (endpoint: %s)...", config.RUNPOD_ENDPOINT_ID)
     job_id = await submit_job(workflow, images)
@@ -1372,38 +1385,50 @@ async def run_video(
         logger.error("Failed to submit video job")
         return None
 
-    # Poll for result (video takes longer, use 1200s / 20min timeout)
-    logger.info("Waiting for video result (job: %s)...", job_id)
-    output = await poll_job(job_id, timeout=1200)
+    logger.info("Video job submitted: %s", job_id)
+    return job_id
 
-    if not output:
-        return None
 
-    # Extract result video from output
-    # Worker 5.0+ format: {"images": [{"filename": "...", "type": "base64", "data": "..."}]}
-    logger.info("RunPod video output type: %s", type(output).__name__)
-    if isinstance(output, dict):
-        logger.info("RunPod video output keys: %s", list(output.keys()))
+async def check_video_status(job_id: str) -> dict:
+    """Check video generation job status and extract result if complete.
 
-    try:
-        video_bytes = _extract_file_from_output(output, prefer_video=True)
-        if not video_bytes:
-            logger.error("Could not extract video from RunPod output")
-            return None
+    Returns dict with:
+        {"status": "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | "CANCELLED",
+         "video": "base64..." (only when COMPLETED),
+         "error": "..." (only when FAILED)}
+    """
+    status_data = await get_job_status(job_id)
+    status = status_data.get("status", "UNKNOWN")
 
-        # Verify it looks like an MP4 (starts with ftyp box or mdat)
-        if len(video_bytes) > 8:
-            logger.info(
-                "Video output: %d bytes, magic: %s",
-                len(video_bytes),
-                video_bytes[:12].hex(),
-            )
+    if status == "COMPLETED":
+        output = status_data.get("output")
+        if not output:
+            return {"status": "FAILED", "error": "No output in completed job"}
 
-        return video_bytes
-    except Exception as e:
-        logger.error("Failed to parse video result: %s (type: %s)", e, type(e).__name__)
-        logger.error("Output preview: %s", str(output)[:500])
-        return None
+        try:
+            video_bytes = _extract_file_from_output(output, prefer_video=True)
+            if not video_bytes:
+                return {"status": "FAILED", "error": "Could not extract video from output"}
+
+            if len(video_bytes) > 8:
+                logger.info("Video output: %d bytes, magic: %s",
+                            len(video_bytes), video_bytes[:12].hex())
+
+            video_b64 = base64.b64encode(video_bytes).decode("utf-8")
+            return {"status": "COMPLETED", "video": video_b64}
+        except Exception as e:
+            logger.error("Failed to extract video: %s", e)
+            return {"status": "FAILED", "error": str(e)}
+
+    elif status == "FAILED":
+        return {"status": "FAILED", "error": status_data.get("error", "Unknown error")}
+
+    elif status == "CANCELLED":
+        return {"status": "CANCELLED"}
+
+    else:
+        # IN_QUEUE, IN_PROGRESS, etc.
+        return {"status": status}
 
 
 def _extract_file_from_output(output, prefer_video: bool = False) -> bytes | None:
