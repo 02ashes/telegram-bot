@@ -192,8 +192,8 @@ async def api_video(request: Request):
         image_bytes = base64.b64decode(image_b64)
 
         logger.info(
-            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s, shift=%.1f, cfg=%.1f/%.1f",
-            prompt[:60], frames, fps, width, height, audio_enabled, action, shift, cfg_high, cfg_low,
+            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s, shift=%.1f, cfg=%.1f/%.1f, steps=%d",
+            prompt[:60], frames, fps, width, height, audio_enabled, action, shift, cfg_high, cfg_low, video_steps,
         )
 
         result_bytes = await comfyui_api.run_video(
