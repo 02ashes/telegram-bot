@@ -135,6 +135,7 @@ def build_flux_klein_edit_workflow(
     lora_strength: float = 0.7,
     model_name: str = "flux-2-klein-9b.safetensors",
     weight_dtype: str = "fp8_e4m3fn",
+    character_loras: list[dict] | None = None,
 ) -> dict:
     """Build Flux 2 Klein 9B advanced image editing workflow for ComfyUI API.
 
@@ -323,17 +324,34 @@ def build_flux_klein_edit_workflow(
     }
 
     # Optional LoRA (e.g. NSFW LoRA for Klein)
+    last_model_ref = ["106", 0]
     if lora_name:
         workflow["144"] = {
             "class_type": "LoraLoaderModelOnly",
             "inputs": {
-                "model": ["106", 0],
+                "model": last_model_ref,
                 "lora_name": lora_name,
                 "strength_model": lora_strength,
             },
         }
-        # Redirect KSampler model input to LoRA output
-        workflow["138"]["inputs"]["model"] = ["144", 0]
+        last_model_ref = ["144", 0]
+
+    # Chain character LoRAs
+    if character_loras:
+        for i, char_lora in enumerate(character_loras):
+            node_id = str(300 + i)
+            workflow[node_id] = {
+                "class_type": "LoraLoaderModelOnly",
+                "inputs": {
+                    "model": last_model_ref,
+                    "lora_name": char_lora["lora_name"],
+                    "strength_model": char_lora["strength"],
+                },
+            }
+            last_model_ref = [node_id, 0]
+
+    # Redirect KSampler model input to last LoRA output
+    workflow["138"]["inputs"]["model"] = last_model_ref
 
     if has_reference and crop_w > 0 and crop_h > 0:
         # Crop right half of stitched canvas
@@ -371,6 +389,7 @@ def build_dark_img2img_workflow(
     weight_dtype: str = "default",
     lora_name: str = "",
     lora_strength: float = 1.0,
+    character_loras: list[dict] | None = None,
 ) -> dict:
     """Build a simple img2img workflow for Flux models (Dark Beast).
 
@@ -470,17 +489,35 @@ def build_dark_img2img_workflow(
         },
     }
 
-    # Optional LoRA
+    # Optional LoRA (e.g. Dark Beast)
+    last_model_ref = ["106", 0]  # UNETLoader output
     if lora_name:
         workflow["144"] = {
             "class_type": "LoraLoaderModelOnly",
             "inputs": {
-                "model": ["106", 0],
+                "model": last_model_ref,
                 "lora_name": lora_name,
                 "strength_model": lora_strength,
             },
         }
-        workflow["138"]["inputs"]["model"] = ["144", 0]
+        last_model_ref = ["144", 0]
+
+    # Chain character LoRAs (e.g. misu, anya, etc.)
+    if character_loras:
+        for i, char_lora in enumerate(character_loras):
+            node_id = str(300 + i)
+            workflow[node_id] = {
+                "class_type": "LoraLoaderModelOnly",
+                "inputs": {
+                    "model": last_model_ref,
+                    "lora_name": char_lora["lora_name"],
+                    "strength_model": char_lora["strength"],
+                },
+            }
+            last_model_ref = [node_id, 0]
+
+    # Point KSampler to the last model in the chain
+    workflow["138"]["inputs"]["model"] = last_model_ref
 
     return workflow
 
@@ -1154,6 +1191,31 @@ async def run_image_edit(
         return None
 
 
+# -------------------------------------------------------------------------
+# Character LoRAs — trigger word → LoRA filename + strength
+# Add new characters here after training. Trigger word must be lowercase.
+# -------------------------------------------------------------------------
+CHARACTER_LORAS = {
+    "misu": {"lora_name": "misu_lora.safetensors", "strength": 0.9},
+    # "anya":  {"lora_name": "anya_lora.safetensors", "strength": 0.9},
+    # "jane":  {"lora_name": "jane_lora.safetensors", "strength": 0.9},
+    # "lera":  {"lora_name": "lera_lora.safetensors", "strength": 0.9},
+    # "mirana": {"lora_name": "mirana_lora.safetensors", "strength": 0.9},
+    # "moondina": {"lora_name": "moondina_lora.safetensors", "strength": 0.9},
+}
+
+
+def detect_character_loras(prompt: str) -> list[dict]:
+    """Detect character trigger words in prompt, return list of LoRA configs."""
+    prompt_lower = prompt.lower()
+    found = []
+    for trigger, cfg in CHARACTER_LORAS.items():
+        if trigger in prompt_lower:
+            found.append({"trigger": trigger, **cfg})
+            logger.info("Detected character LoRA: %s → %s", trigger, cfg["lora_name"])
+    return found
+
+
 # Dark Beast model config
 # Fast  = base Klein 9B + Dark Beast LoRA (fp16, 1.23 GB) — fast cold-start
 # Detailed = full Dark Beast bf16 checkpoint (31 GB) — better quality
@@ -1189,6 +1251,9 @@ async def run_image_edit_dark(
     quality: 'fast' (Klein 9B + LoRA) or 'detailed' (full bf16 checkpoint)
     """
     model_cfg = DARK_BEAST_MODELS.get(quality, DARK_BEAST_MODELS["fast"])
+
+    # Auto-detect character LoRAs from prompt
+    char_loras = detect_character_loras(prompt)
 
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     orig_w, orig_h = img.size
@@ -1228,6 +1293,7 @@ async def run_image_edit_dark(
         weight_dtype=model_cfg["weight_dtype"],
         lora_name=model_cfg["lora_name"],
         lora_strength=model_cfg["lora_strength"],
+        character_loras=char_loras,
     )
 
     images = [{"name": "edit_input.png", "image": edit_b64}]
@@ -1269,6 +1335,9 @@ async def run_dark_generate(
     """
     model_cfg = DARK_BEAST_MODELS.get(quality, DARK_BEAST_MODELS["fast"])
 
+    # Auto-detect character LoRAs from prompt
+    char_loras = detect_character_loras(prompt)
+
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
     buf = io.BytesIO()
@@ -1285,6 +1354,7 @@ async def run_dark_generate(
         weight_dtype=model_cfg["weight_dtype"],
         lora_name=model_cfg["lora_name"],
         lora_strength=model_cfg["lora_strength"],
+        character_loras=char_loras,
     )
 
     images = [{"name": "edit_input.png", "image": edit_b64}]
