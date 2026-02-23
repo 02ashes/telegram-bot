@@ -1330,7 +1330,7 @@ DARK_GENERATE_MODELS = {
         "clip_type": "lumina2",
         "vae_name": "ae.safetensors",
         "steps_pass1": 8,
-        "steps_pass2": 8,
+        "steps_pass2": 5,
         "latent_upscale": 1.25,
     },
 }
