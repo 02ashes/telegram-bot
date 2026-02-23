@@ -1326,9 +1326,9 @@ DARK_GENERATE_MODELS = {
     "fast": {
         "model_name": "dark_beast_klein_blitz_bf16.safetensors",
         "weight_dtype": "default",
-        "turbo_lora": "klein_9B_Turbo_r128.safetensors",
-        "turbo_strength": 1.0,
-        "steps_pass1": 10,
+        "turbo_lora": "",
+        "turbo_strength": 0.0,
+        "steps_pass1": 25,
         "steps_pass2": 5,
     },
     "detailed": {
