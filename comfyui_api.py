@@ -1534,6 +1534,7 @@ def build_dark_generate_v2_workflow(
                 "image": ["178", 0],
                 "upscale_method": "nearest-exact",
                 "megapixels": 1,
+                "resolution_steps": 8,
             },
         }
         workflow["181"] = {

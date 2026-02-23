@@ -34,7 +34,7 @@ function handleAuthError(resp) {
 let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
 let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
-let darkResolution = '768x1440'; // resolution for Generate mode
+let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
@@ -166,6 +166,15 @@ function switchMode(mode) {
         el.style.display = mode === 'dark' && (originalImage || darkGenNoImage) ? '' : 'none';
     });
 
+    // Dark Mode/Quality toggles always show when Dark tab is active
+    if (mode === 'dark') {
+        const modeSection = document.getElementById('darkModeSection');
+        if (modeSection) modeSection.style.display = '';
+        // Quality only for Edit mode
+        const qualitySection = document.getElementById('darkQualitySection');
+        if (qualitySection) qualitySection.style.display = darkMode === 'edit' ? '' : 'none';
+    }
+
     // In Dark Generate mode, show prompt + generate even without image
     if (darkGenNoImage) {
         document.getElementById('promptSection').style.display = '';
@@ -174,6 +183,19 @@ function switchMode(mode) {
         if (settingsSection) settingsSection.style.display = 'none';
         const resSection = document.getElementById('darkResolutionSection');
         if (resSection) resSection.style.display = '';
+    }
+
+    // Hide negative prompt in Dark Generate mode (ConditioningZeroOut handles it)
+    if (mode === 'dark' && darkMode === 'generate') {
+        const negSection = document.querySelector('.section-title.sub');
+        const negInput = document.getElementById('negativeInput');
+        if (negSection) negSection.style.display = 'none';
+        if (negInput) { negInput.style.display = 'none'; negInput.value = ''; }
+    } else {
+        const negSection = document.querySelector('.section-title.sub');
+        const negInput = document.getElementById('negativeInput');
+        if (negSection) negSection.style.display = '';
+        if (negInput) negInput.style.display = '';
     }
 
     // Update prompt placeholder
