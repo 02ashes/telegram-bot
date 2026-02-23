@@ -40,6 +40,7 @@ let brushSize = 20;
 let isDrawing = false;
 let originalImage = null;
 let originalImage2 = null;  // reference image for Image mode
+let darkImage2 = null;      // second image for Dark mode (combine two girls)
 let mainCtx = null;
 let maskCtx = null;
 let galleryItems = []; // [{dataUrl, timestamp}]
@@ -96,6 +97,13 @@ const darkDenoiseSlider = document.getElementById('darkDenoiseSlider');
 const darkDenoiseLabel = document.getElementById('darkDenoiseLabel');
 const darkStepsSlider = document.getElementById('darkStepsSlider');
 const darkStepsLabel = document.getElementById('darkStepsLabel');
+
+// Dark Image 2 elements
+const darkImg2Add = document.getElementById('darkImg2Add');
+const darkImg2Preview = document.getElementById('darkImg2Preview');
+const darkImg2Img = document.getElementById('darkImg2Img');
+const darkImg2Remove = document.getElementById('darkImg2Remove');
+const darkFileInput2 = document.getElementById('darkFileInput2');
 
 // Tabs
 const tabInpaint = document.getElementById('tabInpaint');
@@ -466,6 +474,103 @@ document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
         btn.classList.add('active');
         darkMode = btn.dataset.darkmode;
     });
+});
+
+// ============================================================
+// Dark Mode: Second Image Upload
+// ============================================================
+function loadDarkImage2(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+            darkImage2 = img;
+            darkImg2Img.src = e.target.result;
+            darkImg2Add.style.display = 'none';
+            darkImg2Preview.style.display = '';
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeDarkImage2() {
+    darkImage2 = null;
+    darkImg2Img.src = '';
+    darkImg2Preview.style.display = 'none';
+    darkImg2Add.style.display = '';
+    if (darkFileInput2) darkFileInput2.value = '';
+}
+
+function getDarkImage2DataURL() {
+    if (!darkImage2) return null;
+    const c = document.createElement('canvas');
+    c.width = darkImage2.naturalWidth;
+    c.height = darkImage2.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(darkImage2, 0, 0);
+    return c.toDataURL('image/png');
+}
+
+if (darkImg2Add) {
+    darkImg2Add.addEventListener('click', () => {
+        if (darkFileInput2) darkFileInput2.click();
+    });
+
+    darkImg2Add.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        darkImg2Add.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+    });
+
+    darkImg2Add.addEventListener('dragleave', () => {
+        darkImg2Add.style.borderColor = '';
+    });
+
+    darkImg2Add.addEventListener('drop', (e) => {
+        e.preventDefault();
+        darkImg2Add.style.borderColor = '';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            loadDarkImage2(file);
+        }
+    });
+}
+
+if (darkFileInput2) {
+    darkFileInput2.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            loadDarkImage2(file);
+        }
+    });
+}
+
+if (darkImg2Remove) {
+    darkImg2Remove.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeDarkImage2();
+    });
+}
+
+// Ctrl+V paste support for dark image2 when the slot is visible
+document.addEventListener('paste', (e) => {
+    if (currentMode !== 'dark') return;
+    // Only handle if we already have image1 (so paste goes to image2 slot)
+    if (!originalImage) return;
+    // If darkImage2 already set, don't override
+    if (darkImage2) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+                loadDarkImage2(file);
+                e.preventDefault();
+            }
+            break;
+        }
+    }
 });
 
 // ============================================================
@@ -1020,6 +1125,7 @@ async function generateDarkEdit(prompt) {
             }
         }, 1500);
 
+        const darkImg2URL = getDarkImage2DataURL();
         const body = {
             image: imageDataURL.split(',')[1],
             prompt: prompt,
@@ -1029,6 +1135,10 @@ async function generateDarkEdit(prompt) {
             quality: darkQuality,
             mode: darkMode,
         };
+
+        if (darkImg2URL) {
+            body.image2 = darkImg2URL.split(',')[1];
+        }
 
         currentVideoController = new AbortController();
         const fetchTimeout = setTimeout(() => currentVideoController.abort(), 10 * 60 * 1000); // 10 min

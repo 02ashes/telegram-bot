@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=11">
+    <link rel="stylesheet" href="/style.css?v=12">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -36,6 +36,24 @@
                     <span>Tap to upload or paste (Ctrl+V)</span>
                 </div>
                 <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- DARK MODE: Second Image Slot -->
+        <!-- ============================================ -->
+        <div class="section dark-only" id="darkImage2Section" style="display:none;">
+            <div class="section-title">➕ Second Photo <span class="dark-img2-hint">(combine two girls)</span></div>
+            <div class="dark-img2-container" id="darkImg2Container">
+                <div class="dark-img2-add" id="darkImg2Add">
+                    <span class="dark-img2-plus">+</span>
+                    <span class="dark-img2-label">Tap to add 2nd photo</span>
+                </div>
+                <div class="dark-img2-preview" id="darkImg2Preview" style="display:none;">
+                    <img id="darkImg2Img" src="" alt="Image 2">
+                    <button class="dark-img2-remove" id="darkImg2Remove">✕</button>
+                </div>
+                <input type="file" id="darkFileInput2" accept="image/*" hidden>
             </div>
         </div>
 
@@ -291,7 +309,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=11"></script>
+    <script src="/app.js?v=12"></script>
 </body>
 
 </html>

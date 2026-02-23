@@ -4,7 +4,7 @@
 # Adds: custom nodes, patched handler for video output
 # Models: loaded from Network Volume at runtime
 # ============================================================
-FROM runpod/worker-comfyui:5.7.0-base AS base
+FROM runpod/worker-comfyui:5.7.1-base AS base
 
 # ---- Update ComfyUI to latest (need Flux 2 Klein / Qwen3 support) ----
 WORKDIR /comfyui
@@ -59,12 +59,11 @@ RUN pip install --no-cache-dir \
     toml \
     "diffusers>=0.31.0"
 
-# NOTE: comfy_kitchen cuda/triton backends require CUDA Runtime 13.0+
-# Base image has CUDA 12.6, so we stay on cu128 (eager backend, ~10% slower but works fine)
-# When RunPod updates base images to CUDA 13.0, uncomment the line below:
-# RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu130
+# PyTorch cu130 disabled — RunPod H100s currently run CUDA 12.6.3, cu130 needs 13.0+
+# Base image already has PyTorch 2.9.1+cu128 which works fine
+# RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 
-# Install Triton (may still help with some operations)
+# Install Triton (required for triton backend)
 RUN pip install --no-cache-dir triton
 
 # ---- Remove ComfyUI-Manager (saves ~2 min on cold start) ----
