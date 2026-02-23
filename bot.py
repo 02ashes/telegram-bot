@@ -343,10 +343,12 @@ async def api_image_edit_dark(request: Request):
         quality = body.get("quality", "fast")
         dark_mode = body.get("mode", "edit")  # "edit" or "generate"
 
-        if not image_b64 or not prompt:
-            return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+        if not prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing prompt"})
+        if dark_mode == "edit" and not image_b64:
+            return JSONResponse(status_code=400, content={"error": "Missing image (required for Edit mode)"})
 
-        image_bytes = base64.b64decode(image_b64)
+        image_bytes = base64.b64decode(image_b64) if image_b64 else None
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
 
         logger.info(
@@ -355,14 +357,18 @@ async def api_image_edit_dark(request: Request):
         )
 
         if dark_mode == "generate":
+            # Dark Generate V2: text2img with optional reference
+            width = int(body.get("width", 768))
+            height = int(body.get("height", 1440))
+            reference_bytes = image_bytes if image_b64 else None
+
             result_bytes = await comfyui_api.run_dark_generate(
-                image_bytes=image_bytes,
                 prompt=prompt,
                 negative=negative,
-                denoise=denoise,
-                steps=steps,
-                cfg=cfg,
+                width=width,
+                height=height,
                 quality=quality,
+                reference_bytes=reference_bytes,
             )
         else:
             result_bytes = await comfyui_api.run_image_edit_dark(

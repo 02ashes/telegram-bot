@@ -34,6 +34,7 @@ function handleAuthError(resp) {
 let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
 let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
+let darkResolution = '768x1440'; // resolution for Generate mode
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
@@ -148,6 +149,9 @@ function switchMode(mode) {
     tabImage.classList.toggle('active', mode === 'image');
     tabDark.classList.toggle('active', mode === 'dark');
 
+    // Dark Generate can work without image (text2img)
+    const darkGenNoImage = (mode === 'dark' && darkMode === 'generate');
+
     // Show/hide mode-specific sections
     document.querySelectorAll('.inpaint-only').forEach(el => {
         el.style.display = mode === 'inpaint' && originalImage ? '' : 'none';
@@ -159,8 +163,18 @@ function switchMode(mode) {
         el.style.display = mode === 'image' && originalImage ? '' : 'none';
     });
     document.querySelectorAll('.dark-only').forEach(el => {
-        el.style.display = mode === 'dark' && originalImage ? '' : 'none';
+        el.style.display = mode === 'dark' && (originalImage || darkGenNoImage) ? '' : 'none';
     });
+
+    // In Dark Generate mode, show prompt + generate even without image
+    if (darkGenNoImage) {
+        document.getElementById('promptSection').style.display = '';
+        document.getElementById('generateSection').style.display = '';
+        const settingsSection = document.getElementById('darkSettingsSection');
+        if (settingsSection) settingsSection.style.display = 'none';
+        const resSection = document.getElementById('darkResolutionSection');
+        if (resSection) resSection.style.display = '';
+    }
 
     // Update prompt placeholder
     const promptInput = document.getElementById('promptInput');
@@ -169,7 +183,9 @@ function switchMode(mode) {
     } else if (mode === 'video') {
         promptInput.placeholder = 'Describe motion (woman slowly turns her head, smiles...)';
     } else if (mode === 'dark') {
-        promptInput.placeholder = 'Dark Beast: describe NSFW edit...';
+        promptInput.placeholder = darkMode === 'generate'
+            ? 'Describe the scene (misu, sitting on a couch, bedroom...)'
+            : 'Dark Beast: describe NSFW edit...';
     } else {
         promptInput.placeholder = 'Describe the edit (add cum on face, finger in ass, remove clothes...)';
     }
@@ -186,7 +202,7 @@ function switchMode(mode) {
     const btnText = generateBtn.querySelector('.btn-text');
     if (mode === 'inpaint') btnText.textContent = '🚀 Generate';
     else if (mode === 'video') btnText.textContent = '🎬 Generate Video';
-    else if (mode === 'dark') btnText.textContent = '🖤 Dark Beast';
+    else if (mode === 'dark') btnText.textContent = darkMode === 'generate' ? '🔥 Generate' : '🖤 Dark Beast';
     else btnText.textContent = '🖼️ Edit Image';
 
     // Hide result if mode changed
@@ -473,6 +489,32 @@ document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
         document.querySelectorAll('#darkModeSection .quality-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         darkMode = btn.dataset.darkmode;
+
+        // Show/hide resolution section (only for Generate)
+        const resSection = document.getElementById('darkResolutionSection');
+        if (resSection) resSection.style.display = (darkMode === 'generate' && originalImage !== null || darkMode === 'generate') ? '' : 'none';
+
+        // Update reference hint
+        const hint = document.getElementById('darkImg2Hint');
+        if (hint) {
+            hint.textContent = darkMode === 'generate' ? '(optional: pose, object, prop)' : '(combine two girls)';
+        }
+
+        // Update settings visibility — hide denoise/steps for Generate (handled internally)
+        const settingsSection = document.getElementById('darkSettingsSection');
+        if (settingsSection) settingsSection.style.display = darkMode === 'edit' ? '' : 'none';
+
+        // Refresh full UI (prompt placeholder, button text, etc.)
+        switchMode('dark');
+    });
+});
+
+// Dark resolution toggle
+document.querySelectorAll('#darkResolutionSection .quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#darkResolutionSection .quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        darkResolution = btn.dataset.res;
     });
 });
 
@@ -679,7 +721,7 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
-    if (!originalImage) {
+    if (!originalImage && !(currentMode === 'dark' && darkMode === 'generate')) {
         alert('Upload a photo first!');
         return;
     }
@@ -1099,7 +1141,6 @@ async function generateDarkEdit(prompt) {
     const negative = document.getElementById('negativeInput').value.trim();
     const denoise = parseFloat(darkDenoiseSlider.value);
     const steps = parseInt(darkStepsSlider.value);
-    const imageDataURL = getImageDataURL();
 
     generateBtn.disabled = true;
     generateBtn.querySelector('.btn-text').style.display = 'none';
@@ -1125,19 +1166,35 @@ async function generateDarkEdit(prompt) {
             }
         }, 1500);
 
-        const darkImg2URL = getDarkImage2DataURL();
         const body = {
-            image: imageDataURL.split(',')[1],
             prompt: prompt,
             negative: negative,
-            denoise: denoise,
-            steps: steps,
             quality: darkQuality,
             mode: darkMode,
         };
 
-        if (darkImg2URL) {
-            body.image2 = darkImg2URL.split(',')[1];
+        if (darkMode === 'generate') {
+            // Generate V2: text2img with optional reference
+            const [w, h] = darkResolution.split('x').map(Number);
+            body.width = w;
+            body.height = h;
+            // Image is optional reference for Generate mode
+            if (originalImage) {
+                const imageDataURL = getImageDataURL();
+                body.image = imageDataURL.split(',')[1];
+            } else {
+                body.image = '';
+            }
+        } else {
+            // Edit mode: image is required
+            const imageDataURL = getImageDataURL();
+            body.image = imageDataURL.split(',')[1];
+            body.denoise = denoise;
+            body.steps = steps;
+            const darkImg2URL = getDarkImage2DataURL();
+            if (darkImg2URL) {
+                body.image2 = darkImg2URL.split(',')[1];
+            }
         }
 
         currentVideoController = new AbortController();
