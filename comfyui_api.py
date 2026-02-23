@@ -1320,24 +1320,18 @@ async def run_image_edit_dark(
 
 
 # -------------------------------------------------------------------------
-# Dark Generate V2 — Two-pass text2img with optional Reference
+# Dark Generate V2 — DarkBeastZ6 (Z-Image Turbo) two-pass text2img
 # -------------------------------------------------------------------------
 DARK_GENERATE_MODELS = {
     "fast": {
-        "model_name": "dark_beast_klein_blitz_bf16.safetensors",
+        "model_name": "DarkBeastZ6-BlitZ-F32-single-transformers.safetensors",
         "weight_dtype": "default",
-        "turbo_lora": "",
-        "turbo_strength": 0.0,
-        "steps_pass1": 25,
-        "steps_pass2": 5,
-    },
-    "detailed": {
-        "model_name": "dark_beast_klein_blitz_bf16.safetensors",
-        "weight_dtype": "default",
-        "turbo_lora": "",
-        "turbo_strength": 0.0,
-        "steps_pass1": 25,
-        "steps_pass2": 5,
+        "clip_name": "zImageTurbo_textEncoder.safetensors",
+        "clip_type": "lumina2",
+        "vae_name": "ae.safetensors",
+        "steps_pass1": 8,
+        "steps_pass2": 8,
+        "latent_upscale": 1.25,
     },
 }
 
@@ -1348,28 +1342,28 @@ def build_dark_generate_v2_workflow(
     width: int = 768,
     height: int = 1440,
     seed: int | None = None,
-    steps_pass1: int = 10,
-    steps_pass2: int = 5,
+    steps_pass1: int = 8,
+    steps_pass2: int = 8,
     cfg: float = 1.0,
-    model_name: str = "DarkBeastKlein-v2-Blitz-9b-BF16-single-transformer.safetensors",
+    model_name: str = "DarkBeastZ6-BlitZ-F32-single-transformers.safetensors",
     weight_dtype: str = "default",
-    turbo_lora: str = "",
-    turbo_strength: float = 1.0,
+    clip_name: str = "zImageTurbo_textEncoder.safetensors",
+    clip_type: str = "lumina2",
+    vae_name: str = "ae.safetensors",
     character_loras: list[dict] | None = None,
-    has_reference: bool = False,
-    upscale_factor: float = 1.5,
+    latent_upscale: float = 1.25,
     upscale_denoise: float = 0.5,
 ) -> dict:
-    """Build two-pass text2img workflow based on original Dark Beast ComfyUI workflow.
+    """Build two-pass text2img workflow — DarkBeastZ6 on Z-Image Turbo.
 
     PASS 1: Text2img
-      UNETLoader → [Turbo LoRA] → [Character LoRAs] → KSampler
-      CLIPLoader → CLIPTextEncode(prompt) → [ReferenceLatent] → positive
-      ConditioningZeroOut(prompt_cond) → [ReferenceLatent] → negative
-      EmptySD3LatentImage(w×h) → KSampler (steps_pass1, cfg, euler/simple, denoise=1)
+      UNETLoader → [Character LoRAs] → KSampler
+      CLIPLoader(lumina2) → CLIPTextEncode(prompt) → positive
+      ConditioningZeroOut(prompt_cond) → negative
+      EmptySD3LatentImage(w×h) → KSampler (8 steps, cfg 1, euler/simple, denoise=1)
 
-    PASS 2: Upscale refine
-      VAEDecode → ImageScaleBy(×1.5) → VAEEncode → KSampler2 (steps_pass2, denoise=0.5)
+    PASS 2: Latent upscale + refine
+      LatentUpscaleBy(×1.25, bicubic) → KSampler2 (8 steps, denoise=0.5)
       VAEDecode → SaveImage
     """
     if seed is None:
@@ -1377,39 +1371,39 @@ def build_dark_generate_v2_workflow(
 
     workflow = {
         # ---- Models ----
-        "106": {
+        "81": {
             "class_type": "UNETLoader",
             "inputs": {
                 "unet_name": model_name,
                 "weight_dtype": weight_dtype,
             },
         },
-        "107": {
+        "3": {
             "class_type": "CLIPLoader",
             "inputs": {
-                "clip_name": "qwen_3_8b.safetensors",
-                "type": "flux2",
+                "clip_name": clip_name,
+                "type": clip_type,
             },
         },
-        "110": {
+        "4": {
             "class_type": "VAELoader",
-            "inputs": {"vae_name": "flux2-vae.safetensors"},
+            "inputs": {"vae_name": vae_name},
         },
 
         # ---- Prompt Encoding ----
-        "108": {
+        "7": {
             "class_type": "CLIPTextEncode",
-            "inputs": {"text": prompt, "clip": ["107", 0]},
+            "inputs": {"text": prompt, "clip": ["3", 0]},
         },
 
         # ---- Negative: ConditioningZeroOut ----
-        "148": {
+        "47": {
             "class_type": "ConditioningZeroOut",
-            "inputs": {"conditioning": ["108", 0]},
+            "inputs": {"conditioning": ["7", 0]},
         },
 
         # ---- Empty Latent (text2img) ----
-        "130": {
+        "10": {
             "class_type": "EmptySD3LatentImage",
             "inputs": {
                 "width": width,
@@ -1419,13 +1413,13 @@ def build_dark_generate_v2_workflow(
         },
 
         # ---- PASS 1: KSampler (text2img, denoise=1.0) ----
-        "138": {
+        "9": {
             "class_type": "KSampler",
             "inputs": {
-                "model": ["106", 0],
-                "positive": ["108", 0],
-                "negative": ["148", 0],
-                "latent_image": ["130", 0],
+                "model": ["81", 0],
+                "positive": ["7", 0],
+                "negative": ["47", 0],
+                "latent_image": ["10", 0],
                 "seed": seed,
                 "control_after_generate": "randomize",
                 "steps": steps_pass1,
@@ -1436,39 +1430,32 @@ def build_dark_generate_v2_workflow(
             },
         },
 
-        # ---- Decode PASS 1 ----
-        "125": {
+        # ---- Decode PASS 1 (preview) ----
+        "25": {
             "class_type": "VAEDecode",
-            "inputs": {"samples": ["138", 0], "vae": ["110", 0]},
+            "inputs": {"samples": ["9", 0], "vae": ["4", 0]},
         },
-        "201": {
+        "12": {
             "class_type": "SaveImage",
-            "inputs": {"images": ["125", 0], "filename_prefix": "TGBot_DarkGen_p1"},
+            "inputs": {"images": ["25", 0], "filename_prefix": "TGBot_DBZ6_p1"},
         },
 
-        # ---- PASS 2: Upscale + Refine ----
-        "179": {
-            "class_type": "ImageScaleBy",
+        # ---- PASS 2: Latent Upscale + Refine ----
+        "78": {
+            "class_type": "LatentUpscaleBy",
             "inputs": {
-                "image": ["125", 0],
+                "samples": ["9", 0],
                 "upscale_method": "bicubic",
-                "scale_by": upscale_factor,
+                "scale_by": latent_upscale,
             },
         },
-        "177": {
-            "class_type": "VAEEncode",
-            "inputs": {
-                "pixels": ["179", 0],
-                "vae": ["110", 0],
-            },
-        },
-        "168": {
+        "76": {
             "class_type": "KSampler",
             "inputs": {
-                "model": ["106", 0],
-                "positive": ["108", 0],
-                "negative": ["148", 0],
-                "latent_image": ["177", 0],
+                "model": ["81", 0],
+                "positive": ["7", 0],
+                "negative": ["47", 0],
+                "latent_image": ["78", 0],
                 "seed": seed,
                 "control_after_generate": "randomize",
                 "steps": steps_pass2,
@@ -1480,29 +1467,18 @@ def build_dark_generate_v2_workflow(
         },
 
         # ---- Decode PASS 2 (final output) ----
-        "171": {
+        "77": {
             "class_type": "VAEDecode",
-            "inputs": {"samples": ["168", 0], "vae": ["110", 0]},
+            "inputs": {"samples": ["76", 0], "vae": ["4", 0]},
         },
-        "202": {
+        "79": {
             "class_type": "SaveImage",
-            "inputs": {"images": ["171", 0], "filename_prefix": "TGBot_DarkGen_v2"},
+            "inputs": {"images": ["77", 0], "filename_prefix": "TGBot_DBZ6_v2"},
         },
     }
 
-    # ---- LoRA chain: Turbo → Character LoRAs ----
-    last_model_ref = ["106", 0]
-
-    if turbo_lora:
-        workflow["144"] = {
-            "class_type": "LoraLoaderModelOnly",
-            "inputs": {
-                "model": last_model_ref,
-                "lora_name": turbo_lora,
-                "strength_model": turbo_strength,
-            },
-        }
-        last_model_ref = ["144", 0]
+    # ---- Character LoRA chain ----
+    last_model_ref = ["81", 0]
 
     if character_loras:
         for i, char_lora in enumerate(character_loras):
@@ -1518,53 +1494,8 @@ def build_dark_generate_v2_workflow(
             last_model_ref = [node_id, 0]
 
     # Point both KSamplers to the last model in the chain
-    workflow["138"]["inputs"]["model"] = last_model_ref
-    workflow["168"]["inputs"]["model"] = last_model_ref
-
-    # ---- Optional Reference Conditioning ----
-    if has_reference:
-        # VAEEncode the reference image
-        workflow["178"] = {
-            "class_type": "LoadImage",
-            "inputs": {"image": "reference_input.png"},
-        }
-        workflow["180"] = {
-            "class_type": "ImageScaleToTotalPixels",
-            "inputs": {
-                "image": ["178", 0],
-                "upscale_method": "nearest-exact",
-                "megapixels": 1,
-                "resolution_steps": 8,
-            },
-        }
-        workflow["181"] = {
-            "class_type": "VAEEncode",
-            "inputs": {
-                "pixels": ["180", 0],
-                "vae": ["110", 0],
-            },
-        }
-        # ReferenceLatent for positive conditioning
-        workflow["182"] = {
-            "class_type": "ReferenceLatent",
-            "inputs": {
-                "conditioning": ["108", 0],
-                "latent": ["181", 0],
-            },
-        }
-        # ReferenceLatent for negative conditioning
-        workflow["183"] = {
-            "class_type": "ReferenceLatent",
-            "inputs": {
-                "conditioning": ["148", 0],
-                "latent": ["181", 0],
-            },
-        }
-        # Redirect KSamplers to use reference-conditioned outputs
-        workflow["138"]["inputs"]["positive"] = ["182", 0]
-        workflow["138"]["inputs"]["negative"] = ["183", 0]
-        workflow["168"]["inputs"]["positive"] = ["182", 0]
-        workflow["168"]["inputs"]["negative"] = ["183", 0]
+    workflow["9"]["inputs"]["model"] = last_model_ref
+    workflow["76"]["inputs"]["model"] = last_model_ref
 
     return workflow
 
@@ -1588,15 +1519,7 @@ async def run_dark_generate(
     # Auto-detect character LoRAs from prompt
     char_loras = detect_character_loras(prompt)
 
-    has_reference = reference_bytes is not None
     images = []
-
-    if has_reference:
-        ref_img = Image.open(io.BytesIO(reference_bytes)).convert("RGB")
-        buf = io.BytesIO()
-        ref_img.save(buf, format="PNG")
-        ref_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-        images.append({"name": "reference_input.png", "image": ref_b64})
 
     workflow = build_dark_generate_v2_workflow(
         prompt=prompt,
@@ -1608,16 +1531,17 @@ async def run_dark_generate(
         cfg=1.0,
         model_name=gen_cfg["model_name"],
         weight_dtype=gen_cfg["weight_dtype"],
-        turbo_lora=gen_cfg["turbo_lora"],
-        turbo_strength=gen_cfg["turbo_strength"],
+        clip_name=gen_cfg["clip_name"],
+        clip_type=gen_cfg["clip_type"],
+        vae_name=gen_cfg["vae_name"],
         character_loras=char_loras,
-        has_reference=has_reference,
+        latent_upscale=gen_cfg["latent_upscale"],
     )
 
     logger.info(
-        "Dark Generate V2 job (quality=%s, %dx%d, pass1=%d steps, ref=%s, chars=%s)",
+        "DarkBeastZ6 Generate job (quality=%s, %dx%d, pass1=%d steps, chars=%s)",
         quality, width, height, gen_cfg["steps_pass1"],
-        has_reference, [c["trigger"] for c in char_loras],
+        [c["trigger"] for c in char_loras],
     )
     job_id = await submit_job(workflow, images)
     if not job_id:

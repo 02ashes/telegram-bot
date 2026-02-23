@@ -1,13 +1,24 @@
 ---
-description: How to train Face LoRA for Flux 2 Klein 9B on RunPod
+description: How to train Face LoRA for Z-Image Turbo (DarkBeastZ6) on RunPod
 ---
 
 # 🎓 Face LoRA Training — Полный Гайд
-## Flux 2 Klein 9B | ai-toolkit | RunPod
+## Z-Image Turbo (DarkBeastZ6) | ai-toolkit | RunPod
 
-> Источники: официальная документация ai-toolkit, Reddit, CivitAI, ZImage.run,
-> китайское сообщество (AiMetatron GY, BMX 726, feishu.cn, smzdm.com),
-> runcomfy.com, HuggingFace, arXiv.
+> Источники: ai-toolkit docs, HuggingFace, CivitAI, Reddit, ZImage.run,
+> китайское сообщество (AiMetatron GY, BMX 726, hinablue.me, cnblogs.com),
+> modelscope.cn, runcomfy.com.
+
+---
+
+## ⚠️ КРИТИЧЕСКОЕ ОТЛИЧИЕ от Flux Klein
+
+Z-Image Turbo — **дистиллированная** модель. Прямая тренировка без адаптера
+**сломает** Turbo-ускорение (модель начнёт требовать 50+ шагов вместо 8).
+
+**Решение**: ai-toolkit имеет специальный **de-distillation training adapter**,
+который "де-дистиллирует" модель на время тренировки, позволяя LoRA учиться
+без потери Turbo-скорости. После тренировки адаптер убирается.
 
 ---
 
@@ -39,7 +50,8 @@ description: How to train Face LoRA for Flux 2 Klein 9B on RunPod
 ├── 2-3 профиль (вид сбоку)
 ├── 3-4 по грудь / по пояс (разная одежда!)
 ├── 2-3 полный рост (стоя, сидя)
-└── 2-3 NSFW (если нужно чтобы LoRA знала тело)
+├── 2-3 NSFW (если нужно чтобы LoRA знала тело)
+└── 1-2 с видимыми татуировками (если есть!)
 
 ❌ УБРАТЬ (испортят результат):
 ├── Лицо закрыто / не видно / размыто
@@ -66,7 +78,21 @@ description: How to train Face LoRA for Flux 2 Klein 9B on RunPod
 > ⚠️ **ВАЖНО из ZImage community**: "Если все фотки на чёрном фоне — LoRA привяжется 
 > к чёрному фону. Если все в одной футболке — LoRA привяжется к футболке."
 
-### 1.4 Captioning (описания) — САМАЯ ВАЖНАЯ ЧАСТЬ
+### 1.4 Про татуировки
+
+⚠️ **Татуировки — самое сложное для LoRA на Z-Image Turbo!**
+
+По данным Reddit и китайского сообщества:
+- Z-Image Turbo **рандомизирует** татуировки даже при большом датасете
+- SDXL LoRA справляются с татуировками лучше
+- Для Z-Image Turbo нужно:
+  - **Больше фоток** с чётко видимыми тату (8-15 фоток ТОЛЬКО тату крупным планом)
+  - **Детальные captions**: "forearm tattoo of a black rose", "chest tattoo of a dragon"
+  - **Rank 128+** для захвата деталей тату
+  - Возможно потребуется **отдельная LoRA** только для тату
+  - Как альтернатива — использовать ControlNet для позиционирования тату
+
+### 1.5 Captioning (описания) — САМАЯ ВАЖНАЯ ЧАСТЬ
 
 Для КАЖДОЙ фотки `XXX.jpg` нужен файл `XXX.txt` с описанием.
 
@@ -118,7 +144,7 @@ misu, a woman standing in front of mirror, cat ear headband, black outfit, full 
 | **Одно и то же** | Одинаковое во всех .txt файлах одной модели |
 | **Без пробелов** | `misu` ✅, `misu model` ❌ |
 
-### 1.5 Авто-captioning
+### 1.6 Авто-captioning
 
 // turbo
 Запусти мой скрипт `auto_caption.py`:
@@ -129,7 +155,7 @@ python auto_caption.py --dir "D:\AI TRAIN\Misu" --trigger "misu"
 
 Это создаст `.txt` файлы автоматически с помощью BLIP, но **ОБЯЗАТЕЛЬНО проверь и подправь** каждый caption вручную! Автоматические описания часто неточные.
 
-### 1.6 Финальная структура папки
+### 1.7 Финальная структура папки
 
 ```
 D:\AI TRAIN\Misu\
@@ -152,17 +178,18 @@ D:\AI TRAIN\Misu\
 
 | Параметр | Значение | Объяснение |
 |---|---|---|
-| **Rank (network_dim)** | **64–128** | Сколько "слотов памяти" у LoRA. Для лица нужно 64+. Китайское сообщество рекомендует 128 для DiT моделей |
-| **Alpha (network_alpha)** | **= Rank** или **Rank/2** | Масштабный коэффициент. alpha=rank → нейтральный эффект. alpha=rank/2 → более стабильно |
-| **Learning Rate** | **1e-4 — 2e-4** | Скорость обучения. 1e-4 для маленьких датасетов (15 фоток), 2e-4 для средних (30+) |
-| **LR Scheduler** | **cosine** | Плавно уменьшает LR к концу тренировки. Лучше чем constant |
-| **Steps** | **1500–2500** | Для 20 фоток ~2000 steps оптимально. Формула: ~100 steps × кол-во фоток |
-| **Batch Size** | **1** | На 16GB VRAM только 1. Но это нормально для face LoRA |
+| **Rank (network_dim)** | **128** | Для Z-Image Turbo нужно 128 чтобы хватило "памяти" для лица + детали тела |
+| **Alpha (network_alpha)** | **128** или **64** | alpha=rank → нейтральный эффект. alpha=rank/2 → более стабильно |
+| **Learning Rate** | **1e-4** | Для Z-Image Turbo 1e-4 оптимально. Выше — нестабильно |
+| **LR Scheduler** | **cosine** | Плавно уменьшает LR к концу тренировки |
+| **Steps** | **2500–3500** | Для Z-Image Turbo нужно чуть больше шагов чем Klein |
+| **Batch Size** | **1–2** | 1 для <= 24GB VRAM, 2 для 48GB+ |
 | **Optimizer** | **adamw8bit** | 8-bit AdamW экономит VRAM без потери качества |
-| **Resolution** | **1024×1024** | Нативное разрешение Klein. НЕ 512! |
+| **Resolution** | **1024×1024** | Нативное разрешение Z-Image Turbo |
 | **Gradient Checkpointing** | **true** | Экономит VRAM ценой ~20% замедления |
-| **Mixed Precision** | **bf16** | RTX 5070 Ti поддерживает bf16 нативно |
-| **Quantize base model** | **true** | 4-bit квантизация базовой модели. Без этого 16GB не хватит! |
+| **Mixed Precision** | **bf16** | fp32 ещё лучше для качества (если влезет) |
+| **Quantize base model** | **true** | Для <= 48GB VRAM. На 80GB можно false |
+| **Training Adapter** | **v1** | ⚠️ КРИТИЧНО! De-distillation adapter |
 
 ### 2.2 Формула расчёта steps
 
@@ -171,6 +198,7 @@ D:\AI TRAIN\Misu\
 
 Пример:
   20 фоток × 30 repeats × 3 epochs = 1800 steps
+  → Для Z-Image Turbo += 50%, итого ~2700 steps
 
 Сохранение каждые 250-500 steps → потом выбираешь лучший чекпоинт
 ```
@@ -180,12 +208,27 @@ D:\AI TRAIN\Misu\
 | Компонент | Тренировать? | Почему |
 |---|---|---|
 | **UNet/DiT** | ✅ Да | Основная визуальная модель — здесь "живёт" лицо |
-| **Text Encoder** | ❌ Нет | Для Flux/Klein text encoder НЕ тренируется. Это не SD 1.5! |
+| **Text Encoder** | ❌ Нет | Для Z-Image Turbo text encoder НЕ тренируется |
 
 ### 2.4 Caption dropout
 
 Установи `caption_dropout_rate: 0.05` — в 5% случаев caption будет пропускаться. 
 Это учит LoRA ассоциировать trigger word с лицом даже без описания.
+
+### 2.5 De-distillation Training Adapter
+
+⚠️ **САМОЕ ВАЖНОЕ ОТЛИЧИЕ от тренировки на Flux/Klein/SDXL!**
+
+Z-Image Turbo — дистиллированная модель. Без адаптера:
+- LoRA "сломает" CFG=1 / 8-step режим
+- Изображения станут размытыми при низком числе шагов
+- Потребуется 30-50 шагов вместо 8
+
+**ai-toolkit автоматически** загружает training adapter если выбран Z-Image Turbo.
+Но убедись что:
+1. `is_z_image_turbo: true` в конфиге (или выбран через UI)
+2. Adapter скачается автоматически при первом запуске
+3. Есть два варианта: **v1** (стабильный, по умолчанию) и **v2** (экспериментальный)
 
 ---
 
@@ -203,36 +246,37 @@ D:\AI TRAIN\Misu\
 **Как избежать:**
 1. ✅ Разнообразный датасет (разные ракурсы, фоны, одежда)
 2. ✅ `save_every: 250` — сохранять чекпоинты и тестировать
-3. ✅ LR не выше 2e-4
-4. ✅ Не больше 3000 steps для 20 фоток
+3. ✅ LR не выше 1.5e-4
+4. ✅ Не больше 3500 steps для 20 фоток
 5. ✅ caption_dropout_rate: 0.05
 6. ✅ Cosine LR scheduler
 
-### 3.2 Недообучение (Underfitting)
+### 3.2 "Turbo Drift" — ТОЛЬКО для Z-Image Turbo
 
 **Признаки:**
-- LoRA почти не влияет на результат
-- Лицо не похоже на оригинал
-- Trigger word не работает
+- LoRA работает только на 30+ шагах
+- При 8 шагах картинка размытая/мусорная
+- Пришлось поднять CFG > 1 чтобы что-то получилось
 
-**Как исправить:**
-1. ✅ Увеличь steps (попробуй 2500-3000)
-2. ✅ Увеличь LR (попробуй 3e-4)
-3. ✅ Увеличь rank (попробуй 128)
-4. ✅ Проверь captions — trigger word на месте?
+**Причина:** Тренировка без de-distillation adapter!
 
-### 3.3 Частые ошибки новичков
+**Решение:**
+- Используй ai-toolkit с `is_z_image_turbo: true`
+- Adapter загрузится автоматически
+- НИКОГДА не тренируй Z-Image Turbo напрямую без адаптера
+
+### 3.3 Частые ошибки
 
 | Ошибка | Последствие | Решение |
 |---|---|---|
 | Все фотки на одном фоне | LoRA привязывается к фону | Разные фоны |
 | Описал лицо в caption | LoRA не учит лицо как "identity" | Не описывай лицо |
 | Rank слишком маленький (8-16) | Не хватает "памяти" для лица | Минимум 64, лучше 128 |
-| Слишком много steps | Переобучение | 1500-2500 для 20 фоток |
+| Слишком много steps | Переобучение | 2500-3500 для 20 фоток |
 | Не проверял чекпоинты | Не знаешь какой лучший | save_every: 250 |
 | Забыл trigger word в caption | LoRA не привязана к слову | Всегда в начале |
 | Фотки low-res (256px) | Модель учит размытые лица | Минимум 512, лучше 1024 |
-| Klein 9B crash при тренировке | Нет квантизации | quantize: true |
+| **Без training adapter** | **Turbo drift! LoRA ломает 8-step** | **is_z_image_turbo: true** |
 
 ---
 
@@ -277,19 +321,20 @@ mkdir -p /workspace/output
 
 ### 4.3 Загрузить базовую модель
 
-Нужен файл `flux-2-klein-9b.safetensors`. Варианты:
+Нужен Z-Image Turbo base model:
 
-**Вариант A — с HuggingFace:**
 ```bash
+# Скачать Z-Image Turbo с HuggingFace
+cd /workspace/models/
 pip install huggingface_hub
-huggingface-cli download black-forest-labs/FLUX.2-klein \
-    flux-2-klein-9b.safetensors \
+huggingface-cli download Comfy-Org/z_image_turbo \
+    split_files/diffusion_models/z_image_turbo.safetensors \
     --local-dir /workspace/models/
 ```
 
-**Вариант B — скопировать с RunPod volume (если уже есть):**
+Или если model уже есть на RunPod volume:
 ```bash
-cp /runpod-volume/ComfyUI/models/unet/flux-2-klein-9b.safetensors /workspace/models/
+cp /runpod-volume/ComfyUI/models/diffusion_models/z_image_turbo_base*.safetensors /workspace/models/
 ```
 
 ### 4.4 Загрузить датасет
@@ -333,20 +378,20 @@ config:
           cache_latents_to_disk: true
       train:
         batch_size: 1
-        steps: 2000
+        steps: 3000
         gradient_accumulation_steps: 1
         train_unet: true
         train_text_encoder: false
         gradient_checkpointing: true
         noise_scheduler: "flowmatch"
         optimizer: "adamw8bit"
-        lr: 1.5e-4
+        lr: 1e-4
         lr_scheduler: "cosine"
         max_denoising_steps: 50
         dtype: bf16
       model:
-        name_or_path: "/workspace/models/flux-2-klein-9b.safetensors"
-        is_flux: true
+        name_or_path: "/workspace/models/z_image_turbo.safetensors"
+        is_z_image_turbo: true
         quantize: true
       sample:
         sampler: "flowmatch"
@@ -359,6 +404,10 @@ config:
           - "misu, a girl close-up face, soft lighting, looking at camera"
 ```
 
+> ⚠️ **Ключевое отличие от Klein**: `is_z_image_turbo: true` — это включает
+> de-distillation training adapter автоматически!
+> Если поле отсутствует, используй UI ai-toolkit и выбери "Z-Image Turbo".
+
 ### 4.6 Запустить тренировку
 
 ```bash
@@ -368,16 +417,17 @@ python run.py config/train_misu.yaml
 
 **Что ты увидишь:**
 ```
-Step 250/2000 | Loss: 0.0834 | LR: 0.000148
+Loading de-distillation training adapter v1...
+Step 250/3000 | Loss: 0.0834 | LR: 0.000098
   → Saving checkpoint...
   → Generating sample images...
-Step 500/2000 | Loss: 0.0612 | LR: 0.000135
+Step 500/3000 | Loss: 0.0612 | LR: 0.000089
   ...
 ```
 
 **Время:**
-- A6000 48GB: ~30-40 минут
-- A100 80GB: ~15-20 минут
+- A6000 48GB: ~40-50 минут
+- A100 80GB: ~20-25 минут
 
 ### 4.7 Выбрать лучший чекпоинт
 
@@ -388,7 +438,7 @@ Step 500/2000 | Loss: 0.0612 | LR: 0.000135
 ├── misu_face_lora_000000500.safetensors
 ├── misu_face_lora_000000750.safetensors
 ├── ...
-├── misu_face_lora_000002000.safetensors   ← последний
+├── misu_face_lora_000003000.safetensors   ← последний
 └── samples/
     ├── sample_000250_0.png   ← превью на 250 шаге
     ├── sample_000500_0.png
@@ -396,13 +446,20 @@ Step 500/2000 | Loss: 0.0612 | LR: 0.000135
 ```
 
 **Посмотри sample PNG файлы** — выбери шаг где лицо наиболее похоже и при этом 
-изображение не "burnt" (не пересыщенное). Обычно лучший результат между step 1000-1500.
+изображение не "burnt" (не пересыщенное). Обычно лучший результат между step 1500-2500.
 
 ### 4.8 Скачать LoRA
 
-Скачай лучший чекпоинт через RunPod File Manager. Переименуй в `misu.safetensors`.
+Скачай лучший чекпоинт через RunPod File Manager. Переименуй в `misu_lora.safetensors`.
 
-### 4.9 Повторить для остальных моделей
+### 4.9 Загрузить на RunPod Serverless volume
+
+```bash
+# На serverless volume:
+cp misu_face_lora_BEST.safetensors /runpod-volume/ComfyUI/models/loras/misu_lora.safetensors
+```
+
+### 4.10 Повторить для остальных моделей
 
 Для каждой модели:
 1. Загрузи фотки в `/workspace/datasets/jane/` (и т.д.)
@@ -432,12 +489,12 @@ python run.py config/train_jane.yaml
 ```bash
 # Положи все LoRA файлы в volume:
 /runpod-volume/ComfyUI/models/loras/
-├── misu.safetensors       (~200-500 MB)
-├── jane.safetensors
-├── anya.safetensors
-├── lera.safetensors
-├── mirana.safetensors
-└── moondina.safetensors
+├── misu_lora.safetensors      (~200-500 MB)
+├── jane_lora.safetensors
+├── anya_lora.safetensors
+├── lera_lora.safetensors
+├── mirana_lora.safetensors
+└── moondina_lora.safetensors
 ```
 
 ### 5.2 Как использовать в промпте
@@ -469,10 +526,10 @@ misu and jane, two young women passionately kissing, topless, bedroom setting
 
 | Модель | GPU | Время | Стоимость |
 |---|---|---|---|
-| 1 модель на A6000 | 48GB | ~35 мин | ~$0.45 |
-| 1 модель на A100 | 80GB | ~18 мин | ~$0.50 |
-| **6 моделей на A100** | 80GB | **~2 часа** | **~$3.30** |
-| 6 моделей на A6000 | 48GB | ~3.5 часа | ~$2.70 |
+| 1 модель на A6000 | 48GB | ~45 мин | ~$0.57 |
+| 1 модель на A100 | 80GB | ~22 мин | ~$0.60 |
+| **6 моделей на A100** | 80GB | **~2.5 часа** | **~$4.10** |
+| 6 моделей на A6000 | 48GB | ~4.5 часа | ~$3.40 |
 
 > Включи ~10-15 мин на setup → итого $4-5 за все 6 LoRA.
 
@@ -482,8 +539,9 @@ misu and jane, two young women passionately kissing, topless, bedroom setting
 
 - [ ] 15-25 фоток каждой модели в отдельных папках
 - [ ] Фотки: лицо видно, разные ракурсы, разная одежда, разный фон
+- [ ] Включены фотки с татуировками крупным планом (если есть)
 - [ ] Убраны: без лица, дубли, водяные знаки, low-res
 - [ ] .txt caption для КАЖДОЙ фотки (trigger word + описание)
 - [ ] Captions проверены вручную
 - [ ] RunPod аккаунт с балансом
-- [ ] Доступ к flux-2-klein-9b.safetensors
+- [ ] Z-Image Turbo base model доступна
