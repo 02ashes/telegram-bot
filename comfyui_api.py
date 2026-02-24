@@ -1196,7 +1196,7 @@ async def run_image_edit(
 # Add new characters here after training. Trigger word must be lowercase.
 # -------------------------------------------------------------------------
 CHARACTER_LORAS = {
-    "misu": {"lora_name": "misu_z6_step1000.safetensors", "strength": 1.5},
+    "misu": {"lora_name": "misu_z6_step1000.safetensors", "strength": 1.0},
     "anya":  {"lora_name": "anya_lora.safetensors", "strength": 0.9},
     # "jane":  {"lora_name": "jane_lora.safetensors", "strength": 0.9},
     # "lera":  {"lora_name": "lera_lora.safetensors", "strength": 0.9},
