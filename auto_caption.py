@@ -1,98 +1,119 @@
-"""Auto-caption images for LoRA training using BLIP-2 or simple descriptions.
+"""
+Auto-captioning script for LoRA training datasets.
+Uses BLIP-large for image descriptions.
 
 Usage:
-    python auto_caption.py --dir "D:\AI TRAIN\Misu" --trigger "misu"
-
-Creates a .txt file for each image with a trigger word + auto-generated caption.
+    python auto_caption.py --dir "AI TRAIN/Misu" --trigger "misu"
+    python auto_caption.py --dir "AI TRAIN/Anya" --trigger "anya" --overwrite
 """
 
 import argparse
-import os
 from pathlib import Path
 
-# Try to use transformers for auto-captioning
-try:
-    from PIL import Image
-    from transformers import BlipProcessor, BlipForConditionalGeneration
-    import torch
-
-    HAS_BLIP = True
-except ImportError:
-    HAS_BLIP = False
-    print("⚠️  transformers/torch not installed. Using manual caption mode.")
-    print("    Install with: pip install transformers torch pillow")
+import torch
+from PIL import Image
+from transformers import BlipProcessor, BlipForConditionalGeneration
 
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+def load_model(device="cuda"):
+    """Load BLIP-large model for captioning."""
+    model_id = "Salesforce/blip-image-captioning-large"
+    print(f"Loading {model_id}...")
+
+    processor = BlipProcessor.from_pretrained(model_id)
+    model = BlipForConditionalGeneration.from_pretrained(
+        model_id,
+        torch_dtype=torch.float16,
+    ).to(device)
+
+    print("Model loaded!")
+    return processor, model
 
 
-def auto_caption_blip(image_path: str) -> str:
-    """Generate caption using BLIP model."""
-    global processor, model
+def caption_image(processor, model, image_path, device="cuda"):
+    """Generate a detailed caption for a single image."""
     image = Image.open(image_path).convert("RGB")
-    inputs = processor(image, return_tensors="pt").to(device)
+
+    # Conditional captioning with prompt for more detail
+    text = "a photo of"
+    inputs = processor(image, text, return_tensors="pt").to(device, torch.float16)
+
     with torch.no_grad():
-        output = model.generate(**inputs, max_new_tokens=100)
-    caption = processor.decode(output[0], skip_special_tokens=True)
+        out = model.generate(
+            **inputs,
+            max_new_tokens=100,
+            num_beams=5,
+            repetition_penalty=1.5,
+        )
+
+    caption = processor.decode(out[0], skip_special_tokens=True)
     return caption
 
 
-def manual_caption_template(filename: str) -> str:
-    """Generate a basic template caption for manual editing."""
-    return "a young woman, portrait photo, looking at camera"
+def clean_caption_for_lora(raw_caption: str, trigger: str) -> str:
+    """Clean up auto-generated caption for LoRA training."""
+    caption = raw_caption.strip()
+
+    # Remove "a photo of" prefix if present
+    for prefix in ["a photo of ", "a photograph of ", "a picture of "]:
+        if caption.lower().startswith(prefix):
+            caption = caption[len(prefix):]
+            break
+
+    # Remove identity phrases that LoRA should learn itself
+    for phrase in ["a young woman", "a woman", "a girl"]:
+        if caption.lower().startswith(phrase):
+            caption = caption[len(phrase):].lstrip(" ,")
+            caption = "a woman " + caption
+            break
+
+    # Build final: trigger + description
+    return f"{trigger}, {caption}"
 
 
-def process_directory(directory: str, trigger_word: str, use_blip: bool = True):
-    """Process all images in directory, creating .txt caption files."""
-    dir_path = Path(directory)
-    images = [f for f in dir_path.iterdir() if f.suffix.lower() in IMAGE_EXTENSIONS]
-
-    if not images:
-        print(f"❌ No images found in {directory}")
-        return
-
-    print(f"📸 Found {len(images)} images in {directory}")
-    print(f"🏷️  Trigger word: {trigger_word}")
-    print()
-
-    for img_path in sorted(images):
-        txt_path = img_path.with_suffix(".txt")
-
-        # Skip if caption already exists
-        if txt_path.exists():
-            print(f"  ⏭️  {img_path.name} — caption exists, skipping")
-            continue
-
-        if use_blip and HAS_BLIP:
-            caption = auto_caption_blip(str(img_path))
-        else:
-            caption = manual_caption_template(img_path.name)
-
-        full_caption = f"{trigger_word}, {caption}"
-        txt_path.write_text(full_caption, encoding="utf-8")
-        print(f"  ✅ {img_path.name} → {full_caption[:80]}...")
-
-    print()
-    print(f"✅ Done! Captions saved as .txt files in {directory}")
-    print("📝 Review and edit the .txt files if needed before training.")
-
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Auto-caption images for LoRA training")
     parser.add_argument("--dir", required=True, help="Directory with images")
     parser.add_argument("--trigger", required=True, help="Trigger word (e.g. 'misu')")
-    parser.add_argument("--no-blip", action="store_true", help="Skip BLIP, use templates")
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite existing .txt")
+    parser.add_argument("--device", default="cuda", help="Device (cuda/cpu)")
     args = parser.parse_args()
 
-    use_blip = HAS_BLIP and not args.no_blip
+    image_dir = Path(args.dir)
+    images = sorted(
+        f for f in image_dir.iterdir()
+        if f.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}
+    )
 
-    if use_blip:
-        print("🧠 Loading BLIP model...")
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
-        model = BlipForConditionalGeneration.from_pretrained(
-            "Salesforce/blip-image-captioning-large"
-        ).to(device)
-        print(f"✅ BLIP loaded on {device}")
+    if not images:
+        print(f"No images found in {image_dir}")
+        return
 
-    process_directory(args.dir, args.trigger, use_blip)
+    print(f"Found {len(images)} images in {image_dir}")
+    processor, model = load_model(args.device)
+
+    for i, img_path in enumerate(images):
+        txt_path = img_path.with_suffix(".txt")
+
+        if txt_path.exists() and not args.overwrite:
+            existing = txt_path.read_text().strip()
+            if len(existing) > len(args.trigger) + 5:
+                print(f"[{i+1}/{len(images)}] SKIP {img_path.name}")
+                continue
+
+        print(f"[{i+1}/{len(images)}] {img_path.name}...", end=" ")
+
+        try:
+            raw = caption_image(processor, model, img_path, args.device)
+            caption = clean_caption_for_lora(raw, args.trigger)
+            txt_path.write_text(caption, encoding="utf-8")
+            print(f"→ {caption[:80]}...")
+        except Exception as e:
+            print(f"ERROR: {e}")
+
+    print(f"\n✅ Done! {len(images)} captions saved.")
+    print(f"⚠️  ОБЯЗАТЕЛЬНО проверь каждый .txt вручную!")
+
+
+if __name__ == "__main__":
+    main()

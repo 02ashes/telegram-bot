@@ -1,0 +1,66 @@
+job: extension
+config:
+  name: "misu_face_lora_z6"
+  process:
+    - type: "sd_trainer"
+      training_folder: "/workspace/output"
+      device: "cuda:0"
+      trigger_word: "misu"
+
+      # ---- Network (LoRA) ----
+      network:
+        type: "lora"
+        linear: 32
+        linear_alpha: 32
+
+      # ---- Save ----
+      save:
+        dtype: fp16
+        save_every: 250
+        max_step_saves_to_keep: 8
+
+      # ---- Dataset ----
+      datasets:
+        - folder_path: "/workspace/datasets/misu"
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05
+          resolution: [1024, 1024]
+          default_caption: "misu"
+          cache_latents_to_disk: true
+
+      # ---- Training ----
+      train:
+        batch_size: 1
+        steps: 3000
+        gradient_accumulation_steps: 1
+        train_unet: true
+        train_text_encoder: false
+        gradient_checkpointing: true
+        noise_scheduler: "flowmatch"
+        optimizer: "adamw8bit"
+        lr: 1e-4
+        weight_decay: 0.0001
+        lr_scheduler: "cosine"
+        lr_warmup_steps: 100
+        max_denoising_steps: 50
+        dtype: bf16
+        timestep_type: "sigmoid"
+        timestep_bias: "balanced"
+
+      # ---- Base Model ----
+      model:
+        name_or_path: "Tongyi-MAI/Z-Image-Turbo"
+        arch: "zimage"
+        quantize: true
+
+      # ---- Sample Preview ----
+      sample:
+        sampler: "flowmatch"
+        sample_every: 250
+        width: 768
+        height: 1024
+        prompts:
+          - "misu, a woman portrait, studio lighting, neutral background, looking at camera"
+          - "misu, a woman sitting on sofa, casual outfit, natural window light, relaxed pose"
+          - "misu, a woman close-up face, soft lighting, slight smile, eye contact"
+          - "misu, a woman full body, standing, black dress, indoor setting, warm lighting"
