@@ -360,6 +360,7 @@ async def api_image_edit_dark(request: Request):
             # Dark Generate V2: text2img with optional reference
             width = int(body.get("width", 768))
             height = int(body.get("height", 1440))
+            lora_strength = float(body.get("lora_strength", 0.95))
             reference_bytes = image_bytes if image_b64 else None
 
             result_bytes = await comfyui_api.run_dark_generate(
@@ -369,6 +370,7 @@ async def api_image_edit_dark(request: Request):
                 height=height,
                 quality=quality,
                 reference_bytes=reference_bytes,
+                lora_strength_override=lora_strength,
             )
         else:
             result_bytes = await comfyui_api.run_image_edit_dark(

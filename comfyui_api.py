@@ -1507,17 +1507,25 @@ async def run_dark_generate(
     height: int = 1440,
     quality: str = "fast",
     reference_bytes: bytes | None = None,
+    lora_strength_override: float | None = None,
 ) -> bytes | None:
     """Two-pass text2img via Dark Beast Klein V2.
 
     Uses the original Dark Beast workflow: text2img → upscale ×1.5 → refine.
     Optionally accepts a reference image for ReferenceLatent conditioning.
     Character LoRAs are auto-detected from the prompt.
+    lora_strength_override: if set, overrides the default strength for all character LoRAs.
     """
     gen_cfg = DARK_GENERATE_MODELS.get(quality, DARK_GENERATE_MODELS["fast"])
 
     # Auto-detect character LoRAs from prompt
     char_loras = detect_character_loras(prompt)
+
+    # Apply strength override from UI if provided
+    if lora_strength_override is not None and char_loras:
+        for lora in char_loras:
+            lora["strength"] = lora_strength_override
+            logger.info("LoRA %s strength overridden to %.2f", lora["lora_name"], lora_strength_override)
 
     images = []
 

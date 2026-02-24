@@ -496,6 +496,15 @@ if (darkStepsSlider) {
     });
 }
 
+// Dark LoRA strength slider
+const darkLoraStrengthSlider = document.getElementById('darkLoraStrengthSlider');
+const darkLoraStrengthLabel = document.getElementById('darkLoraStrengthLabel');
+if (darkLoraStrengthSlider) {
+    darkLoraStrengthSlider.addEventListener('input', (e) => {
+        darkLoraStrengthLabel.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+}
+
 // Quality toggle (Fast / Detailed)
 document.querySelectorAll('#darkQualitySection .quality-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -515,6 +524,10 @@ document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
         // Show/hide resolution section (only for Generate)
         const resSection = document.getElementById('darkResolutionSection');
         if (resSection) resSection.style.display = (darkMode === 'generate' && originalImage !== null || darkMode === 'generate') ? '' : 'none';
+
+        // Show/hide LoRA strength section (only for Generate)
+        const loraSection = document.getElementById('darkLoraStrengthSection');
+        if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
 
         // Update reference hint
         const hint = document.getElementById('darkImg2Hint');
@@ -1200,6 +1213,9 @@ async function generateDarkEdit(prompt) {
             const [w, h] = darkResolution.split('x').map(Number);
             body.width = w;
             body.height = h;
+            // LoRA strength override
+            const loraSlider = document.getElementById('darkLoraStrengthSlider');
+            if (loraSlider) body.lora_strength = parseFloat(loraSlider.value);
             // Image is optional reference for Generate mode
             if (originalImage) {
                 const imageDataURL = getImageDataURL();
