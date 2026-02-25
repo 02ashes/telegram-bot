@@ -1271,12 +1271,15 @@ async def run_image_edit_dark(
         img2 = img2.resize((int(img2.width * orig_h / img2.height), orig_h), Image.LANCZOS)
         stitched_w = img2.width + orig_w
         stitched = Image.new("RGB", (stitched_w, orig_h))
+        # Reference image on the left, main image on the right
         stitched.paste(img2, (0, 0))
         stitched.paste(img, (img2.width, 0))
         img = stitched
-        # Dark mode: do NOT crop — we want both girls in the final output.
-        # The stitched image serves as a combined reference for Klein to
-        # generate a scene with both girls together.
+        # Crop coordinates to extract the main image from the right half
+        crop_x = img2.width
+        crop_y = 0
+        crop_w = orig_w
+        crop_h = orig_h
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -1289,11 +1292,11 @@ async def run_image_edit_dark(
         denoise=denoise,
         steps=steps,
         cfg=cfg,
-        has_reference=False,  # No crop — keep full combined canvas
-        crop_x=0,
-        crop_y=0,
-        crop_w=0,
-        crop_h=0,
+        has_reference=has_reference,
+        crop_x=crop_x,
+        crop_y=crop_y,
+        crop_w=crop_w,
+        crop_h=crop_h,
         model_name=model_cfg["model_name"],
         weight_dtype=model_cfg["weight_dtype"],
         lora_name=model_cfg["lora_name"],

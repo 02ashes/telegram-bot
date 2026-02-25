@@ -152,6 +152,12 @@ function switchMode(mode) {
     // Dark Generate can work without image (text2img)
     const darkGenNoImage = (mode === 'dark' && darkMode === 'generate');
 
+    // Bug #2: Hide upload section in Dark Generate mode (text2img doesn't need photo)
+    const uploadSection = document.getElementById('uploadSection');
+    if (uploadSection) {
+        uploadSection.style.display = darkGenNoImage ? 'none' : '';
+    }
+
     // Show/hide mode-specific sections
     document.querySelectorAll('.inpaint-only').forEach(el => {
         el.style.display = mode === 'inpaint' && originalImage ? '' : 'none';
@@ -173,6 +179,9 @@ function switchMode(mode) {
         // Quality only for Edit mode
         const qualitySection = document.getElementById('darkQualitySection');
         if (qualitySection) qualitySection.style.display = darkMode === 'edit' ? '' : 'none';
+        // Bug #4: LoRA strength ONLY for Generate mode
+        const loraSection = document.getElementById('darkLoraStrengthSection');
+        if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
     }
 
     // In Dark Generate mode, show prompt + generate even without image
@@ -278,6 +287,10 @@ function loadImage(file) {
             }
             previewImg.src = e.target.result;
 
+            // Bug #1: Show remove button
+            const removeBtn = document.getElementById('removeMainPhoto');
+            if (removeBtn) removeBtn.style.display = '';
+
             // Setup canvases for inpaint mode
             setupCanvases(img);
 
@@ -304,6 +317,39 @@ function loadImage(file) {
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+}
+
+// Bug #1: Remove main photo handler
+function removeMainPhoto() {
+    originalImage = null;
+    const previewImg = uploadArea.querySelector('img');
+    if (previewImg) previewImg.remove();
+    uploadPlaceholder.style.display = '';
+    const removeBtn = document.getElementById('removeMainPhoto');
+    if (removeBtn) removeBtn.style.display = 'none';
+    fileInput.value = '';
+
+    // Hide all sections that depend on image
+    document.getElementById('canvasSection').style.display = 'none';
+    document.getElementById('promptSection').style.display = 'none';
+    document.getElementById('settingsSection').style.display = 'none';
+    document.getElementById('generateSection').style.display = 'none';
+    document.querySelectorAll('.video-only, .inpaint-only, .image-only, .dark-only').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    // Re-show Dark mode/quality toggles if in dark mode
+    if (currentMode === 'dark') {
+        switchMode('dark');
+    }
+}
+
+const removeMainPhotoBtn = document.getElementById('removeMainPhoto');
+if (removeMainPhotoBtn) {
+    removeMainPhotoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeMainPhoto();
+    });
 }
 
 // ============================================================
