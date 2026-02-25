@@ -179,6 +179,9 @@ function switchMode(mode) {
         // Quality only for Edit mode
         const qualitySection = document.getElementById('darkQualitySection');
         if (qualitySection) qualitySection.style.display = darkMode === 'edit' ? '' : 'none';
+        // Hide Reference image section in Generate mode (text2img, no i2i)
+        const img2Section = document.getElementById('darkImage2Section');
+        if (img2Section) img2Section.style.display = (darkMode === 'edit' && originalImage) ? '' : 'none';
         // Bug #4: LoRA strength ONLY for Generate mode
         const loraSection = document.getElementById('darkLoraStrengthSection');
         if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
@@ -627,12 +630,7 @@ function removeDarkImage2() {
 
 function getDarkImage2DataURL() {
     if (!darkImage2) return null;
-    const c = document.createElement('canvas');
-    c.width = darkImage2.naturalWidth;
-    c.height = darkImage2.naturalHeight;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(darkImage2, 0, 0);
-    return c.toDataURL('image/png');
+    return smartImageToDataURL(darkImage2);
 }
 
 if (darkImg2Add) {
@@ -743,12 +741,7 @@ function loadImage2(file) {
 
 function getImage2DataURL() {
     if (!originalImage2) return null;
-    const c = document.createElement('canvas');
-    c.width = originalImage2.naturalWidth;
-    c.height = originalImage2.naturalHeight;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(originalImage2, 0, 0);
-    return c.toDataURL('image/png');
+    return smartImageToDataURL(originalImage2);
 }
 
 // ============================================================
@@ -783,13 +776,32 @@ function getMaskDataURL() {
     return tempCanvas.toDataURL('image/png');
 }
 
+// Smart image export: resize to max 2048px, JPEG for smaller payloads
+// Solves HEIC issues on iPhone/Mac and reduces file size ~10x vs PNG
+const MAX_IMAGE_DIM = 2048;
+const JPEG_QUALITY = 0.92;
+
+function smartImageToDataURL(img) {
+    let w = img.naturalWidth || img.width;
+    let h = img.naturalHeight || img.height;
+
+    // Resize if any dimension exceeds MAX
+    if (w > MAX_IMAGE_DIM || h > MAX_IMAGE_DIM) {
+        const scale = MAX_IMAGE_DIM / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+    }
+
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    return c.toDataURL('image/jpeg', JPEG_QUALITY);
+}
+
 function getImageDataURL() {
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = originalImage.width;
-    tempCanvas.height = originalImage.height;
-    const ctx = tempCanvas.getContext('2d');
-    ctx.drawImage(originalImage, 0, 0);
-    return tempCanvas.toDataURL('image/png');
+    return smartImageToDataURL(originalImage);
 }
 
 // ============================================================
