@@ -570,6 +570,11 @@ VIDEO_ACTIONS = {
         "high": "nipple_stroke_WAN22_I2V_v1_high_noise.safetensors",
         "low": "nipple_stroke_WAN22_I2V_v1_low_noise.safetensors",
     },
+    "allinone": {
+        "label": "🔥 All-In-One",
+        "high": "DR34ML4Y_I2V_14B_HIGH_v2.safetensors",
+        "low": "DR34ML4Y_I2V_14B_LOW_v2.safetensors",
+    },
 }
 
 
