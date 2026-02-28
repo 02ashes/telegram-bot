@@ -7,7 +7,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 
 # RunPod Serverless
 RUNPOD_API_KEY = os.environ.get("RUNPOD_API_KEY", "")
-RUNPOD_ENDPOINT_ID = os.environ.get("RUNPOD_ENDPOINT_ID", "")
+RUNPOD_ENDPOINT_ID = os.environ.get("RUNPOD_ENDPOINT_ID", "6eoat0459ga8g5")
 
 # Server
 SERVER_HOST = "0.0.0.0"

@@ -136,6 +136,7 @@ def build_flux_klein_edit_workflow(
     model_name: str = "flux-2-klein-9b.safetensors",
     weight_dtype: str = "fp8_e4m3fn",
     character_loras: list[dict] | None = None,
+    has_image2: bool = False,
 ) -> dict:
     """Build Flux 2 Klein 9B advanced image editing workflow for ComfyUI API.
 
@@ -352,6 +353,56 @@ def build_flux_klein_edit_workflow(
 
     # Redirect KSampler model input to last LoRA output
     workflow["138"]["inputs"]["model"] = last_model_ref
+
+    # ---- Optional: Second reference image (separate ReferenceLatent chain) ----
+    # This follows the official Flux 2 Klein 4B workflow approach:
+    # Image2 → ScaleToPixels → VAEEncode → ReferenceLatent for pos & neg
+    # Chains AFTER the image1 reference chain.
+    if has_image2:
+        # Load & resize image2
+        workflow["400"] = {
+            "class_type": "LoadImage",
+            "inputs": {"image": "ref_image2.png"},
+        }
+        workflow["401"] = {
+            "class_type": "ImageResize+",
+            "inputs": {
+                "image": ["400", 0],
+                "width": 1024,
+                "height": 1024,
+                "interpolation": "lanczos",
+                "method": "keep proportion",
+                "condition": "always",
+                "multiple_of": 0,
+            },
+        }
+        # VAEEncode image2
+        workflow["402"] = {
+            "class_type": "VAEEncode",
+            "inputs": {
+                "pixels": ["401", 0],
+                "vae": ["110", 0],
+            },
+        }
+        # ReferenceLatent for positive: chain after image1's last ref (canny=160)
+        workflow["403"] = {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["160", 0],  # after image1's canny ref
+                "latent": ["402", 0],
+            },
+        }
+        # ReferenceLatent for negative: chain after image1's last neg ref (canny=159)
+        workflow["404"] = {
+            "class_type": "ReferenceLatent",
+            "inputs": {
+                "conditioning": ["159", 0],  # after image1's neg canny ref
+                "latent": ["402", 0],
+            },
+        }
+        # Redirect KSampler to use image2's reference outputs
+        workflow["138"]["inputs"]["positive"] = ["403", 0]
+        workflow["138"]["inputs"]["negative"] = ["404", 0]
 
     if has_reference and crop_w > 0 and crop_h > 0:
         # Crop right half of stitched canvas
@@ -1263,28 +1314,20 @@ async def run_image_edit_dark(
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     orig_w, orig_h = img.size
 
-    has_reference = image2_bytes is not None
-    crop_x, crop_y, crop_w, crop_h = 0, 0, 0, 0
+    has_image2 = image2_bytes is not None
 
-    if has_reference:
-        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
-        img2 = img2.resize((int(img2.width * orig_h / img2.height), orig_h), Image.LANCZOS)
-        stitched_w = img2.width + orig_w
-        stitched = Image.new("RGB", (stitched_w, orig_h))
-        # Reference image on the left, main image on the right
-        stitched.paste(img2, (0, 0))
-        stitched.paste(img, (img2.width, 0))
-        img = stitched
-        # Crop coordinates to extract the main image from the right half
-        crop_x = img2.width
-        crop_y = 0
-        crop_w = orig_w
-        crop_h = orig_h
-
+    # Save image1 as PNG
     buf = io.BytesIO()
     img.save(buf, format="PNG")
-    edit_png_bytes = buf.getvalue()
-    edit_b64 = base64.b64encode(edit_png_bytes).decode("utf-8")
+    edit_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    # Save image2 as PNG if provided
+    img2_b64 = None
+    if has_image2:
+        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
+        buf2 = io.BytesIO()
+        img2.save(buf2, format="PNG")
+        img2_b64 = base64.b64encode(buf2.getvalue()).decode("utf-8")
 
     workflow = build_flux_klein_edit_workflow(
         prompt=prompt,
@@ -1292,19 +1335,22 @@ async def run_image_edit_dark(
         denoise=denoise,
         steps=steps,
         cfg=cfg,
-        has_reference=has_reference,
-        crop_x=crop_x,
-        crop_y=crop_y,
-        crop_w=crop_w,
-        crop_h=crop_h,
+        has_reference=False,
+        crop_x=0,
+        crop_y=0,
+        crop_w=0,
+        crop_h=0,
         model_name=model_cfg["model_name"],
         weight_dtype=model_cfg["weight_dtype"],
         lora_name=model_cfg["lora_name"],
         lora_strength=model_cfg["lora_strength"],
         character_loras=char_loras,
+        has_image2=has_image2,
     )
 
     images = [{"name": "edit_input.png", "image": edit_b64}]
+    if has_image2 and img2_b64:
+        images.append({"name": "ref_image2.png", "image": img2_b64})
 
     logger.info("Dark Beast edit job (quality=%s, denoise=%.2f, model=%s, lora=%s)",
                 quality, denoise, model_cfg["model_name"], model_cfg["lora_name"])
