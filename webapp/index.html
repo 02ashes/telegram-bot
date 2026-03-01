@@ -7,6 +7,15 @@
     <title>Angel Arena</title>
     <link rel="stylesheet" href="/style.css?v=12">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Force black background to match native Telegram dark mode
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.setBackgroundColor('#000000');
+            Telegram.WebApp.setHeaderColor('#000000');
+            Telegram.WebApp.expand();
+            Telegram.WebApp.ready();
+        }
+    </script>
 </head>
 
 <body>
@@ -198,6 +207,7 @@
                     <label>FPS: <span id="fpsLabel">16</span></label>
                     <select id="fpsSelect">
                         <option value="16" selected>16</option>
+                        <option value="21">21</option>
                         <option value="24">24</option>
                     </select>
                 </div>

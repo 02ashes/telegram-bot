@@ -1355,31 +1355,88 @@ function base64ToBlob(b64, type) {
 }
 
 // ============================================================
-// Download, Copy & Retry
+// Download, Copy & Retry  (iOS / Safari / Telegram WebView safe)
 // ============================================================
+
+// Helper: data-URL → Blob
+function dataURLtoBlob(dataUrl) {
+    const [header, b64] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)[1];
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+}
+
+// iOS-safe download: open in new tab so user can long-press → Save
+function triggerDownload(dataUrl, filename) {
+    // Try the standard <a download> first (works on desktop & Android)
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // On iOS WebView <a download> silently fails — also open in new tab
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isIOS) {
+        // Convert to object URL so Safari can display it natively
+        const blob = dataURLtoBlob(dataUrl);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Clean up after a delay
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+}
+
 downloadBtn.addEventListener('click', () => {
     if ((currentMode === 'inpaint' || currentMode === 'image' || currentMode === 'dark') && resultImage.src) {
-        const a = document.createElement('a');
-        a.href = resultImage.src;
         const names = { inpaint: 'inpaint_result.png', image: 'edit_result.png', dark: 'dark_result.png' };
-        a.download = names[currentMode] || 'result.png';
-        a.click();
+        triggerDownload(resultImage.src, names[currentMode] || 'result.png');
     } else if (currentMode === 'video' && resultVideo.src) {
-        const a = document.createElement('a');
-        a.href = resultVideo.src;
-        a.download = 'video_result.mp4';
-        a.click();
+        triggerDownload(resultVideo.src, 'video_result.mp4');
     }
 });
 
+// iOS-safe copy: convert to PNG blob via canvas, then Clipboard API
 async function copyImageToClipboard(imgSrc) {
     try {
-        const resp = await fetch(imgSrc);
-        const blob = await resp.blob();
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        // Draw image to canvas to get a clean PNG blob (required by ClipboardItem)
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imgSrc;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+        // Safari requires the ClipboardItem Promise pattern
+        if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+            ]);
+            return true;
+        }
+
+        // Fallback: open in new tab
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
         return true;
     } catch (e) {
         console.error('Copy failed:', e);
+        // Last resort fallback: open image in new tab
+        try {
+            window.open(imgSrc, '_blank');
+            return true;
+        } catch (_) { }
         return false;
     }
 }
@@ -1389,7 +1446,7 @@ if (copyBtn) {
     copyBtn.addEventListener('click', async () => {
         if (resultImage.src) {
             const ok = await copyImageToClipboard(resultImage.src);
-            copyBtn.textContent = ok ? '✅ Copied!' : '❌ Failed';
+            copyBtn.textContent = ok ? '✅ Copied!' : '📎 Opened';
             setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
         }
     });
@@ -1484,10 +1541,7 @@ if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
 if (lightboxDownload) {
     lightboxDownload.addEventListener('click', () => {
         if (activeLightboxIndex < 0) return;
-        const a = document.createElement('a');
-        a.href = galleryItems[activeLightboxIndex].dataUrl;
-        a.download = `gallery_${activeLightboxIndex + 1}.png`;
-        a.click();
+        triggerDownload(galleryItems[activeLightboxIndex].dataUrl, `gallery_${activeLightboxIndex + 1}.png`);
     });
 }
 
