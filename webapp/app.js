@@ -119,7 +119,10 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
     tg.ready();
     tg.expand();
-    document.body.style.backgroundColor = tg.themeParams?.bg_color || '#0f0f14';
+    // Force pure black — ignore Telegram's dark-blue theme
+    document.body.style.backgroundColor = '#000000';
+    try { tg.setBackgroundColor('#000000'); } catch (_) { }
+    try { tg.setHeaderColor('#000000'); } catch (_) { }
 }
 
 // ============================================================
