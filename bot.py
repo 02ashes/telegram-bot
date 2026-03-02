@@ -284,6 +284,7 @@ async def api_image_edit(request: Request):
         cfg = float(body.get("cfg", 1.0))
         lora_name = body.get("lora_name", "")
         lora_strength = float(body.get("lora_strength", 0.7))
+        edit_submode = body.get("edit_submode", "depth")  # "default" or "depth"
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
@@ -292,21 +293,32 @@ async def api_image_edit(request: Request):
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
 
         logger.info(
-            "Image edit request: prompt=%s, denoise=%.2f, has_ref=%s, lora=%s",
-            prompt[:60], denoise, image2_bytes is not None, lora_name or "none",
+            "Image edit request: submode=%s, prompt=%s, denoise=%.2f, has_ref=%s, lora=%s",
+            edit_submode, prompt[:60], denoise, image2_bytes is not None, lora_name or "none",
         )
 
-        result_bytes = await comfyui_api.run_image_edit(
-            image_bytes=image_bytes,
-            prompt=prompt,
-            negative=negative,
-            denoise=denoise,
-            steps=steps,
-            cfg=cfg,
-            image2_bytes=image2_bytes,
-            lora_name=lora_name,
-            lora_strength=lora_strength,
-        )
+        if edit_submode == "default":
+            result_bytes = await comfyui_api.run_image_edit_default(
+                image_bytes=image_bytes,
+                prompt=prompt,
+                steps=steps,
+                cfg=cfg,
+                image2_bytes=image2_bytes,
+                lora_name=lora_name,
+                lora_strength=lora_strength,
+            )
+        else:
+            result_bytes = await comfyui_api.run_image_edit(
+                image_bytes=image_bytes,
+                prompt=prompt,
+                negative=negative,
+                denoise=denoise,
+                steps=steps,
+                cfg=cfg,
+                image2_bytes=image2_bytes,
+                lora_name=lora_name,
+                lora_strength=lora_strength,
+            )
 
         if result_bytes is None:
             return JSONResponse(

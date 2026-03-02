@@ -32,6 +32,7 @@ function handleAuthError(resp) {
 // State
 // ============================================================
 let currentMode = 'inpaint'; // 'inpaint', 'video', 'image', or 'dark'
+let editSubmode = 'default'; // 'default' (no depth/canny) or 'depth' (preserves shape)
 let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
 let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
@@ -171,6 +172,48 @@ function switchMode(mode) {
     document.querySelectorAll('.image-only').forEach(el => {
         el.style.display = mode === 'image' && originalImage ? '' : 'none';
     });
+
+    // Edit sub-mode section: show when image tab is active
+    if (mode === 'image') {
+        let editSubmodeSection = document.getElementById('editSubmodeSection');
+        if (!editSubmodeSection && originalImage) {
+            // Dynamically create the sub-mode toggle (since HTML is deployed)
+            editSubmodeSection = document.createElement('div');
+            editSubmodeSection.id = 'editSubmodeSection';
+            editSubmodeSection.className = 'settings-section';
+            editSubmodeSection.innerHTML = `
+                <div class="section-title sub">Edit Mode</div>
+                <div class="quality-toggle" id="editSubmodeToggle">
+                    <button class="quality-btn ${editSubmode === 'default' ? 'active' : ''}" data-submode="default">⚡ Default</button>
+                    <button class="quality-btn ${editSubmode === 'depth' ? 'active' : ''}" data-submode="depth">🎯 Depth</button>
+                </div>
+            `;
+            // Insert after prompt section
+            const promptSection = document.getElementById('promptSection');
+            if (promptSection) promptSection.after(editSubmodeSection);
+            // Bind toggle buttons
+            editSubmodeSection.querySelectorAll('.quality-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    editSubmodeSection.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    editSubmode = btn.dataset.submode;
+                    switchMode('image');
+                });
+            });
+        }
+        if (editSubmodeSection) editSubmodeSection.style.display = originalImage ? '' : 'none';
+
+        // Show image2 upload area for Edit mode (reuse existing uploadArea2 elements)
+        const img2Section = document.getElementById('darkImage2Section');
+        if (img2Section) img2Section.style.display = originalImage ? '' : 'none';
+
+        // Show/hide denoise slider based on submode
+        const denoiseSection = document.getElementById('denoiseSection');
+        if (denoiseSection) denoiseSection.style.display = (editSubmode === 'depth') ? '' : 'none';
+    } else {
+        const editSubmodeSection = document.getElementById('editSubmodeSection');
+        if (editSubmodeSection) editSubmodeSection.style.display = 'none';
+    }
     document.querySelectorAll('.dark-only').forEach(el => {
         el.style.display = mode === 'dark' && (originalImage || darkGenNoImage) ? '' : 'none';
     });
@@ -224,7 +267,9 @@ function switchMode(mode) {
             ? 'Describe the scene (misu, sitting on a couch, bedroom...)'
             : 'Dark Beast: describe NSFW edit...';
     } else {
-        promptInput.placeholder = 'Describe the edit (add cum on face, finger in ass, remove clothes...)';
+        promptInput.placeholder = editSubmode === 'default'
+            ? 'Describe the edit (put face from ref on t-shirt, change background...)'
+            : 'Describe the edit (add cum on face, finger in ass, remove clothes...)';
     }
 
     // Update negative prompt default
@@ -240,7 +285,7 @@ function switchMode(mode) {
     if (mode === 'inpaint') btnText.textContent = '🚀 Generate';
     else if (mode === 'video') btnText.textContent = '🎬 Generate Video';
     else if (mode === 'dark') btnText.textContent = darkMode === 'generate' ? '🔥 Generate' : '🖤 Dark Beast';
-    else btnText.textContent = '🖼️ Edit Image';
+    else btnText.textContent = editSubmode === 'default' ? '⚡ Edit Image' : '🎯 Depth Edit';
 
     // Hide result if mode changed
     resultSection.style.display = 'none';
@@ -1178,7 +1223,8 @@ async function generateImageEdit(prompt) {
             prompt: prompt,
             negative: negative,
             denoise: denoise,
-            steps: steps,
+            steps: editSubmode === 'default' ? 4 : steps,
+            edit_submode: editSubmode,
         };
 
         // LoRA (optional)
@@ -1189,8 +1235,12 @@ async function generateImageEdit(prompt) {
             body.lora_strength = loraStrength;
         }
 
+        // Include reference image (from Edit image2 area OR dark image2 area)
         if (image2DataURL) {
             body.image2 = image2DataURL.split(',')[1];
+        } else {
+            const darkImg2 = getDarkImage2DataURL();
+            if (darkImg2) body.image2 = darkImg2.split(',')[1];
         }
 
         const response = await fetch('/api/image-edit', {
