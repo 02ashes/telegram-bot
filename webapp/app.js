@@ -212,8 +212,9 @@ function switchMode(mode) {
 
     // AFTER dark-only loop: override darkImage2Section for Edit mode too
     if (mode === 'image') {
+        // Bug #2: Only show image2 slot in Default mode (Depth doesn't need it)
         const img2Section = document.getElementById('darkImage2Section');
-        if (img2Section) img2Section.style.display = originalImage ? '' : 'none';
+        if (img2Section) img2Section.style.display = (editSubmode === 'default' && originalImage) ? '' : 'none';
 
         // Show/hide image edit settings (denoise+steps) based on submode
         const imageSettings = document.getElementById('imageSettingsSection');
@@ -347,25 +348,8 @@ function loadImage(file) {
             // Setup canvases for inpaint mode
             setupCanvases(img);
 
-            // Show relevant sections
-            document.getElementById('canvasSection').style.display = currentMode === 'inpaint' ? '' : 'none';
-            document.getElementById('promptSection').style.display = '';
-            document.getElementById('settingsSection').style.display = currentMode === 'inpaint' ? '' : 'none';
-            document.getElementById('generateSection').style.display = '';
-
-            // Show video-only sections if in video mode
-            document.querySelectorAll('.video-only').forEach(el => {
-                el.style.display = currentMode === 'video' ? '' : 'none';
-            });
-            document.querySelectorAll('.inpaint-only').forEach(el => {
-                el.style.display = currentMode === 'inpaint' ? '' : 'none';
-            });
-            document.querySelectorAll('.image-only').forEach(el => {
-                el.style.display = currentMode === 'image' ? '' : 'none';
-            });
-            document.querySelectorAll('.dark-only').forEach(el => {
-                el.style.display = currentMode === 'dark' ? '' : 'none';
-            });
+            // Refresh full UI (shows prompt, settings, edit submode toggle, etc.)
+            switchMode(currentMode);
         };
         img.src = e.target.result;
     };
