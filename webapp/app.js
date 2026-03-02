@@ -180,7 +180,7 @@ function switchMode(mode) {
             // Dynamically create the sub-mode toggle (since HTML is deployed)
             editSubmodeSection = document.createElement('div');
             editSubmodeSection.id = 'editSubmodeSection';
-            editSubmodeSection.className = 'settings-section';
+            editSubmodeSection.className = 'section';
             editSubmodeSection.innerHTML = `
                 <div class="section-title sub">Edit Mode</div>
                 <div class="quality-toggle" id="editSubmodeToggle">
@@ -202,14 +202,6 @@ function switchMode(mode) {
             });
         }
         if (editSubmodeSection) editSubmodeSection.style.display = originalImage ? '' : 'none';
-
-        // Show image2 upload area for Edit mode (reuse existing uploadArea2 elements)
-        const img2Section = document.getElementById('darkImage2Section');
-        if (img2Section) img2Section.style.display = originalImage ? '' : 'none';
-
-        // Show/hide denoise slider based on submode
-        const denoiseSection = document.getElementById('denoiseSection');
-        if (denoiseSection) denoiseSection.style.display = (editSubmode === 'depth') ? '' : 'none';
     } else {
         const editSubmodeSection = document.getElementById('editSubmodeSection');
         if (editSubmodeSection) editSubmodeSection.style.display = 'none';
@@ -217,6 +209,16 @@ function switchMode(mode) {
     document.querySelectorAll('.dark-only').forEach(el => {
         el.style.display = mode === 'dark' && (originalImage || darkGenNoImage) ? '' : 'none';
     });
+
+    // AFTER dark-only loop: override darkImage2Section for Edit mode too
+    if (mode === 'image') {
+        const img2Section = document.getElementById('darkImage2Section');
+        if (img2Section) img2Section.style.display = originalImage ? '' : 'none';
+
+        // Show/hide image edit settings (denoise+steps) based on submode
+        const imageSettings = document.getElementById('imageSettingsSection');
+        if (imageSettings) imageSettings.style.display = (editSubmode === 'depth' && originalImage) ? '' : 'none';
+    }
 
     // Dark Mode/Quality toggles always show when Dark tab is active
     if (mode === 'dark') {
