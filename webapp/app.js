@@ -782,21 +782,34 @@ function getImage2DataURL() {
 // Get mask as black/white image
 // ============================================================
 function getMaskDataURL() {
-    const w = maskCanvas.width;
-    const h = maskCanvas.height;
+    // Export mask at the SAME resolution as smartImageToDataURL exports the image.
+    // The canvas buffer may be smaller than the original image (scaled to fit the
+    // container width), so we must scale the mask up to match the exported image.
+    let targetW = originalImage.naturalWidth || originalImage.width;
+    let targetH = originalImage.naturalHeight || originalImage.height;
+    if (targetW > MAX_IMAGE_DIM || targetH > MAX_IMAGE_DIM) {
+        const s = MAX_IMAGE_DIM / Math.max(targetW, targetH);
+        targetW = Math.round(targetW * s);
+        targetH = Math.round(targetH * s);
+    }
 
+    // Scale the drawn mask from canvas-buffer size → target image size
+    const scaledMask = document.createElement('canvas');
+    scaledMask.width = targetW;
+    scaledMask.height = targetH;
+    const sCtx = scaledMask.getContext('2d');
+    sCtx.drawImage(maskCanvas, 0, 0, targetW, targetH);
+
+    // Convert to B&W: painted areas (alpha > 10) → white, rest → black
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = w;
-    tempCanvas.height = h;
+    tempCanvas.width = targetW;
+    tempCanvas.height = targetH;
     const tempCtx = tempCanvas.getContext('2d');
-
-    // Fill black (keep)
     tempCtx.fillStyle = '#000';
-    tempCtx.fillRect(0, 0, w, h);
+    tempCtx.fillRect(0, 0, targetW, targetH);
 
-    // Get mask pixels
-    const maskData = maskCtx.getImageData(0, 0, w, h);
-    const tempData = tempCtx.getImageData(0, 0, w, h);
+    const maskData = sCtx.getImageData(0, 0, targetW, targetH);
+    const tempData = tempCtx.getImageData(0, 0, targetW, targetH);
 
     for (let i = 0; i < maskData.data.length; i += 4) {
         if (maskData.data[i + 3] > 10) {

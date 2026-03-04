@@ -1544,10 +1544,10 @@ async def run_image_edit_default(
 CHARACTER_LORAS = {
     "misu": {"lora_name": "misu_z6_step1000.safetensors", "strength": 0.95},
     "anya":  {"lora_name": "anya_lora.safetensors", "strength": 0.9},
-    # "jane":  {"lora_name": "jane_lora.safetensors", "strength": 0.9},
-    # "lera":  {"lora_name": "lera_lora.safetensors", "strength": 0.9},
-    # "mirana": {"lora_name": "mirana_lora.safetensors", "strength": 0.9},
-    # "moondina": {"lora_name": "moondina_lora.safetensors", "strength": 0.9},
+    "jane":  {"lora_name": "janelora.safetensors", "strength": 0.9},
+    "lera":  {"lora_name": "leralora.safetensors", "strength": 0.9},
+    "mirana": {"lora_name": "miranalora.safetensors", "strength": 0.9},
+    "moondina": {"lora_name": "moonlora.safetensors", "strength": 0.9},
 }
 
 
