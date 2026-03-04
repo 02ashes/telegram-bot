@@ -267,6 +267,38 @@ async def api_video_cancel(job_id: str, request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/send")
+async def api_send(request: Request):
+    """Send generated image/video to user's Telegram DM."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    try:
+        body = await request.json()
+        media_b64 = body.get("media", "")
+        media_type = body.get("type", "image")  # "image" or "video"
+
+        if not media_b64:
+            return JSONResponse(status_code=400, content={"error": "No media data"})
+
+        user_id = user["id"]
+        media_bytes = base64.b64decode(media_b64)
+        buf = io.BytesIO(media_bytes)
+
+        if media_type == "video":
+            buf.name = "video.mp4"
+            await bot.send_video(user_id, buf, caption="Angel Arena")
+        else:
+            buf.name = "image.jpg"
+            await bot.send_photo(user_id, buf, caption="Angel Arena")
+
+        logger.info("Sent %s to user %s", media_type, user_id)
+        return JSONResponse(content={"status": "sent"})
+
+    except Exception as e:
+        logger.exception("Send error")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 @app.post("/api/image-edit")
 async def api_image_edit(request: Request):
     """Edit image via Flux 2 Klein 9B on RunPod Serverless."""

@@ -133,7 +133,7 @@ if (tg) {
     const dot = document.querySelector('.status-dot');
     const text = document.querySelector('.status-text');
     if (dot) dot.className = 'status-dot online';
-    if (text) text.textContent = '⚡ Serverless';
+    if (text) text.textContent = 'Serverless';
 })();
 
 // ============================================================
@@ -290,10 +290,10 @@ function switchMode(mode) {
 
     // Update generate button text
     const btnText = generateBtn.querySelector('.btn-text');
-    if (mode === 'inpaint') btnText.textContent = '🚀 Generate';
-    else if (mode === 'video') btnText.textContent = '🎬 Generate Video';
-    else if (mode === 'dark') btnText.textContent = darkMode === 'generate' ? '🔥 Generate' : '🖤 Dark Beast';
-    else btnText.textContent = editSubmode === 'default' ? '⚡ Edit Image' : '🎯 Depth Edit';
+    if (mode === 'inpaint') btnText.textContent = 'GENERATE';
+    else if (mode === 'video') btnText.textContent = 'GENERATE VIDEO';
+    else if (mode === 'dark') btnText.textContent = darkMode === 'generate' ? 'GENERATE' : 'DARK BEAST';
+    else btnText.textContent = editSubmode === 'default' ? 'EDIT IMAGE' : 'DEPTH EDIT';
 
     // Hide result if mode changed
     resultSection.style.display = 'none';
@@ -913,11 +913,11 @@ async function generateInpaint(prompt) {
         progressFill.style.width = progress + '%';
 
         if (progress < 20) {
-            progressText.textContent = '⚡ Starting...';
+            progressText.textContent = 'Starting...';
         } else if (progress < 50) {
-            progressText.textContent = '🧠 Preparing...';
+            progressText.textContent = 'Preparing...';
         } else {
-            progressText.textContent = '🎨 Generating...';
+            progressText.textContent = 'Generating...';
         }
     }, 1000);
 
@@ -955,8 +955,10 @@ async function generateInpaint(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Done!';
+        progressText.textContent = 'Done';
 
+        lastResultB64 = data.image;
+        lastResultType = 'image';
         resultImage.src = 'data:image/png;base64,' + data.image;
         addToGallery(resultImage.src);
         resultImage.style.display = '';
@@ -968,7 +970,7 @@ async function generateInpaint(prompt) {
     } catch (err) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
-        progressText.textContent = '❌ ' + err.message;
+        progressText.textContent = 'Error: ' + err.message;
         alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
@@ -1011,7 +1013,7 @@ async function generateVideo(prompt) {
     if (cancelBtn) cancelBtn.style.display = '';
 
     progressFill.style.width = '5%';
-    progressText.textContent = '⚡ Submitting job...';
+    progressText.textContent = 'Submitting job...';
 
     try {
         const imageDataURL = getImageDataURL();
@@ -1060,7 +1062,7 @@ async function generateVideo(prompt) {
         currentVideoJobId = submitData.job_id;
         console.log('Video job submitted:', currentVideoJobId);
         progressFill.style.width = '10%';
-        progressText.textContent = '🧠 Job queued...';
+        progressText.textContent = 'Job queued...';
 
         // Step 2: Poll for status every 3 seconds
         const videoDuration = frames / fps;
@@ -1093,17 +1095,17 @@ async function generateVideo(prompt) {
 
                     if (statusData.status === 'IN_QUEUE') {
                         progressFill.style.width = '15%';
-                        progressText.textContent = '⏳ In queue...';
+                        progressText.textContent = 'In queue...';
                     } else if (statusData.status === 'IN_PROGRESS') {
                         // Gradually fill progress bar during generation
                         const progress = Math.min(15 + (pollCount * 2), 85);
                         progressFill.style.width = progress + '%';
                         if (progress < 50) {
-                            progressText.textContent = `🎬 Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
+                            progressText.textContent = `Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
                         } else if (audioEnabled && progress > 70) {
-                            progressText.textContent = '🔊 Generating audio...';
+                            progressText.textContent = 'Generating audio...';
                         } else {
-                            progressText.textContent = `🎬 Generating... ${Math.round(progress)}%`;
+                            progressText.textContent = `Generating... ${Math.round(progress)}%`;
                         }
                     } else if (statusData.status === 'COMPLETED') {
                         clearInterval(videoPollingInterval);
@@ -1127,9 +1129,11 @@ async function generateVideo(prompt) {
 
         // Step 3: Display video
         progressFill.style.width = '95%';
-        progressText.textContent = '📦 Loading video...';
+        progressText.textContent = 'Loading video...';
 
         console.log('Video completed. Base64 length:', result.video?.length || 0);
+        lastResultB64 = result.video;
+        lastResultType = 'video';
         const videoBlob = base64ToBlob(result.video, 'video/mp4');
         console.log('Video blob size:', videoBlob.size);
         const videoUrl = URL.createObjectURL(videoBlob);
@@ -1139,7 +1143,7 @@ async function generateVideo(prompt) {
         resultSection.style.display = '';
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Video ready!';
+        progressText.textContent = 'Video ready';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
     } catch (err) {
@@ -1149,7 +1153,7 @@ async function generateVideo(prompt) {
         }
         progressFill.style.width = '0%';
         const msg = err.name === 'AbortError' ? 'Request cancelled or timed out' : err.message;
-        progressText.textContent = '❌ ' + msg;
+        progressText.textContent = 'Error: ' + msg;
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
@@ -1170,7 +1174,7 @@ async function cancelVideoGeneration() {
 
     // Cancel RunPod job
     if (currentVideoJobId) {
-        progressText.textContent = '🚫 Cancelling...';
+        progressText.textContent = 'Cancelling...';
         try {
             await fetch(`/api/video/cancel/${currentVideoJobId}`, {
                 method: 'POST',
@@ -1188,7 +1192,7 @@ async function cancelVideoGeneration() {
         currentVideoController = null;
     }
 
-    progressText.textContent = '🚫 Cancelled';
+    progressText.textContent = 'Cancelled';
 }
 
 
@@ -1207,7 +1211,7 @@ async function generateImageEdit(prompt) {
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
-    progressText.textContent = '🚀 Sending...';
+    progressText.textContent = 'Sending...';
     resultSection.style.display = 'none';
 
     let progressInterval;
@@ -1217,8 +1221,8 @@ async function generateImageEdit(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 1.5) + '%';
-                if (cur > 30) progressText.textContent = '⏳ Generating...';
-                if (cur > 70) progressText.textContent = '🔄 Almost done...';
+                if (cur > 30) progressText.textContent = 'Generating...';
+                if (cur > 70) progressText.textContent = 'Almost done...';
             }
         }, 1500);
 
@@ -1261,8 +1265,10 @@ async function generateImageEdit(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Done!';
+        progressText.textContent = 'Done';
 
+        lastResultB64 = data.image;
+        lastResultType = 'image';
         // Show image result
         resultImage.src = 'data:image/png;base64,' + data.image;
         addToGallery(resultImage.src);
@@ -1275,7 +1281,7 @@ async function generateImageEdit(prompt) {
     } catch (err) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
-        progressText.textContent = '❌ ' + err.message;
+        progressText.textContent = 'Error: ' + err.message;
         alert('Error: ' + err.message);
     } finally {
         generateBtn.disabled = false;
@@ -1297,7 +1303,7 @@ async function generateDarkEdit(prompt) {
     generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
-    progressText.textContent = '🖤 Dark Beast...';
+    progressText.textContent = 'Processing...';
     resultSection.style.display = 'none';
 
     // Show cancel button
@@ -1311,8 +1317,8 @@ async function generateDarkEdit(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 1.5) + '%';
-                if (cur > 30) progressText.textContent = '✨ Generating...';
-                if (cur > 70) progressText.textContent = '🔥 Almost done...';
+                if (cur > 30) progressText.textContent = 'Generating...';
+                if (cur > 70) progressText.textContent = 'Almost done...';
             }
         }, 1500);
 
@@ -1369,8 +1375,10 @@ async function generateDarkEdit(prompt) {
         }
 
         progressFill.style.width = '100%';
-        progressText.textContent = '✅ Done!';
+        progressText.textContent = 'Done';
 
+        lastResultB64 = data.image;
+        lastResultType = 'image';
         resultImage.src = 'data:image/png;base64,' + data.image;
         addToGallery(resultImage.src);
         resultImage.style.display = '';
@@ -1383,7 +1391,7 @@ async function generateDarkEdit(prompt) {
         clearInterval(progressInterval);
         progressFill.style.width = '0%';
         const msg = err.name === 'AbortError' ? 'Request cancelled' : err.message;
-        progressText.textContent = '❌ ' + msg;
+        progressText.textContent = 'Error: ' + msg;
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
@@ -1503,8 +1511,8 @@ if (copyBtn) {
     copyBtn.addEventListener('click', async () => {
         if (resultImage.src) {
             const ok = await copyImageToClipboard(resultImage.src);
-            copyBtn.textContent = ok ? '✅ Copied!' : '📎 Opened';
-            setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
+            copyBtn.textContent = ok ? 'Copied' : 'Opened';
+            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
         }
     });
 }
@@ -1606,8 +1614,8 @@ if (lightboxCopy) {
     lightboxCopy.addEventListener('click', async () => {
         if (activeLightboxIndex < 0) return;
         const ok = await copyImageToClipboard(galleryItems[activeLightboxIndex].dataUrl);
-        lightboxCopy.textContent = ok ? '✅ Copied!' : '❌ Failed';
-        setTimeout(() => { lightboxCopy.textContent = '📋 Copy'; }, 1500);
+        lightboxCopy.textContent = ok ? 'Copied' : 'Failed';
+        setTimeout(() => { lightboxCopy.textContent = 'Copy'; }, 1500);
     });
 }
 
@@ -1626,61 +1634,61 @@ if (lightboxDelete) {
 const PRESETS = {
     inpaint: [
         {
-            label: '💋 Name',
+            label: 'Name',
             prompt: 'The word "Name" handwritten in dark crimson lipstick on bare skin. Semi-transparent smeared lipstick, skin texture visible through the letters. Faded messy imperfect handwritten letters, slightly uneven and crooked. Dark burgundy red lipstick lightly applied on skin. Photorealistic.',
             negative: 'blurry, ugly, deformed, font, low quality, cartoon',
         },
     ],
     dark: [
         {
-            label: '💦 Cum',
+            label: 'Cum',
             prompt: 'thick white cum dripping on skin, semen splattered, creampie leaking, wet glistening cum drops, realistic bodily fluid, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '💛 Pee',
+            label: 'Pee',
             prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '💩 Shit',
+            label: 'Shit',
             prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '🔞 Nude',
+            label: 'Nude',
             prompt: 'completely naked, fully nude, no clothes, bare breasts with erect nipples, exposed pussy, smooth skin, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, clothes, dressed, fabric',
         },
         {
-            label: '🍆 Anal',
+            label: 'Anal',
             prompt: 'man\'s thick cock deep inside her ass, anal penetration from behind, stretched anus around penis, doggy style anal sex, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, extra limbs',
         },
     ],
     image: [
         {
-            label: '\ud83d\udca6 Cum',
+            label: 'Cum',
             prompt: 'thick white cum dripping on skin, semen splattered, wet glistening cum drops, realistic bodily fluid, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '\ud83d\udc9b Pee',
+            label: 'Pee',
             prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '\ud83d\udca9 Shit',
+            label: 'Shit',
             prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
         {
-            label: '\ud83d\udd1e Nude',
+            label: 'Nude',
             prompt: 'completely naked, fully nude, no clothes, bare breasts with erect nipples, exposed pussy, smooth skin, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, clothes, dressed, fabric',
         },
         {
-            label: '\ud83c\udf46 Anal',
+            label: 'Anal',
             prompt: 'man\'s thick cock deep inside her ass, anal penetration from behind, stretched anus around penis, doggy style anal sex, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy, extra limbs',
         },
@@ -1707,3 +1715,60 @@ function renderPresets() {
 
 // Initial render
 renderPresets();
+
+// ============================================================
+// Send to Telegram
+// ============================================================
+let lastResultB64 = null;
+let lastResultType = 'image'; // 'image' or 'video'
+
+const sendBtn = document.getElementById('sendBtn');
+if (sendBtn) {
+    sendBtn.addEventListener('click', async () => {
+        let mediaB64, mediaType;
+
+        if (resultVideo.style.display !== 'none' && resultVideo.src) {
+            // For video, we need the raw base64 — stored from generation
+            if (lastResultType === 'video' && lastResultB64) {
+                mediaB64 = lastResultB64;
+                mediaType = 'video';
+            } else {
+                sendBtn.textContent = 'No data';
+                setTimeout(() => { sendBtn.textContent = 'Send'; }, 1500);
+                return;
+            }
+        } else if (resultImage.src && resultImage.src.startsWith('data:')) {
+            mediaB64 = resultImage.src.split(',')[1];
+            mediaType = 'image';
+        } else {
+            sendBtn.textContent = 'No result';
+            setTimeout(() => { sendBtn.textContent = 'Send'; }, 1500);
+            return;
+        }
+
+        sendBtn.textContent = 'Sending...';
+        sendBtn.disabled = true;
+
+        try {
+            const resp = await fetch('/api/send', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ media: mediaB64, type: mediaType }),
+            });
+
+            if (resp.ok) {
+                sendBtn.textContent = 'Sent';
+            } else {
+                const err = await resp.json().catch(() => null);
+                sendBtn.textContent = 'Failed';
+                console.error('Send error:', err);
+            }
+        } catch (e) {
+            sendBtn.textContent = 'Error';
+            console.error('Send error:', e);
+        }
+
+        sendBtn.disabled = false;
+        setTimeout(() => { sendBtn.textContent = 'Send'; }, 2000);
+    });
+}
