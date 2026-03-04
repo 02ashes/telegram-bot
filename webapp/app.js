@@ -1628,6 +1628,34 @@ if (lightboxDelete) {
     });
 }
 
+const lightboxSend = document.getElementById('lightboxSend');
+if (lightboxSend) {
+    lightboxSend.addEventListener('click', async () => {
+        if (activeLightboxIndex < 0) return;
+        const dataUrl = galleryItems[activeLightboxIndex].dataUrl;
+        const mediaB64 = dataUrl.split(',')[1];
+        if (!mediaB64) return;
+
+        lightboxSend.textContent = 'Sending...';
+        lightboxSend.disabled = true;
+
+        try {
+            const resp = await fetch('/api/send', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ media: mediaB64, type: 'image' }),
+            });
+            lightboxSend.textContent = resp.ok ? 'Sent' : 'Failed';
+        } catch (e) {
+            lightboxSend.textContent = 'Error';
+            console.error('Lightbox send error:', e);
+        }
+
+        lightboxSend.disabled = false;
+        setTimeout(() => { lightboxSend.textContent = 'Send'; }, 2000);
+    });
+}
+
 // ============================================================
 // Preset Prompt Buttons
 // ============================================================
@@ -1770,5 +1798,39 @@ if (sendBtn) {
 
         sendBtn.disabled = false;
         setTimeout(() => { sendBtn.textContent = 'Send'; }, 2000);
+    });
+}
+
+// ============================================================
+// All-In-One Trigger Words
+// ============================================================
+const actionSelect = document.getElementById('actionSelect');
+const aioTriggerRow = document.getElementById('aioTriggerRow');
+
+if (actionSelect && aioTriggerRow) {
+    // Show/hide trigger row when action changes
+    actionSelect.addEventListener('change', () => {
+        aioTriggerRow.style.display = actionSelect.value === 'allinone' ? '' : 'none';
+    });
+
+    // Click trigger button → insert at start of prompt
+    document.querySelectorAll('#aioTriggers .preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const trigger = btn.dataset.trigger;
+            const promptInput = document.getElementById('promptInput');
+            const current = promptInput.value.trim();
+            // Replace existing trigger or prepend
+            const allTriggers = ['m15510n4ry', 'bl0wj0b', 'd0ubl3_bj', 'c0wg1rl', 'd0gg1e'];
+            let cleaned = current;
+            allTriggers.forEach(t => {
+                cleaned = cleaned.replace(new RegExp('\\b' + t + '\\b,?\\s*', 'g'), '');
+            });
+            promptInput.value = trigger + (cleaned ? ', ' + cleaned : '');
+
+            // Highlight active trigger
+            document.querySelectorAll('#aioTriggers .preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
     });
 }

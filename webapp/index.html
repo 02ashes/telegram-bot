@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=16">
+    <link rel="stylesheet" href="/style.css?v=18">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -223,6 +223,16 @@
                         <option value="allinone">All-In-One</option>
                     </select>
                 </div>
+                <div class="setting" id="aioTriggerRow" style="display:none; grid-column: 1 / -1;">
+                    <label>Trigger:</label>
+                    <div class="preset-row" id="aioTriggers">
+                        <button class="preset-btn" data-trigger="m15510n4ry">m15510n4ry</button>
+                        <button class="preset-btn" data-trigger="bl0wj0b">bl0wj0b</button>
+                        <button class="preset-btn" data-trigger="d0ubl3_bj">d0ubl3_bj</button>
+                        <button class="preset-btn" data-trigger="c0wg1rl">c0wg1rl</button>
+                        <button class="preset-btn" data-trigger="d0gg1e">d0gg1e</button>
+                    </div>
+                </div>
                 <div class="setting">
                     <label>Shift: <span id="shiftValue">5</span></label>
                     <input type="range" id="shiftSlider" min="1" max="10" step="0.5" value="5"
@@ -318,6 +328,7 @@
                 <div class="lightbox-actions">
                     <button class="action-btn" id="lightboxDownload">Save</button>
                     <button class="action-btn" id="lightboxCopy">Copy</button>
+                    <button class="action-btn send-btn" id="lightboxSend">Send</button>
                     <button class="action-btn danger" id="lightboxDelete">Delete</button>
                     <button class="action-btn secondary" id="lightboxClose">Close</button>
                 </div>
@@ -325,7 +336,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=16"></script>
+    <script src="/app.js?v=18"></script>
 </body>
 
 </html>

@@ -11,6 +11,7 @@ import uvicorn
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 from aiogram.types import (
+    BufferedInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     WebAppInfo,
@@ -283,14 +284,13 @@ async def api_send(request: Request):
 
         user_id = user["id"]
         media_bytes = base64.b64decode(media_b64)
-        buf = io.BytesIO(media_bytes)
 
         if media_type == "video":
-            buf.name = "video.mp4"
-            await bot.send_video(user_id, buf, caption="Angel Arena")
+            file = BufferedInputFile(media_bytes, filename="video.mp4")
+            await bot.send_video(user_id, file, caption="Angel Arena")
         else:
-            buf.name = "image.jpg"
-            await bot.send_photo(user_id, buf, caption="Angel Arena")
+            file = BufferedInputFile(media_bytes, filename="image.jpg")
+            await bot.send_photo(user_id, file, caption="Angel Arena")
 
         logger.info("Sent %s to user %s", media_type, user_id)
         return JSONResponse(content={"status": "sent"})
