@@ -236,6 +236,11 @@ function switchMode(mode) {
         if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
     }
 
+    // Show/hide shared sections (Prompt + Generate) when image is loaded
+    const hasContent = originalImage || darkGenNoImage;
+    document.getElementById('promptSection').style.display = hasContent ? '' : 'none';
+    document.getElementById('generateSection').style.display = hasContent ? '' : 'none';
+
     // In Dark Generate mode, show prompt + generate even without image
     if (darkGenNoImage) {
         document.getElementById('promptSection').style.display = '';
