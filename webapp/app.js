@@ -48,6 +48,8 @@ let darkImage2 = null;      // second image for Dark mode (combine two girls)
 let mainCtx = null;
 let maskCtx = null;
 let galleryItems = []; // [{dataUrl, timestamp}]
+let lastResultB64 = null;
+let lastResultType = 'image'; // 'image' or 'video'
 
 // ============================================================
 // DOM Elements
@@ -1980,8 +1982,6 @@ renderPresets();
 // ============================================================
 // Send to Telegram
 // ============================================================
-let lastResultB64 = null;
-let lastResultType = 'image'; // 'image' or 'video'
 
 const sendBtn = document.getElementById('sendBtn');
 if (sendBtn) {
