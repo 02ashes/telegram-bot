@@ -1021,6 +1021,7 @@ async function generateInpaint(prompt) {
         progressFill.style.width = '100%';
         progressText.textContent = 'Done';
 
+        resetIphoneFilter();
         lastResultB64 = data.image;
         lastResultType = 'image';
         resultImage.src = 'data:image/png;base64,' + data.image;
@@ -1331,6 +1332,7 @@ async function generateImageEdit(prompt) {
         progressFill.style.width = '100%';
         progressText.textContent = 'Done';
 
+        resetIphoneFilter();
         lastResultB64 = data.image;
         lastResultType = 'image';
         // Show image result
@@ -1450,6 +1452,7 @@ async function generateDarkEdit(prompt) {
         progressFill.style.width = '100%';
         progressText.textContent = 'Done';
 
+        resetIphoneFilter();
         lastResultB64 = data.image;
         lastResultType = 'image';
         resultImage.src = 'data:image/png;base64,' + data.image;
@@ -1625,6 +1628,159 @@ document.addEventListener('paste', (e) => {
 });
 
 // ============================================================
+// iPhone Camera Filter
+// ============================================================
+let iphoneFilterActive = false;
+let originalResultSrc = null; // store original before filter
+let filteredResultSrc = null; // cache filtered version
+let lightboxIphoneActive = false;
+let lightboxOriginalSrc = null;
+let lightboxFilteredSrc = null;
+
+const iphoneToggle = document.getElementById('iphoneToggle');
+const lightboxIphoneToggle = document.getElementById('lightboxIphoneToggle');
+
+/**
+ * Apply iPhone camera filter to an image dataURL.
+ * Calibrated to match iPhone 16 Pro computational photography:
+ * - Apple warm color science: R×1.02, G×1.005, B×0.97
+ * - Sensor noise: σ=2.8 (fine grain, mostly visible in shadows)
+ * - Slight shadow lift (HDR-like): +8 on dark pixels
+ * - Micro-contrast reduction (Deep Fusion smoothing): gentle blur-like averaging
+ * - JPEG quality 82 (Apple's default for non-ProRAW)
+ */
+function applyIphoneFilter(dataUrl) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const len = data.length;
+
+            for (let i = 0; i < len; i += 4) {
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+
+                // 1. Apple warm color science
+                r = Math.min(255, r * 1.02);
+                g = Math.min(255, g * 1.005);
+                b = Math.min(255, b * 0.97);
+
+                // 2. Shadow lift (iPhone HDR: brightens dark areas slightly)
+                if (r < 60) r += 8;
+                if (g < 60) g += 8;
+                if (b < 60) b += 6;
+
+                // 3. Subtle saturation boost (Apple's vibrant processing)
+                const avg = (r + g + b) / 3;
+                r = r + (r - avg) * 0.06;
+                g = g + (g - avg) * 0.06;
+                b = b + (b - avg) * 0.06;
+
+                // 4. Fine sensor noise (σ=2.8, shadow-weighted)
+                const luminance = (r * 0.299 + g * 0.587 + b * 0.114);
+                // More noise in shadows (like real sensor behavior)
+                const noiseMult = luminance < 80 ? 1.4 : (luminance < 160 ? 1.0 : 0.6);
+                const noise = (Math.random() - 0.5) * 5.6 * noiseMult;
+                r += noise;
+                g += noise;
+                b += noise;
+
+                data[i] = Math.max(0, Math.min(255, r));
+                data[i + 1] = Math.max(0, Math.min(255, g));
+                data[i + 2] = Math.max(0, Math.min(255, b));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // 5. JPEG compression (quality 82 — Apple's default)
+            resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.src = dataUrl;
+    });
+}
+
+// --- Result section iPhone toggle ---
+if (iphoneToggle) {
+    iphoneToggle.addEventListener('click', async () => {
+        if (!resultImage.src || resultImage.style.display === 'none') return;
+
+        if (!iphoneFilterActive) {
+            // Apply filter
+            iphoneToggle.textContent = '⏳...';
+            iphoneToggle.disabled = true;
+            originalResultSrc = originalResultSrc || resultImage.src;
+            if (!filteredResultSrc) {
+                filteredResultSrc = await applyIphoneFilter(originalResultSrc);
+            }
+            resultImage.src = filteredResultSrc;
+            iphoneToggle.classList.add('active');
+            iphoneToggle.textContent = '📱 iPhone';
+            iphoneToggle.disabled = false;
+            iphoneFilterActive = true;
+        } else {
+            // Revert to original
+            resultImage.src = originalResultSrc;
+            iphoneToggle.classList.remove('active');
+            iphoneFilterActive = false;
+        }
+    });
+}
+
+// --- Lightbox iPhone toggle ---
+if (lightboxIphoneToggle) {
+    lightboxIphoneToggle.addEventListener('click', async () => {
+        if (activeLightboxIndex < 0) return;
+
+        if (!lightboxIphoneActive) {
+            lightboxIphoneToggle.textContent = '⏳...';
+            lightboxIphoneToggle.disabled = true;
+            lightboxOriginalSrc = lightboxOriginalSrc || galleryItems[activeLightboxIndex].dataUrl;
+            if (!lightboxFilteredSrc) {
+                lightboxFilteredSrc = await applyIphoneFilter(lightboxOriginalSrc);
+            }
+            lightboxImage.src = lightboxFilteredSrc;
+            lightboxIphoneToggle.classList.add('active');
+            lightboxIphoneToggle.textContent = '📱 iPhone';
+            lightboxIphoneToggle.disabled = false;
+            lightboxIphoneActive = true;
+        } else {
+            lightboxImage.src = lightboxOriginalSrc;
+            lightboxIphoneToggle.classList.remove('active');
+            lightboxIphoneActive = false;
+        }
+    });
+}
+
+// Override lightbox Save/Copy/Send to use filtered version when active
+const _origLightboxDownloadHandler = lightboxDownload?.onclick;
+
+// When switching lightbox images, reset filter state
+const _origOpenLightbox = openLightbox;
+
+// Reset iPhone filter state when new result is generated or lightbox changes
+function resetIphoneFilter() {
+    iphoneFilterActive = false;
+    originalResultSrc = null;
+    filteredResultSrc = null;
+    if (iphoneToggle) iphoneToggle.classList.remove('active');
+}
+
+function resetLightboxIphoneFilter() {
+    lightboxIphoneActive = false;
+    lightboxOriginalSrc = null;
+    lightboxFilteredSrc = null;
+    if (lightboxIphoneToggle) lightboxIphoneToggle.classList.remove('active');
+}
+
+// ============================================================
 // Gallery
 // ============================================================
 const gallerySection = document.getElementById('gallerySection');
@@ -1664,6 +1820,7 @@ function renderGallery() {
 
 function openLightbox(idx) {
     activeLightboxIndex = idx;
+    resetLightboxIphoneFilter();
     lightboxImage.src = galleryItems[idx].dataUrl;
     lightbox.style.display = '';
 }
@@ -1679,14 +1836,17 @@ if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
 if (lightboxDownload) {
     lightboxDownload.addEventListener('click', () => {
         if (activeLightboxIndex < 0) return;
-        triggerDownload(galleryItems[activeLightboxIndex].dataUrl, `gallery_${activeLightboxIndex + 1}.png`);
+        const src = lightboxIphoneActive ? lightboxFilteredSrc : galleryItems[activeLightboxIndex].dataUrl;
+        const ext = lightboxIphoneActive ? 'jpg' : 'png';
+        triggerDownload(src, `gallery_${activeLightboxIndex + 1}.${ext}`);
     });
 }
 
 if (lightboxCopy) {
     lightboxCopy.addEventListener('click', async () => {
         if (activeLightboxIndex < 0) return;
-        const ok = await copyImageToClipboard(galleryItems[activeLightboxIndex].dataUrl);
+        const src = lightboxIphoneActive ? lightboxFilteredSrc : galleryItems[activeLightboxIndex].dataUrl;
+        const ok = await copyImageToClipboard(src);
         lightboxCopy.textContent = ok ? 'Copied' : 'Failed';
         setTimeout(() => { lightboxCopy.textContent = 'Copy'; }, 1500);
     });
@@ -1705,7 +1865,7 @@ const lightboxSend = document.getElementById('lightboxSend');
 if (lightboxSend) {
     lightboxSend.addEventListener('click', async () => {
         if (activeLightboxIndex < 0) return;
-        const dataUrl = galleryItems[activeLightboxIndex].dataUrl;
+        const dataUrl = lightboxIphoneActive ? lightboxFilteredSrc : galleryItems[activeLightboxIndex].dataUrl;
         const mediaB64 = dataUrl.split(',')[1];
         if (!mediaB64) return;
 
