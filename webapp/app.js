@@ -36,6 +36,8 @@ let editSubmode = 'default'; // 'default' (no depth/canny) or 'depth' (preserves
 let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
 let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
+let darkGenSubmode = 'default'; // 'default' or 'faceswap'
+let faceImageB64 = null; // base64 face photo for BFS
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
@@ -231,9 +233,18 @@ function switchMode(mode) {
         // Hide Reference image section in Generate mode (text2img, no i2i)
         const img2Section = document.getElementById('darkImage2Section');
         if (img2Section) img2Section.style.display = (darkMode === 'edit' && originalImage) ? '' : 'none';
-        // Bug #4: LoRA strength ONLY for Generate mode
+        // Sub-mode toggle (Default / Face Swap) only for Generate mode
+        const submodeSection = document.getElementById('darkGenSubmodeSection');
+        if (submodeSection) submodeSection.style.display = darkMode === 'generate' ? '' : 'none';
+        // Face upload only for Face Swap sub-mode
+        const faceSection = document.getElementById('darkFaceUploadSection');
+        if (faceSection) faceSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'faceswap') ? '' : 'none';
+        // LoRA strength only for Generate + Default sub-mode
         const loraSection = document.getElementById('darkLoraStrengthSection');
-        if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
+        if (loraSection) loraSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
+        // Resolution only for Generate + Default sub-mode (BFS has fixed resolution)
+        const resSection2 = document.getElementById('darkResolutionSection');
+        if (resSection2) resSection2.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
     }
 
     // Show/hide shared sections (Prompt + Generate) when image is loaded
@@ -609,13 +620,21 @@ document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
         btn.classList.add('active');
         darkMode = btn.dataset.darkmode;
 
-        // Show/hide resolution section (only for Generate)
+        // Show/hide resolution section (only for Generate + Default sub-mode)
         const resSection = document.getElementById('darkResolutionSection');
-        if (resSection) resSection.style.display = (darkMode === 'generate' && originalImage !== null || darkMode === 'generate') ? '' : 'none';
+        if (resSection) resSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
 
-        // Show/hide LoRA strength section (only for Generate)
+        // Show/hide LoRA strength section (only for Generate + Default sub-mode)
         const loraSection = document.getElementById('darkLoraStrengthSection');
-        if (loraSection) loraSection.style.display = darkMode === 'generate' ? '' : 'none';
+        if (loraSection) loraSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
+
+        // Show/hide sub-mode section (only for Generate)
+        const submodeSection = document.getElementById('darkGenSubmodeSection');
+        if (submodeSection) submodeSection.style.display = darkMode === 'generate' ? '' : 'none';
+
+        // Show/hide face upload (only for Generate + Face Swap)
+        const faceSection = document.getElementById('darkFaceUploadSection');
+        if (faceSection) faceSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'faceswap') ? '' : 'none';
 
         // Update reference hint
         const hint = document.getElementById('darkImg2Hint');
@@ -640,6 +659,51 @@ document.querySelectorAll('#darkResolutionSection .quality-btn').forEach(btn => 
         darkResolution = btn.dataset.res;
     });
 });
+
+// Dark Generate sub-mode toggle (Default / Face Swap)
+document.querySelectorAll('#darkGenSubmodeSection .quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#darkGenSubmodeSection .quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        darkGenSubmode = btn.dataset.gensubmode;
+
+        // Toggle face upload and resolution/LoRA visibility
+        const faceSection = document.getElementById('darkFaceUploadSection');
+        if (faceSection) faceSection.style.display = darkGenSubmode === 'faceswap' ? '' : 'none';
+        const loraSection = document.getElementById('darkLoraStrengthSection');
+        if (loraSection) loraSection.style.display = darkGenSubmode === 'default' ? '' : 'none';
+        const resSection = document.getElementById('darkResolutionSection');
+        if (resSection) resSection.style.display = darkGenSubmode === 'default' ? '' : 'none';
+    });
+});
+
+// Face photo upload for BFS face swap
+const faceUploadArea = document.getElementById('faceUploadArea');
+const faceFileInput = document.getElementById('faceFileInput');
+const faceUploadPlaceholder = document.getElementById('faceUploadPlaceholder');
+
+if (faceUploadArea && faceFileInput) {
+    faceUploadArea.addEventListener('click', () => faceFileInput.click());
+    faceFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            faceImageB64 = ev.target.result.split(',')[1]; // store raw base64
+            // Show preview
+            faceUploadPlaceholder.style.display = 'none';
+            let preview = faceUploadArea.querySelector('img');
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.style.maxHeight = '80px';
+                preview.style.borderRadius = '8px';
+                faceUploadArea.appendChild(preview);
+            }
+            preview.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 // ============================================================
 // Dark Mode: Second Image Upload
@@ -1330,19 +1394,28 @@ async function generateDarkEdit(prompt) {
         };
 
         if (darkMode === 'generate') {
-            // Generate V2: text2img with optional reference
-            const [w, h] = darkResolution.split('x').map(Number);
-            body.width = w;
-            body.height = h;
-            // LoRA strength override
-            const loraSlider = document.getElementById('darkLoraStrengthSlider');
-            if (loraSlider) body.lora_strength = parseFloat(loraSlider.value);
-            // Image is optional reference for Generate mode
-            if (originalImage) {
-                const imageDataURL = getImageDataURL();
-                body.image = imageDataURL.split(',')[1];
+            body.submode = darkGenSubmode;
+
+            if (darkGenSubmode === 'faceswap') {
+                // BFS Face Swap: face image is required
+                if (!faceImageB64) {
+                    throw new Error('Upload a face photo first');
+                }
+                body.face_image = faceImageB64;
+                body.image = ''; // no main image needed
             } else {
-                body.image = '';
+                // Default: text2img with optional reference
+                const [w, h] = darkResolution.split('x').map(Number);
+                body.width = w;
+                body.height = h;
+                const loraSlider = document.getElementById('darkLoraStrengthSlider');
+                if (loraSlider) body.lora_strength = parseFloat(loraSlider.value);
+                if (originalImage) {
+                    const imageDataURL = getImageDataURL();
+                    body.image = imageDataURL.split(',')[1];
+                } else {
+                    body.image = '';
+                }
             }
         } else {
             // Edit mode: image is required

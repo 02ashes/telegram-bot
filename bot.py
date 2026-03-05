@@ -401,21 +401,32 @@ async def api_image_edit_dark(request: Request):
         )
 
         if dark_mode == "generate":
-            # Dark Generate V2: text2img with optional reference
-            width = int(body.get("width", 768))
-            height = int(body.get("height", 1440))
-            lora_strength = float(body.get("lora_strength", 0.95))
-            reference_bytes = image_bytes if image_b64 else None
+            submode = body.get("submode", "default")  # "default" or "faceswap"
+            face_b64 = body.get("face_image", "")
 
-            result_bytes = await comfyui_api.run_dark_generate(
-                prompt=prompt,
-                negative=negative,
-                width=width,
-                height=height,
-                quality=quality,
-                reference_bytes=reference_bytes,
-                lora_strength_override=lora_strength,
-            )
+            if submode == "faceswap":
+                if not face_b64:
+                    return JSONResponse(status_code=400, content={"error": "Missing face image for Face Swap"})
+                face_bytes = base64.b64decode(face_b64)
+                result_bytes = await comfyui_api.run_dark_generate_bfs(
+                    face_image_bytes=face_bytes,
+                    prompt=prompt,
+                )
+            else:
+                # Default: text2img with optional reference
+                width = int(body.get("width", 768))
+                height = int(body.get("height", 1440))
+                lora_strength = float(body.get("lora_strength", 0.95))
+                reference_bytes = image_bytes if image_b64 else None
+                result_bytes = await comfyui_api.run_dark_generate(
+                    prompt=prompt,
+                    negative=negative,
+                    width=width,
+                    height=height,
+                    quality=quality,
+                    reference_bytes=reference_bytes,
+                    lora_strength_override=lora_strength,
+                )
         else:
             result_bytes = await comfyui_api.run_image_edit_dark(
                 image_bytes=image_bytes,
