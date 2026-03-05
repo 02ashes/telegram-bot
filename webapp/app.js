@@ -1736,7 +1736,7 @@ if (iphoneToggle) {
             }
             resultImage.src = filteredResultSrc;
             iphoneToggle.classList.add('active');
-            iphoneToggle.textContent = '📱 iPhone';
+            iphoneToggle.textContent = 'iPhone';
             iphoneToggle.disabled = false;
             iphoneFilterActive = true;
         } else {
@@ -1762,7 +1762,7 @@ if (lightboxIphoneToggle) {
             }
             lightboxImage.src = lightboxFilteredSrc;
             lightboxIphoneToggle.classList.add('active');
-            lightboxIphoneToggle.textContent = '📱 iPhone';
+            lightboxIphoneToggle.textContent = 'iPhone';
             lightboxIphoneToggle.disabled = false;
             lightboxIphoneActive = true;
         } else {
