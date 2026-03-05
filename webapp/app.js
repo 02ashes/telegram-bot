@@ -81,6 +81,18 @@ const resultVideo = document.getElementById('resultVideo');
 const downloadBtn = document.getElementById('downloadBtn');
 const retryBtn = document.getElementById('retryBtn');
 
+// Gallery & Lightbox
+const gallerySection = document.getElementById('gallerySection');
+const galleryStrip = document.getElementById('galleryStrip');
+const lightbox = document.getElementById('galleryLightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+const lightboxOverlay = document.getElementById('lightboxOverlay');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxDownload = document.getElementById('lightboxDownload');
+const lightboxCopy = document.getElementById('lightboxCopy');
+const lightboxDelete = document.getElementById('lightboxDelete');
+let activeLightboxIndex = -1;
+
 // Video settings
 const framesSlider = document.getElementById('framesSlider');
 const framesLabel = document.getElementById('framesLabel');
@@ -1785,16 +1797,6 @@ function resetLightboxIphoneFilter() {
 // ============================================================
 // Gallery
 // ============================================================
-const gallerySection = document.getElementById('gallerySection');
-const galleryStrip = document.getElementById('galleryStrip');
-const lightbox = document.getElementById('galleryLightbox');
-const lightboxImage = document.getElementById('lightboxImage');
-const lightboxOverlay = document.getElementById('lightboxOverlay');
-const lightboxClose = document.getElementById('lightboxClose');
-const lightboxDownload = document.getElementById('lightboxDownload');
-const lightboxCopy = document.getElementById('lightboxCopy');
-const lightboxDelete = document.getElementById('lightboxDelete');
-let activeLightboxIndex = -1;
 
 function addToGallery(dataUrl) {
     galleryItems.push({ dataUrl, timestamp: Date.now() });
