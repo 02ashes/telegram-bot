@@ -2124,15 +2124,8 @@ def build_dark_generate_v2_workflow(
             },
         },
 
-        # ---- Decode PASS 1 (preview) ----
-        "25": {
-            "class_type": "VAEDecode",
-            "inputs": {"samples": ["9", 0], "vae": ["4", 0]},
-        },
-        "12": {
-            "class_type": "SaveImage",
-            "inputs": {"images": ["25", 0], "filename_prefix": "TGBot_DBZ6_p1"},
-        },
+        # NOTE: Pass 1 preview (nodes 25, 12) removed — was causing
+        # RunPod handler to return the wrong (pre-upscale) image as items[0].
 
         # ---- PASS 2: Latent Upscale + Refine ----
         "78": {
