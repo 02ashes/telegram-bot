@@ -505,14 +505,27 @@ async def notify_admin_generation(
 
         caption = f"👤 {tag} (ID: {user_id})\n📝 {prompt[:900]}"
 
+        def _prepare_photo(raw: bytes) -> bytes:
+            """Resize for Telegram (max 2000px side, JPEG)."""
+            from PIL import Image as PILImage
+            img = PILImage.open(io.BytesIO(raw)).convert("RGB")
+            max_side = 2000
+            if max(img.size) > max_side:
+                img.thumbnail((max_side, max_side), PILImage.LANCZOS)
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=92)
+            return buf.getvalue()
+
         if len(image_bytes_list) == 1:
-            file = BufferedInputFile(image_bytes_list[0], filename="gen.jpg")
+            photo = _prepare_photo(image_bytes_list[0])
+            file = BufferedInputFile(photo, filename="gen.jpg")
             await bot.send_photo(admin_id, file, caption=caption)
         elif len(image_bytes_list) > 1:
             from aiogram.types import InputMediaPhoto
             media = []
             for i, img_bytes in enumerate(image_bytes_list[:10]):
-                file = BufferedInputFile(img_bytes, filename=f"gen_{i}.jpg")
+                photo = _prepare_photo(img_bytes)
+                file = BufferedInputFile(photo, filename=f"gen_{i}.jpg")
                 media.append(InputMediaPhoto(
                     media=file,
                     caption=caption if i == 0 else None,
@@ -690,16 +703,17 @@ async def cmd_list(message: types.Message):
     # Details
     detail_lines = []
     for uid, info in users.items():
-        tag = f"@{info.get('username')}" if info.get('username') else "—"
+        uname = info.get('username', '')
+        tag = f"@{uname}" if uname else "—"
         code = info.get('code_used', '—')
-        detail_lines.append(f"• {tag}  |  ID: `{uid}`  |  код: {code}")
+        detail_lines.append(f"• {tag}  |  ID: <code>{uid}</code>  |  код: {code}")
 
     text = (
-        f"👥 **Пользователи ({len(users)}):**\n\n"
-        f"`{ids_line}`\n\n"
+        f"👥 <b>Пользователи ({len(users)}):</b>\n\n"
+        f"<code>{ids_line}</code>\n\n"
         + "\n".join(detail_lines)
     )
-    await message.answer(text, parse_mode="Markdown")
+    await message.answer(text, parse_mode="HTML")
 
 
 @dp.message(lambda m: m.text and m.text.strip() in ("/users", "/codes"))
