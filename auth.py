@@ -108,6 +108,29 @@ def list_users() -> dict:
     return _load_json(USERS_FILE)
 
 
+def get_user_info(user_id: int) -> dict | None:
+    users = _load_json(USERS_FILE)
+    return users.get(str(user_id))
+
+
+def add_users_bulk(user_ids: list[int]) -> list[int]:
+    """Register users by ID without invite code. Returns list of newly added IDs."""
+    import time as _time
+    users = _load_json(USERS_FILE)
+    added = []
+    for uid in user_ids:
+        key = str(uid)
+        if key not in users:
+            users[key] = {
+                "username": "",
+                "registered_at": _time.strftime("%Y-%m-%d %H:%M:%S"),
+                "code_used": "ADMIN_ADD",
+            }
+            added.append(uid)
+    _save_json(USERS_FILE, users)
+    return added
+
+
 # ── Telegram WebApp initData validation ───────────────────────
 
 

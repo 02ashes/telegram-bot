@@ -6,6 +6,7 @@ import io
 import logging
 import os
 import sys
+import traceback
 
 import uvicorn
 from aiogram import Bot, Dispatcher, types
@@ -151,6 +152,12 @@ async def api_inpaint(request: Request):
 
         # Return image as base64
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Notify admin
+        asyncio.create_task(notify_admin_generation(
+            user=user, prompt=prompt, image_bytes_list=[result_bytes],
+        ))
+
         return JSONResponse(content={"image": result_b64})
 
     except Exception as e:
@@ -359,6 +366,12 @@ async def api_image_edit(request: Request):
             )
 
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Notify admin
+        asyncio.create_task(notify_admin_generation(
+            user=user, prompt=prompt, image_bytes_list=[result_bytes],
+        ))
+
         return JSONResponse(content={"image": result_b64})
 
     except Exception as e:
@@ -446,6 +459,12 @@ async def api_image_edit_dark(request: Request):
             )
 
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Notify admin
+        asyncio.create_task(notify_admin_generation(
+            user=user, prompt=prompt, image_bytes_list=[result_bytes],
+        ))
+
         return JSONResponse(content={"image": result_b64})
 
     except Exception as e:
@@ -465,6 +484,42 @@ dp = Dispatcher()
 
 def is_admin(user_id: int) -> bool:
     return user_id == config.ADMIN_TELEGRAM_ID
+
+
+async def notify_admin_generation(
+    user: dict,
+    prompt: str,
+    image_bytes_list: list[bytes],
+):
+    """Forward generation result to admin with user info."""
+    try:
+        admin_id = config.ADMIN_TELEGRAM_ID
+        user_id = user.get("id", "?")
+
+        # Don't spam admin with their own generations
+        if user_id == admin_id:
+            return
+
+        username = user.get("username", "")
+        tag = f"@{username}" if username else f"id:{user_id}"
+
+        caption = f"👤 {tag} (ID: {user_id})\n📝 {prompt[:900]}"
+
+        if len(image_bytes_list) == 1:
+            file = BufferedInputFile(image_bytes_list[0], filename="gen.jpg")
+            await bot.send_photo(admin_id, file, caption=caption)
+        elif len(image_bytes_list) > 1:
+            from aiogram.types import InputMediaPhoto
+            media = []
+            for i, img_bytes in enumerate(image_bytes_list[:10]):
+                file = BufferedInputFile(img_bytes, filename=f"gen_{i}.jpg")
+                media.append(InputMediaPhoto(
+                    media=file,
+                    caption=caption if i == 0 else None,
+                ))
+            await bot.send_media_group(admin_id, media)
+    except Exception:
+        logger.warning("Failed to notify admin: %s", traceback.format_exc())
 
 
 @dp.message(CommandStart())
@@ -584,9 +639,43 @@ async def cmd_delete(message: types.Message):
         await message.answer(f"❌ Пользователь {target_id} не найден")
 
 
-@dp.message(lambda m: m.text and m.text.strip() == "/users")
-async def cmd_users(message: types.Message):
-    """Admin: list registered users."""
+@dp.message(lambda m: m.text and m.text.startswith("/add"))
+async def cmd_add(message: types.Message):
+    """Admin: bulk register users: /add 123,456,789"""
+    if not is_admin(message.from_user.id):
+        return
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("Использование: `/add 123456,789012,345678`", parse_mode="Markdown")
+        return
+
+    raw_ids = parts[1].replace(" ", "").split(",")
+    user_ids = []
+    for raw in raw_ids:
+        try:
+            user_ids.append(int(raw.strip()))
+        except ValueError:
+            pass
+
+    if not user_ids:
+        await message.answer("❌ Не найдено валидных ID")
+        return
+
+    added = auth.add_users_bulk(user_ids)
+    if added:
+        await message.answer(
+            f"✅ Добавлено: {len(added)} юзер(ов)\n"
+            f"ID: `{', '.join(str(x) for x in added)}`",
+            parse_mode="Markdown",
+        )
+    else:
+        await message.answer("ℹ️ Все указанные юзеры уже зарегистрированы")
+
+
+@dp.message(lambda m: m.text and m.text.strip() == "/list")
+async def cmd_list(message: types.Message):
+    """Admin: list registered users with details."""
     if not is_admin(message.from_user.id):
         return
 
@@ -595,28 +684,41 @@ async def cmd_users(message: types.Message):
         await message.answer("Нет зарегистрированных пользователей")
         return
 
-    lines = ["👥 **Пользователи:**\n"]
+    # Line 1: comma-separated IDs
+    ids_line = ", ".join(users.keys())
+
+    # Details
+    detail_lines = []
     for uid, info in users.items():
-        lines.append(f"• `{uid}` — @{info.get('username', '?')} (код: {info.get('code_used', '?')})")
-    await message.answer("\n".join(lines), parse_mode="Markdown")
+        tag = f"@{info.get('username')}" if info.get('username') else "—"
+        code = info.get('code_used', '—')
+        detail_lines.append(f"• {tag}  |  ID: `{uid}`  |  код: {code}")
+
+    text = (
+        f"👥 **Пользователи ({len(users)}):**\n\n"
+        f"`{ids_line}`\n\n"
+        + "\n".join(detail_lines)
+    )
+    await message.answer(text, parse_mode="Markdown")
 
 
-@dp.message(lambda m: m.text and m.text.strip() == "/codes")
-async def cmd_codes(message: types.Message):
-    """Admin: list invite codes."""
+@dp.message(lambda m: m.text and m.text.strip() in ("/users", "/codes"))
+async def cmd_legacy(message: types.Message):
+    """Redirect old commands."""
     if not is_admin(message.from_user.id):
         return
-
-    codes = auth.list_codes()
-    if not codes:
-        await message.answer("Нет инвайт-кодов")
-        return
-
-    lines = ["🎟 **Инвайт-коды:**\n"]
-    for code, info in codes.items():
-        status = f"✅ использован ({info['used_by']})" if info.get('used_by') else "⏳ свободен"
-        lines.append(f"• `{code}` — {status}")
-    await message.answer("\n".join(lines), parse_mode="Markdown")
+    if message.text.strip() == "/users":
+        await cmd_list(message)
+    else:
+        codes = auth.list_codes()
+        if not codes:
+            await message.answer("Нет инвайт-кодов")
+            return
+        lines = ["🎟 **Инвайт-коды:**\n"]
+        for code, info in codes.items():
+            status = f"✅ использован ({info['used_by']})" if info.get('used_by') else "⏳ свободен"
+            lines.append(f"• `{code}` — {status}")
+        await message.answer("\n".join(lines), parse_mode="Markdown")
 
 
 # ============================================================
