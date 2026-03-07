@@ -506,20 +506,24 @@ async def notify_admin_generation(
         caption = f"👤 {tag} (ID: {user_id})\n📝 {prompt[:900]}"
 
         def _prepare_photo(raw: bytes) -> bytes:
-            """Resize for Telegram (max 2000px side, JPEG)."""
+            """Resize for Telegram (max 1280px side, JPEG)."""
             from PIL import Image as PILImage
             img = PILImage.open(io.BytesIO(raw)).convert("RGB")
-            max_side = 2000
+            max_side = 1280
             if max(img.size) > max_side:
                 img.thumbnail((max_side, max_side), PILImage.LANCZOS)
             buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=92)
+            img.save(buf, format="JPEG", quality=88)
             return buf.getvalue()
 
         if len(image_bytes_list) == 1:
             photo = _prepare_photo(image_bytes_list[0])
             file = BufferedInputFile(photo, filename="gen.jpg")
-            await bot.send_photo(admin_id, file, caption=caption)
+            try:
+                await bot.send_photo(admin_id, file, caption=caption)
+            except Exception:
+                # Fallback: send as document
+                await bot.send_document(admin_id, file, caption=caption)
         elif len(image_bytes_list) > 1:
             from aiogram.types import InputMediaPhoto
             media = []
@@ -530,7 +534,13 @@ async def notify_admin_generation(
                     media=file,
                     caption=caption if i == 0 else None,
                 ))
-            await bot.send_media_group(admin_id, media)
+            try:
+                await bot.send_media_group(admin_id, media)
+            except Exception:
+                # Fallback: send first as document
+                photo = _prepare_photo(image_bytes_list[0])
+                file = BufferedInputFile(photo, filename="gen.jpg")
+                await bot.send_document(admin_id, file, caption=caption)
     except Exception:
         logger.warning("Failed to notify admin: %s", traceback.format_exc())
 
