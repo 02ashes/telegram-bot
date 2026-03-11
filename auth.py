@@ -168,6 +168,11 @@ def validate_webapp_data(init_data: str, bot_token: str) -> Optional[dict]:
         if computed_hash != received_hash:
             return None
 
+        # Check auth_date freshness (reject initData older than 24h)
+        auth_date = int(parsed.get("auth_date", ["0"])[0])
+        if auth_date and (time.time() - auth_date > 86400):
+            return None
+
         # Extract user info
         user_data = parsed.get("user", [None])[0]
         if user_data:

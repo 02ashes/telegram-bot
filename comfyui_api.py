@@ -20,6 +20,72 @@ def _image_to_base64(image_bytes: bytes) -> str:
     return base64.b64encode(image_bytes).decode("utf-8")
 
 
+def _add_skin_enhance_and_grain(
+    workflow: dict,
+    image_source_ref: list,
+    save_node_id: str,
+    skin_model: str = "1xSkinContrast-High-SuperUltraCompact.pth",
+    blend_factor: float = 0.7,
+    grain_intensity: float = 0.03,
+    grain_softness: float = 0.8,
+    grain_shadow: float = 0.23,
+) -> None:
+    """Inject Skin Enhance + Film Grain post-processing into a workflow.
+
+    Adds 4 nodes between the image source and SaveImage:
+      UpscaleModelLoader(1x skin model)
+      → ImageUpscaleWithModel (enhances skin detail)
+      → ImageBlend (blends enhanced with original)
+      → FilmGrain (adds film grain for realism)
+      → SaveImage
+
+    Args:
+        workflow: The workflow dict to modify in-place.
+        image_source_ref: Reference to the image source node, e.g. ["77", 0].
+        save_node_id: The SaveImage node ID to re-target.
+        skin_model: Filename of the 1x upscale model for skin detail.
+        blend_factor: ImageBlend factor (0=original, 1=fully enhanced).
+        grain_intensity: Film grain intensity (0.01-0.05 range).
+        grain_softness: Film grain softness.
+        grain_shadow: Film grain shadow amount.
+    """
+    # Node IDs 500-503 reserved for skin enhance + grain pipeline
+    workflow["500"] = {
+        "class_type": "UpscaleModelLoader",
+        "inputs": {"model_name": skin_model},
+    }
+    workflow["501"] = {
+        "class_type": "ImageUpscaleWithModel",
+        "inputs": {
+            "upscale_model": ["500", 0],
+            "image": image_source_ref,
+        },
+    }
+    workflow["502"] = {
+        "class_type": "ImageBlend",
+        "inputs": {
+            "image1": image_source_ref,
+            "image2": ["501", 0],
+            "blend_factor": blend_factor,
+            "blend_mode": "normal",
+        },
+    }
+    workflow["503"] = {
+        "class_type": "FilmGrain",
+        "inputs": {
+            "image": ["502", 0],
+            "intensity": grain_intensity,
+            "softness": grain_softness,
+            "shadow": grain_shadow,
+            "mid": 0.5,
+            "scale": 1,
+            "grain_type": "Color",
+        },
+    }
+    # Re-target SaveImage to use FilmGrain output
+    workflow[save_node_id]["inputs"]["images"] = ["503", 0]
+
+
 def build_flux_fill_workflow(
     prompt: str,
     negative: str = "blurry, ugly, deformed, watermark, text, low quality, cartoon",
@@ -115,6 +181,9 @@ def build_flux_fill_workflow(
             },
         },
     }
+
+    # Skin Enhance + Film Grain post-processing
+    _add_skin_enhance_and_grain(workflow, ["9", 0], "10")
 
     return workflow
 
@@ -420,11 +489,15 @@ def build_flux_klein_edit_workflow(
             "class_type": "SaveImage",
             "inputs": {"images": ["200", 0], "filename_prefix": "TGBot_Edit"},
         }
+        # Skin Enhance + Film Grain post-processing
+        _add_skin_enhance_and_grain(workflow, ["200", 0], "201")
     else:
         workflow["201"] = {
             "class_type": "SaveImage",
             "inputs": {"images": ["104", 0], "filename_prefix": "TGBot_Edit"},
         }
+        # Skin Enhance + Film Grain post-processing
+        _add_skin_enhance_and_grain(workflow, ["104", 0], "201")
 
     return workflow
 
@@ -652,6 +725,9 @@ def build_flux_klein_default_edit_workflow(
         workflow["172"]["inputs"]["positive"] = ["403", 0]
         workflow["172"]["inputs"]["negative"] = ["404", 0]
 
+    # Skin Enhance + Film Grain post-processing
+    _add_skin_enhance_and_grain(workflow, ["104", 0], "201")
+
     return workflow
 
 
@@ -795,6 +871,9 @@ def build_dark_img2img_workflow(
 
     # Point KSampler to the last model in the chain
     workflow["138"]["inputs"]["model"] = last_model_ref
+
+    # Skin Enhance + Film Grain post-processing
+    _add_skin_enhance_and_grain(workflow, ["104", 0], "201")
 
     return workflow
 
@@ -1080,6 +1159,9 @@ def build_dark_bfs_workflow(
         workflow["27"]["inputs"]["model"] = last_model_ref
         workflow["35"]["inputs"]["model"] = last_model_ref
         workflow["2"]["inputs"]["model"] = last_model_ref
+
+    # Skin Enhance + Film Grain post-processing
+    _add_skin_enhance_and_grain(workflow, ["40", 0], "61")
 
     return workflow
 
@@ -1452,6 +1534,28 @@ def build_wan_i2v_workflow(
 
 RUNPOD_API_BASE = "https://api.runpod.ai/v2"
 
+# Global aiohttp session — reused across all RunPod API calls
+_session: aiohttp.ClientSession | None = None
+
+
+def _get_session() -> aiohttp.ClientSession:
+    """Get or create a global aiohttp session for connection reuse."""
+    global _session
+    if _session is None or _session.closed:
+        _session = aiohttp.ClientSession(
+            headers={"Authorization": f"Bearer {config.RUNPOD_API_KEY}"},
+            timeout=aiohttp.ClientTimeout(total=30),
+        )
+    return _session
+
+
+async def close_session():
+    """Close the global aiohttp session (call at shutdown)."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
 
 async def submit_job(workflow: dict, images: list[dict]) -> str | None:
     """Submit a job to RunPod Serverless endpoint.
@@ -1464,10 +1568,6 @@ async def submit_job(workflow: dict, images: list[dict]) -> str | None:
         Job ID or None on failure.
     """
     url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/run"
-    headers = {
-        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
-        "Content-Type": "application/json",
-    }
     payload = {
         "input": {
             "workflow": workflow,
@@ -1475,16 +1575,16 @@ async def submit_job(workflow: dict, images: list[dict]) -> str | None:
         }
     }
     
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=payload, headers=headers) as resp:
-            if resp.status != 200:
-                text = await resp.text()
-                logger.error("RunPod submit failed (%d): %s", resp.status, text)
-                return None
-            result = await resp.json()
-            job_id = result.get("id")
-            logger.info("RunPod job submitted: %s (status: %s)", job_id, result.get("status"))
-            return job_id
+    session = _get_session()
+    async with session.post(url, json=payload) as resp:
+        if resp.status != 200:
+            text = await resp.text()
+            logger.error("RunPod submit failed (%d): %s", resp.status, text)
+            return None
+        result = await resp.json()
+        job_id = result.get("id")
+        logger.info("RunPod job submitted: %s (status: %s)", job_id, result.get("status"))
+        return job_id
 
 
 async def poll_job(job_id: str, timeout: int = 1200) -> dict | None:
@@ -1494,34 +1594,31 @@ async def poll_job(job_id: str, timeout: int = 1200) -> dict | None:
     Default timeout: 1200s (20 minutes) to handle long NSFW video generation.
     """
     url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
-    headers = {
-        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
-    }
+    session = _get_session()
     
-    async with aiohttp.ClientSession() as session:
-        for i in range(timeout // 3):
-            await asyncio.sleep(3)
-            try:
-                async with session.get(url, headers=headers) as resp:
-                    data = await resp.json()
-                    status = data.get("status")
-                    
-                    if status == "COMPLETED":
-                        logger.info("Job %s completed!", job_id)
-                        return data.get("output")
-                    elif status == "FAILED":
-                        logger.error("Job %s failed: %s", job_id, data.get("error"))
-                        return None
-                    elif status == "CANCELLED":
-                        logger.info("Job %s was cancelled", job_id)
-                        return None
-                    elif status in ("IN_QUEUE", "IN_PROGRESS"):
-                        if i % 5 == 0:
-                            logger.info("Job %s status: %s", job_id, status)
-                    else:
-                        logger.warning("Job %s unknown status: %s", job_id, status)
-            except Exception as e:
-                logger.warning("Poll error: %s", e)
+    for i in range(timeout // 3):
+        await asyncio.sleep(3)
+        try:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                status = data.get("status")
+                
+                if status == "COMPLETED":
+                    logger.info("Job %s completed!", job_id)
+                    return data.get("output")
+                elif status == "FAILED":
+                    logger.error("Job %s failed: %s", job_id, data.get("error"))
+                    return None
+                elif status == "CANCELLED":
+                    logger.info("Job %s was cancelled", job_id)
+                    return None
+                elif status in ("IN_QUEUE", "IN_PROGRESS"):
+                    if i % 5 == 0:
+                        logger.info("Job %s status: %s", job_id, status)
+                else:
+                    logger.warning("Job %s unknown status: %s", job_id, status)
+        except Exception as e:
+            logger.warning("Poll error: %s", e)
 
     logger.error("Job %s timed out after %d seconds", job_id, timeout)
     return None
@@ -1533,19 +1630,16 @@ async def cancel_job(job_id: str) -> bool:
     Returns True if cancel request was sent successfully.
     """
     url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/cancel/{job_id}"
-    headers = {
-        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
-    }
     
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers) as resp:
-                if resp.status == 200:
-                    logger.info("Job %s cancel requested", job_id)
-                    return True
-                else:
-                    logger.warning("Failed to cancel job %s: %s", job_id, resp.status)
-                    return False
+        session = _get_session()
+        async with session.post(url) as resp:
+            if resp.status == 200:
+                logger.info("Job %s cancel requested", job_id)
+                return True
+            else:
+                logger.warning("Failed to cancel job %s: %s", job_id, resp.status)
+                return False
     except Exception as e:
         logger.error("Cancel error: %s", e)
         return False
@@ -1557,19 +1651,16 @@ async def get_job_status(job_id: str) -> dict:
     Returns dict with {status, output?}.
     """
     url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
-    headers = {
-        "Authorization": f"Bearer {config.RUNPOD_API_KEY}",
-    }
     
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as resp:
-                data = await resp.json()
-                return {
-                    "status": data.get("status", "UNKNOWN"),
-                    "output": data.get("output"),
-                    "error": data.get("error"),
-                }
+        session = _get_session()
+        async with session.get(url) as resp:
+            data = await resp.json()
+            return {
+                "status": data.get("status", "UNKNOWN"),
+                "output": data.get("output"),
+                "error": data.get("error"),
+            }
     except Exception as e:
         logger.error("Status check error: %s", e)
         return {"status": "ERROR", "error": str(e)}
@@ -2183,6 +2274,9 @@ def build_dark_generate_v2_workflow(
     # Point both KSamplers to the last model in the chain
     workflow["9"]["inputs"]["model"] = last_model_ref
     workflow["76"]["inputs"]["model"] = last_model_ref
+
+    # Skin Enhance + Film Grain post-processing
+    _add_skin_enhance_and_grain(workflow, ["77", 0], "79")
 
     return workflow
 

@@ -25,6 +25,10 @@ function handleAuthError(resp) {
         alert('❌ Access denied. Enter invite code in bot: /invite CODE');
         return true;
     }
+    if (resp.status === 402) {
+        alert('❌ Not enough tokens. Buy more in the Profile tab.');
+        return true;
+    }
     return false;
 }
 
@@ -123,11 +127,10 @@ const darkImg2Img = document.getElementById('darkImg2Img');
 const darkImg2Remove = document.getElementById('darkImg2Remove');
 const darkFileInput2 = document.getElementById('darkFileInput2');
 
-// Tabs
-const tabInpaint = document.getElementById('tabInpaint');
-const tabVideo = document.getElementById('tabVideo');
-const tabImage = document.getElementById('tabImage');
-const tabDark = document.getElementById('tabDark');
+// Top Tabs
+const topTabBtns = document.querySelectorAll('.top-tab');
+const modeSelect = document.getElementById('modeSelect');
+let currentTab = 'generate';
 
 // ============================================================
 // Telegram WebApp
@@ -153,21 +156,68 @@ if (tg) {
 })();
 
 // ============================================================
-// Mode Tabs
+// Top Tab Navigation
 // ============================================================
-tabInpaint.addEventListener('click', () => switchMode('inpaint'));
-tabVideo.addEventListener('click', () => switchMode('video'));
-tabImage.addEventListener('click', () => switchMode('image'));
-tabDark.addEventListener('click', () => switchMode('dark'));
+topTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(tab) {
+    currentTab = tab;
+    topTabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('contentFaq').style.display = tab === 'faq' ? '' : 'none';
+    document.getElementById('contentGenerate').style.display = tab === 'generate' ? '' : 'none';
+    document.getElementById('contentProfile').style.display = tab === 'profile' ? '' : 'none';
+    if (tab === 'profile') loadProfile();
+}
+
+// ============================================================
+// Mode Dropdown (Custom)
+// ============================================================
+const customSelect = document.getElementById('customSelect');
+const selectTrigger = document.getElementById('selectTrigger');
+const selectText = document.getElementById('selectText');
+const selectOptions = document.getElementById('selectOptions');
+
+selectTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    customSelect.classList.toggle('open');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+    customSelect.classList.remove('open');
+});
+
+selectOptions.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+document.querySelectorAll('.custom-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+        const val = opt.dataset.value;
+        // Update visual state
+        document.querySelectorAll('.custom-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        selectText.textContent = opt.textContent;
+        customSelect.classList.remove('open');
+
+        // Sync hidden select
+        modeSelect.value = val;
+
+        // Trigger mode switch
+        if (val === 'generate') {
+            darkMode = 'generate';
+            switchMode('dark');
+        } else {
+            if (val === 'dark') darkMode = 'edit';
+            switchMode(val);
+        }
+    });
+});
 
 function switchMode(mode) {
     currentMode = mode;
-
-    // Update tabs
-    tabInpaint.classList.toggle('active', mode === 'inpaint');
-    tabVideo.classList.toggle('active', mode === 'video');
-    tabImage.classList.toggle('active', mode === 'image');
-    tabDark.classList.toggle('active', mode === 'dark');
 
     // Dark Generate can work without image (text2img)
     const darkGenNoImage = (mode === 'dark' && darkMode === 'generate');
@@ -239,14 +289,12 @@ function switchMode(mode) {
 
     // Dark Mode/Quality toggles always show when Dark tab is active
     if (mode === 'dark') {
-        const modeSection = document.getElementById('darkModeSection');
-        if (modeSection) modeSection.style.display = '';
         // Quality only for Edit mode
         const qualitySection = document.getElementById('darkQualitySection');
         if (qualitySection) qualitySection.style.display = darkMode === 'edit' ? '' : 'none';
-        // Hide Reference image section in Generate mode (text2img, no i2i)
+        // NEVER show Reference image section in Dark mode (user request)
         const img2Section = document.getElementById('darkImage2Section');
-        if (img2Section) img2Section.style.display = (darkMode === 'edit' && originalImage) ? '' : 'none';
+        if (img2Section) img2Section.style.display = 'none';
         // Sub-mode toggle (Default / Face Swap) only for Generate mode
         const submodeSection = document.getElementById('darkGenSubmodeSection');
         if (submodeSection) submodeSection.style.display = darkMode === 'generate' ? '' : 'none';
@@ -627,43 +675,7 @@ document.querySelectorAll('#darkQualitySection .quality-btn').forEach(btn => {
     });
 });
 
-// Dark mode toggle (Edit / Generate)
-document.querySelectorAll('#darkModeSection .quality-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('#darkModeSection .quality-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        darkMode = btn.dataset.darkmode;
-
-        // Show/hide resolution section (only for Generate + Default sub-mode)
-        const resSection = document.getElementById('darkResolutionSection');
-        if (resSection) resSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
-
-        // Show/hide LoRA strength section (only for Generate + Default sub-mode)
-        const loraSection = document.getElementById('darkLoraStrengthSection');
-        if (loraSection) loraSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'default') ? '' : 'none';
-
-        // Show/hide sub-mode section (only for Generate)
-        const submodeSection = document.getElementById('darkGenSubmodeSection');
-        if (submodeSection) submodeSection.style.display = darkMode === 'generate' ? '' : 'none';
-
-        // Show/hide face upload (only for Generate + Face Swap)
-        const faceSection = document.getElementById('darkFaceUploadSection');
-        if (faceSection) faceSection.style.display = (darkMode === 'generate' && darkGenSubmode === 'faceswap') ? '' : 'none';
-
-        // Update reference hint
-        const hint = document.getElementById('darkImg2Hint');
-        if (hint) {
-            hint.textContent = darkMode === 'generate' ? '(optional: pose, object, prop)' : '(combine two girls)';
-        }
-
-        // Update settings visibility — hide denoise/steps for Generate (handled internally)
-        const settingsSection = document.getElementById('darkSettingsSection');
-        if (settingsSection) settingsSection.style.display = darkMode === 'edit' ? '' : 'none';
-
-        // Refresh full UI (prompt placeholder, button text, etc.)
-        switchMode('dark');
-    });
-});
+// (Dark edit/generate toggle removed — handled by mode dropdown now)
 
 // Dark resolution toggle
 document.querySelectorAll('#darkResolutionSection .quality-btn').forEach(btn => {
@@ -1338,6 +1350,16 @@ async function generateImageEdit(prompt) {
 
         clearInterval(progressInterval);
 
+        if (handleAuthError(response)) {
+            progressFill.style.width = '0%';
+            progressText.textContent = '';
+            return;
+        }
+        if (!response.ok) {
+            const errData = await response.json().catch(() => null);
+            throw new Error(errData?.error || `Server error: ${response.status}`);
+        }
+
         const data = await response.json();
         if (data.error) {
             throw new Error(data.error);
@@ -1457,6 +1479,16 @@ async function generateDarkEdit(prompt) {
 
         clearTimeout(fetchTimeout);
         clearInterval(progressInterval);
+
+        if (handleAuthError(response)) {
+            progressFill.style.width = '0%';
+            progressText.textContent = '';
+            return;
+        }
+        if (!response.ok) {
+            const errData = await response.json().catch(() => null);
+            throw new Error(errData?.error || `Server error: ${response.status}`);
+        }
 
         const data = await response.json();
         if (data.error) {
@@ -2067,5 +2099,187 @@ if (actionSelect && aioTriggerRow) {
             document.querySelectorAll('#aioTriggers .preset-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         });
+    });
+}
+
+// ============================================================
+// Profile & History
+// ============================================================
+const ADMIN_ID = 1946394239;
+
+function getTgUser() {
+    try {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        return user || null;
+    } catch (_) { return null; }
+}
+
+async function loadProfile() {
+    const user = getTgUser();
+    const nameEl = document.getElementById('profileName');
+    const idEl = document.getElementById('profileId');
+    const badgeEl = document.getElementById('profileBadge');
+    const tokenEl = document.getElementById('tokenCount');
+    const statGens = document.getElementById('statGens');
+    const statSpent = document.getElementById('statSpent');
+    const premDesc = document.getElementById('premiumDesc');
+    const premBtn = document.getElementById('buyPremiumBtn');
+    const premCard = document.getElementById('premiumCard');
+
+    // Set basic info from Telegram
+    if (user) {
+        nameEl.textContent = user.first_name || user.username || 'User';
+        idEl.textContent = 'ID: ' + user.id;
+    }
+
+    // Fetch profile from API
+    try {
+        const resp = await fetch('/api/profile', { headers: authHeaders() });
+        if (resp.ok) {
+            const data = await resp.json();
+            tokenEl.textContent = data.tokens ?? 0;
+            statGens.textContent = data.total_gens ?? 0;
+            statSpent.textContent = data.total_spent ?? 0;
+
+            // Badge
+            if (user && user.id === ADMIN_ID) {
+                badgeEl.textContent = 'Admin';
+                badgeEl.className = 'profile-badge admin';
+            } else if (data.is_premium) {
+                badgeEl.textContent = 'Premium';
+                badgeEl.className = 'profile-badge premium';
+                premCard.classList.add('active-premium');
+                premDesc.textContent = data.premium_until
+                    ? 'Active until ' + new Date(data.premium_until).toLocaleDateString()
+                    : 'Unlimited generations & priority queue';
+                premBtn.textContent = '✓ Active';
+                premBtn.disabled = true;
+            } else {
+                badgeEl.textContent = 'Free';
+                badgeEl.className = 'profile-badge free';
+            }
+        }
+    } catch (e) {
+        console.error('Profile load error:', e);
+    }
+
+    // Load history
+    loadHistory();
+}
+
+async function loadHistory() {
+    const historyList = document.getElementById('historyList');
+    try {
+        const resp = await fetch('/api/history?limit=20', { headers: authHeaders() });
+        if (!resp.ok) return;
+        const items = await resp.json();
+
+        if (!items.length) {
+            historyList.innerHTML = '<div class="history-empty">No generations yet</div>';
+            return;
+        }
+
+        historyList.innerHTML = items.map(item => `
+            <div class="history-item" data-id="${item.id}">
+                <div class="history-prompt">${escapeHtml(item.prompt)}</div>
+                <div class="history-meta">
+                    <span class="history-date">${formatDate(item.created_at)}</span>
+                    <span class="history-mode">${item.mode || 'generate'}</span>
+                </div>
+                <button class="history-delete" onclick="deleteHistory(${item.id})" title="Delete">✕</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('History load error:', e);
+    }
+}
+
+async function deleteHistory(id) {
+    try {
+        const resp = await fetch('/api/history/' + id, {
+            method: 'DELETE',
+            headers: authHeaders(),
+        });
+        if (resp.ok) {
+            const el = document.querySelector(`.history-item[data-id="${id}"]`);
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(20px)';
+                setTimeout(() => el.remove(), 300);
+            }
+        }
+    } catch (e) {
+        console.error('Delete error:', e);
+    }
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text || '';
+    return d.innerHTML;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ============================================================
+// Buy Tokens & Premium
+// ============================================================
+document.querySelectorAll('.token-pkg').forEach(pkg => {
+    pkg.addEventListener('click', async () => {
+        const packageId = pkg.dataset.package;
+        pkg.classList.add('buying');
+        try {
+            const resp = await fetch('/api/buy-tokens', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ package: packageId }),
+            });
+            if (resp.ok) {
+                // Invoice sent to chat — close WebApp so user sees it
+                if (window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.close();
+                }
+            } else {
+                pkg.classList.remove('buying');
+            }
+        } catch (e) {
+            console.error('Buy error:', e);
+            pkg.classList.remove('buying');
+        }
+    });
+});
+
+const premiumBtn = document.getElementById('buyPremiumBtn');
+if (premiumBtn) {
+    premiumBtn.addEventListener('click', async () => {
+        premiumBtn.disabled = true;
+        premiumBtn.textContent = 'Sending...';
+        try {
+            const resp = await fetch('/api/buy-premium', {
+                method: 'POST',
+                headers: authHeaders(),
+            });
+            if (resp.ok) {
+                if (window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.close();
+                }
+            } else {
+                premiumBtn.disabled = false;
+                premiumBtn.textContent = 'Get Premium — 1500 Stars';
+            }
+        } catch (e) {
+            console.error('Premium buy error:', e);
+            premiumBtn.disabled = false;
+            premiumBtn.textContent = 'Get Premium — 1500 Stars';
+        }
     });
 }

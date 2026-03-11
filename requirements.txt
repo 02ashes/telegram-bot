@@ -4,4 +4,5 @@ uvicorn
 aiohttp
 python-multipart
 Pillow
+asyncpg
 

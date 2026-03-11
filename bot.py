@@ -1,5 +1,7 @@
 """Telegram Inpaint Bot — aiogram 3 + FastAPI server."""
 
+import database as db
+
 import asyncio
 import base64
 import io
@@ -7,17 +9,20 @@ import logging
 import os
 import sys
 import traceback
+from datetime import datetime, timezone
 
 import uvicorn
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandStart
 from aiogram.types import (
     BufferedInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    LabeledPrice,
+    PreCheckoutQuery,
     WebAppInfo,
 )
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -36,20 +41,9 @@ logger = logging.getLogger(__name__)
 # Determine WebApp URL
 WEBAPP_URL = config.WEBAPP_URL
 if not WEBAPP_URL:
-    # Local development: use ngrok
-    try:
-        from pyngrok import ngrok, conf
-        NGROK_AUTH_TOKEN = os.environ.get("NGROK_AUTH_TOKEN", "39gBaAKkXfUD2hnB4yfceuXsIx7_gN4xKA1d8ZHWfsmmNt9e")
-        conf.get_default().auth_token = NGROK_AUTH_TOKEN
-        logger.info("Starting ngrok tunnel on port %d...", config.SERVER_PORT)
-        tunnel = ngrok.connect(config.SERVER_PORT, "http")
-        WEBAPP_URL = tunnel.public_url.replace("http://", "https://")
-        logger.info("✅ ngrok tunnel: %s", WEBAPP_URL)
-    except ImportError:
-        logger.error("WEBAPP_URL not set and pyngrok not installed!")
-        sys.exit(1)
-else:
-    logger.info("✅ WebApp URL: %s", WEBAPP_URL)
+    logger.error("WEBAPP_URL not set! Set it in .env or environment variables.")
+    sys.exit(1)
+logger.info("✅ WebApp URL: %s", WEBAPP_URL)
 
 # ============================================================
 # FastAPI
@@ -106,14 +100,167 @@ async def health():
     return {"status": "ok"}
 
 
+# ============================================================
+# Token Packages & Pricing (Telegram Stars)
+# ============================================================
+TOKEN_PACKAGES = {
+    "tokens_10":  {"tokens": 10,  "stars": 100, "label": "10 Tokens"},
+    "tokens_30":  {"tokens": 30,  "stars": 250, "label": "30 Tokens"},
+    "tokens_100": {"tokens": 100, "stars": 700, "label": "100 Tokens"},
+}
+PREMIUM_PRICE = 1500  # Stars for 30 days
+TOKEN_COST_IMAGE = 1
+TOKEN_COST_VIDEO = 5
+
+# Track video job ownership: {job_id: user_telegram_id}
+_video_jobs: dict[str, int] = {}
+_VIDEO_JOBS_MAX = 1000  # Auto-cleanup threshold
+
+
+# ============================================================
+# Profile & History API
+# ============================================================
+@app.get("/api/profile")
+async def api_profile(request: Request):
+    """Get user profile from database."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    # Ensure user exists in DB
+    db_user = await db.get_or_create_user(
+        telegram_id=user["id"],
+        username=user.get("username", ""),
+        first_name=user.get("first_name", ""),
+    )
+    if not db_user:
+        return {"tokens": 0, "total_gens": 0, "total_spent": 0, "is_premium": False}
+
+    is_premium_active = db_user["is_premium"] and (
+        not db_user.get("premium_until") or
+        db_user["premium_until"] > datetime.now(timezone.utc)
+    )
+
+    return {
+        "tokens": db_user["tokens"],
+        "total_gens": db_user["total_gens"],
+        "total_spent": db_user["total_spent"],
+        "is_premium": is_premium_active,
+        "premium_until": db_user["premium_until"].isoformat() if db_user.get("premium_until") else None,
+    }
+
+
+@app.get("/api/history")
+async def api_history(request: Request, limit: int = Query(default=20, le=100)):
+    """Get user's generation history."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    history = await db.get_history(user["id"], limit=limit)
+    return [
+        {
+            "id": item["id"],
+            "prompt": item["prompt"],
+            "mode": item["mode"],
+            "character": item["character"],
+            "created_at": item["created_at"].isoformat() if item.get("created_at") else None,
+        }
+        for item in history
+    ]
+
+
+@app.delete("/api/history/{gen_id}")
+async def api_delete_history(request: Request, gen_id: int):
+    """Delete a generation from history."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    if db.is_enabled():
+        # Only delete own history
+        await db.delete_generation(user["id"], gen_id)
+    return {"ok": True}
+
+
+# ============================================================
+# Buy Tokens / Premium API
+# ============================================================
+@app.post("/api/buy-tokens")
+async def api_buy_tokens(request: Request):
+    """Send Stars invoice for token package."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
+
+    package_id = body.get("package", "tokens_10")
+    pkg = TOKEN_PACKAGES.get(package_id)
+    if not pkg:
+        return JSONResponse(status_code=400, content={"error": "Invalid package"})
+
+    try:
+        await bot.send_invoice(
+            chat_id=user["id"],
+            title=pkg["label"],
+            description=f"{pkg['tokens']} generation tokens for Angel Arena",
+            payload=package_id,
+            currency="XTR",
+            prices=[LabeledPrice(label=pkg["label"], amount=pkg["stars"])],
+        )
+        return {"ok": True, "message": "Invoice sent to chat"}
+    except Exception as e:
+        logger.exception("Failed to send invoice")
+        return JSONResponse(status_code=500, content={"error": "Failed to send invoice. Make sure you haven't blocked the bot."})
+
+
+@app.post("/api/buy-premium")
+async def api_buy_premium(request: Request):
+    """Send Stars invoice for 30-day premium."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    try:
+        await bot.send_invoice(
+            chat_id=user["id"],
+            title="Premium 30 Days",
+            description="Unlimited generations & priority queue for 30 days",
+            payload="premium_30",
+            currency="XTR",
+            prices=[LabeledPrice(label="Premium 30 Days", amount=PREMIUM_PRICE)],
+        )
+        return {"ok": True, "message": "Invoice sent to chat"}
+    except Exception as e:
+        logger.exception("Failed to send premium invoice")
+        return JSONResponse(status_code=500, content={"error": "Failed to send invoice. Make sure you haven't blocked the bot."})
+
+
+@app.get("/api/packages")
+async def api_packages():
+    """Return available token packages and premium price."""
+    return {
+        "packages": [
+            {"id": k, **v} for k, v in TOKEN_PACKAGES.items()
+        ],
+        "premium_stars": PREMIUM_PRICE,
+        "token_cost_image": TOKEN_COST_IMAGE,
+        "token_cost_video": TOKEN_COST_VIDEO,
+    }
+
 @app.post("/api/inpaint")
 async def api_inpaint(request: Request):
     """Run inpainting via RunPod Serverless."""
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
     try:
-        # Parse JSON body
+        # Parse JSON body FIRST (before spending tokens)
         body = await request.json()
         image_b64 = body.get("image", "")
         mask_b64 = body.get("mask", "")
@@ -124,6 +271,12 @@ async def api_inpaint(request: Request):
 
         if not image_b64 or not mask_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image, mask, or prompt"})
+
+        # Check tokens AFTER validation (premium users skip)
+        if db.is_enabled() and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
+                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+            tokens_deducted = True
 
         # Decode base64 images
         image_bytes = base64.b64decode(image_b64)
@@ -145,6 +298,9 @@ async def api_inpaint(request: Request):
         )
 
         if result_bytes is None:
+            # Refund token on generation failure
+            if db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
                 content={"error": "Inpainting failed. Check RunPod logs."},
@@ -152,6 +308,11 @@ async def api_inpaint(request: Request):
 
         # Return image as base64
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Log to history
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=prompt, mode="inpaint",
+        ))
 
         # Notify admin
         asyncio.create_task(notify_admin_generation(
@@ -162,6 +323,9 @@ async def api_inpaint(request: Request):
 
     except Exception as e:
         logger.exception("Inpaint error")
+        # Refund tokens if they were deducted before the error
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
         return JSONResponse(
             status_code=500,
             content={"error": str(e)},
@@ -174,7 +338,9 @@ async def api_video(request: Request):
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
     try:
+        # Parse + validate FIRST (before spending tokens)
         body = await request.json()
         image_b64 = body.get("image", "")
         prompt = body.get("prompt", "")
@@ -196,6 +362,12 @@ async def api_video(request: Request):
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        # Check tokens AFTER validation (premium users skip) — video costs more
+        if db.is_enabled() and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_VIDEO):
+                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+            tokens_deducted = True
 
         image_bytes = base64.b64decode(image_b64)
 
@@ -226,15 +398,34 @@ async def api_video(request: Request):
         )
 
         if job_id is None:
+            # Refund tokens on submission failure
+            if db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
             return JSONResponse(
                 status_code=500,
                 content={"error": "Failed to submit video job to RunPod."},
             )
 
+        # Track job ownership (auto-cleanup if dict grows too large)
+        if len(_video_jobs) > _VIDEO_JOBS_MAX:
+            # Remove oldest half — simple eviction
+            keys = list(_video_jobs.keys())[:len(_video_jobs) // 2]
+            for k in keys:
+                _video_jobs.pop(k, None)
+        _video_jobs[job_id] = user["id"]
+
+        # Log to history
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=prompt, mode="video",
+            tokens_spent=TOKEN_COST_VIDEO,
+        ))
+
         return JSONResponse(content={"job_id": job_id})
 
     except Exception as e:
         logger.exception("Video submit error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
         return JSONResponse(
             status_code=500,
             content={"error": str(e)},
@@ -248,7 +439,13 @@ async def api_video_status(job_id: str, request: Request):
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
+        # Verify job ownership
+        if _video_jobs.get(job_id) and _video_jobs[job_id] != user["id"]:
+            return JSONResponse(status_code=403, content={"error": "Not your job"})
         result = await comfyui_api.check_video_status(job_id)
+        # Clean up completed/failed jobs
+        if result.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
+            _video_jobs.pop(job_id, None)
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("Video status error")
@@ -262,8 +459,15 @@ async def api_video_cancel(job_id: str, request: Request):
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
+        # Verify job ownership
+        if _video_jobs.get(job_id) and _video_jobs[job_id] != user["id"]:
+            return JSONResponse(status_code=403, content={"error": "Not your job"})
         success = await comfyui_api.cancel_job(job_id)
         if success:
+            _video_jobs.pop(job_id, None)
+            # Refund tokens on user-initiated cancel
+            if db.is_enabled() and not await db.is_premium(user["id"]):
+                await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
             return JSONResponse(content={"status": "cancelled", "job_id": job_id})
         else:
             return JSONResponse(
@@ -312,7 +516,9 @@ async def api_image_edit(request: Request):
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
     try:
+        # Parse + validate FIRST (before spending tokens)
         body = await request.json()
         image_b64 = body.get("image", "")
         image2_b64 = body.get("image2", "")  # optional reference
@@ -327,6 +533,12 @@ async def api_image_edit(request: Request):
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        # Check tokens AFTER validation (premium users skip)
+        if db.is_enabled() and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
+                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+            tokens_deducted = True
 
         image_bytes = base64.b64decode(image_b64)
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
@@ -360,12 +572,20 @@ async def api_image_edit(request: Request):
             )
 
         if result_bytes is None:
+            # Refund token on generation failure
+            if db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
                 content={"error": "Image editing failed. Check RunPod logs."},
             )
 
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Log to history
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=prompt, mode="image-edit",
+        ))
 
         # Notify admin
         asyncio.create_task(notify_admin_generation(
@@ -376,6 +596,8 @@ async def api_image_edit(request: Request):
 
     except Exception as e:
         logger.exception("Image edit error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
         return JSONResponse(
             status_code=500,
             content={"error": str(e)},
@@ -388,7 +610,9 @@ async def api_image_edit_dark(request: Request):
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
     try:
+        # Parse + validate FIRST (before spending tokens)
         body = await request.json()
         image_b64 = body.get("image", "")
         image2_b64 = body.get("image2", "")
@@ -405,6 +629,18 @@ async def api_image_edit_dark(request: Request):
         if dark_mode == "edit" and not image_b64:
             return JSONResponse(status_code=400, content={"error": "Missing image (required for Edit mode)"})
 
+        # Validate faceswap inputs BEFORE spending tokens
+        submode = body.get("submode", "default")
+        face_b64 = body.get("face_image", "")
+        if dark_mode == "generate" and submode == "faceswap" and not face_b64:
+            return JSONResponse(status_code=400, content={"error": "Missing face image for Face Swap"})
+
+        # Check tokens AFTER all validation (premium users skip)
+        if db.is_enabled() and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
+                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+            tokens_deducted = True
+
         image_bytes = base64.b64decode(image_b64) if image_b64 else None
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
 
@@ -414,12 +650,8 @@ async def api_image_edit_dark(request: Request):
         )
 
         if dark_mode == "generate":
-            submode = body.get("submode", "default")  # "default" or "faceswap"
-            face_b64 = body.get("face_image", "")
 
             if submode == "faceswap":
-                if not face_b64:
-                    return JSONResponse(status_code=400, content={"error": "Missing face image for Face Swap"})
                 face_bytes = base64.b64decode(face_b64)
                 result_bytes = await comfyui_api.run_dark_generate_bfs(
                     face_image_bytes=face_bytes,
@@ -453,12 +685,20 @@ async def api_image_edit_dark(request: Request):
             )
 
         if result_bytes is None:
+            # Refund token on generation failure
+            if db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
                 content={"error": "Dark Beast editing failed. Check RunPod logs."},
             )
 
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Log to history
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=prompt, mode="image-edit-dark",
+        ))
 
         # Notify admin
         asyncio.create_task(notify_admin_generation(
@@ -469,6 +709,8 @@ async def api_image_edit_dark(request: Request):
 
     except Exception as e:
         logger.exception("Dark edit error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
         return JSONResponse(
             status_code=500,
             content={"error": str(e)},
@@ -591,6 +833,60 @@ async def cmd_start(message: types.Message):
         parse_mode="Markdown",
         reply_markup=keyboard,
     )
+
+
+# ============================================================
+# Telegram Stars Payment Handlers
+# ============================================================
+@dp.pre_checkout_query()
+async def on_pre_checkout(query: PreCheckoutQuery):
+    """Always approve pre-checkout (Stars payments)."""
+    await query.answer(ok=True)
+
+
+@dp.message(F.successful_payment)
+async def on_successful_payment(message: types.Message):
+    """Process successful Stars payment."""
+    payment = message.successful_payment
+    payload = payment.invoice_payload
+    user_id = message.from_user.id
+    stars = payment.total_amount
+
+    logger.info(
+        "Payment received: user=%s payload=%s stars=%d",
+        user_id, payload, stars,
+    )
+
+    if payload in TOKEN_PACKAGES:
+        pkg = TOKEN_PACKAGES[payload]
+        # Ensure user exists in DB before adding tokens
+        await db.get_or_create_user(
+            user_id,
+            username=message.from_user.username or "",
+            first_name=message.from_user.first_name or "",
+        )
+        await db.add_tokens(user_id, pkg["tokens"])
+        await message.answer(
+            f"✅ **+{pkg['tokens']} токенов** добавлено!\n"
+            f"Оплачено: {stars} ⭐",
+            parse_mode="Markdown",
+        )
+    elif payload == "premium_30":
+        await db.get_or_create_user(
+            user_id,
+            username=message.from_user.username or "",
+            first_name=message.from_user.first_name or "",
+        )
+        await db.set_premium(user_id, days=30)
+        await message.answer(
+            "✅ **Premium активирован** на 30 дней!\n"
+            f"Оплачено: {stars} ⭐\n\n"
+            "Безлимитные генерации и приоритетная очередь.",
+            parse_mode="Markdown",
+        )
+    else:
+        logger.warning("Unknown payment payload: %s", payload)
+        await message.answer("✅ Оплата получена!")
 
 
 @dp.message(lambda m: m.text and m.text.startswith("/invite"))
@@ -764,11 +1060,18 @@ async def main():
     )
     server = uvicorn.Server(server_config)
 
+    # Init database
+    await db.init()
+
     # Run bot and server concurrently
-    await asyncio.gather(
-        dp.start_polling(bot),
-        server.serve(),
-    )
+    try:
+        await asyncio.gather(
+            dp.start_polling(bot),
+            server.serve(),
+        )
+    finally:
+        await comfyui_api.close_session()
+        await db.close()
 
 
 if __name__ == "__main__":

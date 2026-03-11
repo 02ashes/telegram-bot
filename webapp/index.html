@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=20">
+    <link rel="stylesheet" href="/style.css?v=30">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -16,322 +16,441 @@
             <h1>ANGEL ARENA</h1>
         </div>
 
-        <!-- Mode Tabs -->
-        <div class="mode-tabs">
-            <button class="mode-tab active" id="tabInpaint" data-mode="inpaint">Inpaint</button>
-            <button class="mode-tab" id="tabVideo" data-mode="video">Video</button>
-            <button class="mode-tab" id="tabImage" data-mode="image">Edit</button>
-            <button class="mode-tab" id="tabDark" data-mode="dark">Dark</button>
+        <!-- ============================================ -->
+        <!-- Top Navigation Tabs -->
+        <!-- ============================================ -->
+        <div class="top-tabs">
+            <button class="top-tab" id="tabFaq" data-tab="faq">FAQ</button>
+            <button class="top-tab active" id="tabGenerate" data-tab="generate">Generate</button>
+            <button class="top-tab" id="tabProfile" data-tab="profile">Profile</button>
         </div>
 
         <!-- ============================================ -->
-        <!-- SHARED: Upload Photo -->
+        <!-- TAB: FAQ -->
         <!-- ============================================ -->
-        <div class="section" id="uploadSection">
-            <div class="section-title">Photo</div>
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-placeholder" id="uploadPlaceholder">
-                    <span class="upload-icon">+</span>
-                    <span>Tap to upload or paste</span>
+        <div class="tab-content" id="contentFaq" style="display:none;">
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">What is Angel Arena?</div>
+                    <div class="faq-answer">AI-powered image & video generation bot. Upload a photo, describe what you
+                        want, and let AI create it.</div>
                 </div>
-                <button class="dark-img2-remove" id="removeMainPhoto" style="display:none;">✕</button>
-                <input type="file" id="fileInput" accept="image/*" hidden>
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- DARK MODE: Second Image Slot -->
-        <!-- ============================================ -->
-        <div class="section dark-only" id="darkImage2Section" style="display:none;">
-            <div class="section-title">Reference <span class="dark-img2-hint" id="darkImg2Hint">(combine two
-                    girls)</span></div>
-            <div class="dark-img2-container" id="darkImg2Container">
-                <div class="dark-img2-add" id="darkImg2Add">
-                    <span class="dark-img2-plus">+</span>
-                    <span class="dark-img2-label">Tap to add 2nd photo</span>
+                <div class="faq-item">
+                    <div class="faq-question">How do tokens work?</div>
+                    <div class="faq-answer">Each generation costs tokens. Images cost 1 token, videos cost 5 tokens. Buy
+                        more tokens or get Premium for unlimited access.</div>
                 </div>
-                <div class="dark-img2-preview" id="darkImg2Preview" style="display:none;">
-                    <img id="darkImg2Img" src="" alt="Image 2">
-                    <button class="dark-img2-remove" id="darkImg2Remove">✕</button>
-                </div>
-                <input type="file" id="darkFileInput2" accept="image/*" hidden>
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- INPAINT MODE: Canvas + Mask -->
-        <!-- ============================================ -->
-        <div class="section inpaint-only" id="canvasSection" style="display:none;">
-            <div class="section-title">Mask</div>
-            <div class="canvas-container" id="canvasContainer">
-                <canvas id="mainCanvas"></canvas>
-                <canvas id="maskCanvas"></canvas>
-            </div>
-            <div class="tools">
-                <button class="tool-btn active" id="brushBtn" data-tool="brush">Brush</button>
-                <button class="tool-btn" id="eraserBtn" data-tool="eraser">Eraser</button>
-                <button class="tool-btn danger" id="clearBtn">Clear</button>
-                <div class="brush-size-control">
-                    <label>Size: <span id="brushSizeLabel">20</span>px</label>
-                    <input type="range" id="brushSize" min="5" max="100" value="20">
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- SHARED: Prompt -->
-        <!-- ============================================ -->
-        <div class="section" id="promptSection" style="display:none;">
-            <div class="section-title">Prompt</div>
-            <div class="preset-row" id="presetRow">
-                <!-- Populated by JS based on currentMode -->
-            </div>
-            <textarea id="promptInput" placeholder="Describe what to generate..." rows="3"></textarea>
-
-            <div class="section-title sub">Negative</div>
-            <textarea id="negativeInput" rows="2"></textarea>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- INPAINT MODE: Settings -->
-        <!-- ============================================ -->
-        <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
-            <div class="setting">
-                <label>CFG: <span id="cfgLabel">3.5</span></label>
-                <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
-            </div>
-            <div class="setting">
-                <label>Steps: <span id="stepsLabel">25</span></label>
-                <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- IMAGE MODE: Edit Settings -->
-        <!-- ============================================ -->
-        <div class="section settings-row image-only" id="imageSettingsSection" style="display:none;">
-            <div class="setting">
-                <label>Denoise: <span id="denoiseLabel">1.00</span></label>
-                <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="1.0">
-            </div>
-            <div class="setting">
-                <label>Steps: <span id="editStepsLabel">8</span></label>
-                <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
-            </div>
-            <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
-            <input type="hidden" id="loraStrengthSlider" value="0.7">
-        </div>
-
-        <!-- ============================================ -->
-        <!-- DARK MODE: Dark Beast Settings -->
-        <!-- ============================================ -->
-        <div class="section settings-row dark-only" id="darkSettingsSection" style="display:none;">
-            <div class="setting">
-                <label>Denoise: <span id="darkDenoiseLabel">0.85</span></label>
-                <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85">
-            </div>
-            <div class="setting">
-                <label>Steps: <span id="darkStepsLabel">5</span></label>
-                <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
-            </div>
-        </div>
-        <div class="section dark-only" id="darkModeSection" style="display:none;">
-            <div class="section-title">Mode</div>
-            <div class="quality-toggle">
-                <button class="quality-btn active" id="darkModeEdit" data-darkmode="edit">Edit</button>
-                <button class="quality-btn" id="darkModeGenerate" data-darkmode="generate">Generate</button>
-            </div>
-        </div>
-        <div class="section dark-only" id="darkQualitySection" style="display:none;">
-            <div class="section-title">Quality</div>
-            <div class="quality-toggle">
-                <button class="quality-btn active" id="qualityFast" data-quality="fast">Fast</button>
-                <button class="quality-btn" id="qualityDetailed" data-quality="detailed">Detailed</button>
-            </div>
-        </div>
-        <div class="section dark-only" id="darkGenSubmodeSection" style="display:none;">
-            <div class="section-title">Sub-mode</div>
-            <div class="quality-toggle">
-                <button class="quality-btn active" id="darkGenDefault" data-gensubmode="default">Default</button>
-                <button class="quality-btn" id="darkGenFaceswap" data-gensubmode="faceswap">Face Swap</button>
-            </div>
-        </div>
-        <div class="section dark-only" id="darkFaceUploadSection" style="display:none;">
-            <div class="section-title">Face Photo</div>
-            <div class="upload-area upload-area-small" id="faceUploadArea">
-                <div class="upload-placeholder" id="faceUploadPlaceholder">Tap to upload face photo</div>
-                <input type="file" accept="image/*" id="faceFileInput" style="display:none;">
-            </div>
-        </div>
-        <div class="section dark-only" id="darkResolutionSection" style="display:none;">
-            <div class="section-title">Aspect Ratio</div>
-            <div class="quality-toggle">
-                <button class="quality-btn active" data-res="768x1344">9:16</button>
-                <button class="quality-btn" data-res="1024x1024">1:1</button>
-                <button class="quality-btn" data-res="1344x768">16:9</button>
-            </div>
-        </div>
-        <div class="section dark-only" id="darkLoraStrengthSection" style="display:none;">
-            <div class="setting">
-                <label>LoRA Strength: <span id="darkLoraStrengthLabel">0.95</span></label>
-                <input type="range" id="darkLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="0.95">
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- VIDEO MODE: Audio Settings -->
-        <!-- ============================================ -->
-        <div class="section video-only" id="audioSection" style="display:none;">
-            <div class="audio-toggle-row">
-                <div class="section-title">Audio</div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="audioToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="audio-settings" id="audioSettings" style="display:none;">
-                <textarea id="audioPromptInput" placeholder="Audio prompt (soft moaning, breathing, water dripping...)"
-                    rows="2"></textarea>
-                <div class="section-title sub">Audio Negative</div>
-                <textarea id="audioNegativeInput" rows="1">music, speech, talking, noise, static</textarea>
-            </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- VIDEO MODE: Video Settings -->
-        <!-- ============================================ -->
-        <div class="section video-only" id="videoSettingsSection" style="display:none;">
-            <div class="section-title">Video Settings</div>
-            <div class="video-settings-grid">
-                <div class="setting">
-                    <label>Frames: <span id="framesLabel">33</span></label>
-                    <input type="range" id="framesSlider" min="17" max="129" step="4" value="33">
-                </div>
-                <div class="setting">
-                    <label>FPS: <span id="fpsLabel">16</span></label>
-                    <select id="fpsSelect">
-                        <option value="16" selected>16</option>
-                        <option value="24">24</option>
-                    </select>
-                </div>
-                <div class="setting">
-                    <label>Resolution:</label>
-                    <select id="resolutionSelect">
-                        <option value="auto" selected>Auto (from photo)</option>
-                        <option value="480x832">480×832</option>
-                        <option value="720x1280">720×1280</option>
-                    </select>
-                </div>
-                <div class="setting" style="grid-column: 1 / -1;">
-                    <label>Action:</label>
-                    <select id="actionSelect">
-                        <option value="none" selected>None</option>
-                        <option value="blowjob">POV Blowjob</option>
-                        <option value="deepthroat">Deepthroat</option>
-                        <option value="doggy">Front Doggy</option>
-                        <option value="missionary">POV Missionary</option>
-                        <option value="side_sex">Side Sex</option>
-                        <option value="cowgirl">Reverse Cowgirl</option>
-                        <option value="fingering">Fingering</option>
-                        <option value="nipple">Nipple Stroke</option>
-                        <option value="allinone">All-In-One</option>
-                    </select>
-                </div>
-                <div class="setting" id="aioTriggerRow" style="display:none; grid-column: 1 / -1;">
-                    <label>Trigger:</label>
-                    <div class="preset-row" id="aioTriggers">
-                        <button class="preset-btn" data-trigger="m15510n4ry">m15510n4ry</button>
-                        <button class="preset-btn" data-trigger="bl0wj0b">bl0wj0b</button>
-                        <button class="preset-btn" data-trigger="d0ubl3_bj">d0ubl3_bj</button>
-                        <button class="preset-btn" data-trigger="c0wg1rl">c0wg1rl</button>
-                        <button class="preset-btn" data-trigger="d0gg1e">d0gg1e</button>
+                <div class="faq-item">
+                    <div class="faq-question">What modes are available?</div>
+                    <div class="faq-answer">
+                        <b>Inpaint</b> — Mask & replace parts of an image<br>
+                        <b>Video</b> — Animate a photo into a video<br>
+                        <b>Edit Easy</b> — Quick AI edit with flexible strength<br>
+                        <b>Edit Dark</b> — Advanced edit with DarkBeast model<br>
+                        <b>Generate</b> — Create images from text only
                     </div>
                 </div>
-                <div class="setting">
-                    <label>Shift: <span id="shiftValue">5</span></label>
-                    <input type="range" id="shiftSlider" min="1" max="10" step="0.5" value="5"
-                        oninput="document.getElementById('shiftValue').textContent=this.value">
+                <div class="faq-item">
+                    <div class="faq-question">What is Premium?</div>
+                    <div class="faq-answer">Premium gives you unlimited generations, priority queue, and access to all
+                        features. Purchase via Telegram Stars.</div>
                 </div>
-                <div class="setting">
-                    <label>CFG High: <span id="cfgHighValue">5</span></label>
-                    <input type="range" id="cfgHighSlider" min="1" max="10" step="0.5" value="5"
-                        oninput="document.getElementById('cfgHighValue').textContent=this.value">
-                </div>
-                <div class="setting">
-                    <label>CFG Low: <span id="cfgLowValue">1</span></label>
-                    <input type="range" id="cfgLowSlider" min="1" max="5" step="0.5" value="1"
-                        oninput="document.getElementById('cfgLowValue').textContent=this.value">
-                </div>
-                <div class="setting">
-                    <label>LoRA: <span id="loraStrValue">1.3</span></label>
-                    <input type="range" id="loraStrSlider" min="0.5" max="2.0" step="0.1" value="1.3"
-                        oninput="document.getElementById('loraStrValue').textContent=this.value">
-                </div>
-                <div class="setting">
-                    <label>Steps: <span id="stepsValue">20</span></label>
-                    <input type="range" id="stepsSlider" min="4" max="30" step="1" value="20"
-                        oninput="document.getElementById('stepsValue').textContent=this.value">
-                </div>
+                <div class="faq-placeholder">More info coming soon...</div>
             </div>
         </div>
 
         <!-- ============================================ -->
-        <!-- Batch Count + Generate Button -->
+        <!-- TAB: Generate -->
         <!-- ============================================ -->
-        <div class="section" id="generateSection" style="display:none;">
-            <div class="batch-row">
-                <label class="batch-label">Count:</label>
-                <div class="batch-selector" id="batchSelector">
-                    <button class="batch-btn active" data-count="1">1</button>
-                    <button class="batch-btn" data-count="2">2</button>
-                    <button class="batch-btn" data-count="3">3</button>
-                    <button class="batch-btn" data-count="4">4</button>
+        <div class="tab-content" id="contentGenerate">
+
+            <!-- Mode Dropdown (Custom) -->
+            <div class="section mode-section">
+                <div class="section-title">Mode</div>
+                <div class="custom-select" id="customSelect">
+                    <div class="custom-select-trigger" id="selectTrigger">
+                        <span id="selectText">Inpaint</span>
+                        <span class="select-arrow">▾</span>
+                    </div>
+                    <div class="custom-select-options" id="selectOptions">
+                        <div class="custom-option active" data-value="inpaint">Inpaint</div>
+                        <div class="custom-option" data-value="video">Video</div>
+                        <div class="custom-option" data-value="image">Edit Easy</div>
+                        <div class="custom-option" data-value="dark">Edit Dark</div>
+                        <div class="custom-option" data-value="generate">Generate</div>
+                    </div>
+                </div>
+                <!-- Hidden select for fallback -->
+                <select id="modeSelect" style="display:none;">
+                    <option value="inpaint">Inpaint</option>
+                    <option value="video">Video</option>
+                    <option value="image">Edit Easy</option>
+                    <option value="dark">Edit Dark</option>
+                    <option value="generate">Generate</option>
+                </select>
+            </div>
+
+            <!-- Upload Photo -->
+            <div class="section" id="uploadSection">
+                <div class="section-title">Photo</div>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <span class="upload-icon">+</span>
+                        <span>Tap to upload or paste</span>
+                    </div>
+                    <button class="dark-img2-remove" id="removeMainPhoto" style="display:none;">✕</button>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
                 </div>
             </div>
-            <button class="generate-btn" id="generateBtn">
-                <span class="btn-text">GENERATE</span>
-                <span class="btn-loader" style="display:none;">
-                    <span class="spinner"></span> Generating...
-                </span>
-            </button>
-            <div class="progress-info" id="progressInfo" style="display:none;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+
+            <!-- DARK MODE: Second Image Slot (Edit Easy only) -->
+            <div class="section dark-only" id="darkImage2Section" style="display:none;">
+                <div class="section-title">Reference <span class="dark-img2-hint" id="darkImg2Hint">(combine two
+                        girls)</span></div>
+                <div class="dark-img2-container" id="darkImg2Container">
+                    <div class="dark-img2-add" id="darkImg2Add">
+                        <span class="dark-img2-plus">+</span>
+                        <span class="dark-img2-label">Tap to add 2nd photo</span>
+                    </div>
+                    <div class="dark-img2-preview" id="darkImg2Preview" style="display:none;">
+                        <img id="darkImg2Img" src="" alt="Image 2">
+                        <button class="dark-img2-remove" id="darkImg2Remove">✕</button>
+                    </div>
+                    <input type="file" id="darkFileInput2" accept="image/*" hidden>
                 </div>
-                <span id="progressText">Starting...</span>
-                <button id="cancelVideoBtn" onclick="cancelVideoGeneration()"
-                    style="display:none; margin-top: 8px; padding: 8px 20px; background: rgba(180,50,50,0.3); color: #aaa; border: 1px solid rgba(180,50,50,0.2); border-radius: 999px; cursor: pointer; font-family: var(--font); font-size: 0.72rem; letter-spacing: 1px; width: 100%;">Cancel</button>
             </div>
-            <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
-                <span>Loading model...</span>
+
+            <!-- INPAINT: Canvas + Mask -->
+            <div class="section inpaint-only" id="canvasSection" style="display:none;">
+                <div class="section-title">Mask</div>
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="mainCanvas"></canvas>
+                    <canvas id="maskCanvas"></canvas>
+                </div>
+                <div class="tools">
+                    <button class="tool-btn active" id="brushBtn" data-tool="brush">Brush</button>
+                    <button class="tool-btn" id="eraserBtn" data-tool="eraser">Eraser</button>
+                    <button class="tool-btn danger" id="clearBtn">Clear</button>
+                    <div class="brush-size-control">
+                        <label>Size: <span id="brushSizeLabel">20</span>px</label>
+                        <input type="range" id="brushSize" min="5" max="100" value="20">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt (shared) -->
+            <div class="section" id="promptSection" style="display:none;">
+                <div class="section-title">Prompt</div>
+                <div class="preset-row" id="presetRow">
+                    <!-- Populated by JS based on currentMode -->
+                </div>
+                <textarea id="promptInput" placeholder="Describe what to generate..." rows="3"></textarea>
+
+                <div class="section-title sub">Negative</div>
+                <textarea id="negativeInput" rows="2"></textarea>
+            </div>
+
+            <!-- INPAINT: Settings -->
+            <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
+                <div class="setting">
+                    <label>CFG: <span id="cfgLabel">3.5</span></label>
+                    <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
+                </div>
+                <div class="setting">
+                    <label>Steps: <span id="stepsLabel">25</span></label>
+                    <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
+                </div>
+            </div>
+
+            <!-- IMAGE (Edit Easy): Settings -->
+            <div class="section settings-row image-only" id="imageSettingsSection" style="display:none;">
+                <div class="setting">
+                    <label>Denoise: <span id="denoiseLabel">1.00</span></label>
+                    <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="1.0">
+                </div>
+                <div class="setting">
+                    <label>Steps: <span id="editStepsLabel">8</span></label>
+                    <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
+                </div>
+                <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
+                <input type="hidden" id="loraStrengthSlider" value="0.7">
+            </div>
+
+            <!-- DARK: Settings -->
+            <div class="section settings-row dark-only" id="darkSettingsSection" style="display:none;">
+                <div class="setting">
+                    <label>Denoise: <span id="darkDenoiseLabel">0.85</span></label>
+                    <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85">
+                </div>
+                <div class="setting">
+                    <label>Steps: <span id="darkStepsLabel">5</span></label>
+                    <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
+                </div>
+            </div>
+
+            <!-- DARK: Quality toggle -->
+            <div class="section dark-only" id="darkQualitySection" style="display:none;">
+                <div class="section-title">Quality</div>
+                <div class="quality-toggle">
+                    <button class="quality-btn active" id="qualityFast" data-quality="fast">Fast</button>
+                    <button class="quality-btn" id="qualityDetailed" data-quality="detailed">Detailed</button>
+                </div>
+            </div>
+
+            <!-- DARK GENERATE: Sub-mode -->
+            <div class="section dark-only" id="darkGenSubmodeSection" style="display:none;">
+                <div class="section-title">Sub-mode</div>
+                <div class="quality-toggle">
+                    <button class="quality-btn active" id="darkGenDefault" data-gensubmode="default">Default</button>
+                    <button class="quality-btn" id="darkGenFaceswap" data-gensubmode="faceswap">Face Swap</button>
+                </div>
+            </div>
+
+            <!-- DARK GENERATE: Face Upload -->
+            <div class="section dark-only" id="darkFaceUploadSection" style="display:none;">
+                <div class="section-title">Face Photo</div>
+                <div class="upload-area upload-area-small" id="faceUploadArea">
+                    <div class="upload-placeholder" id="faceUploadPlaceholder">Tap to upload face photo</div>
+                    <input type="file" accept="image/*" id="faceFileInput" style="display:none;">
+                </div>
+            </div>
+
+            <!-- DARK GENERATE: Resolution -->
+            <div class="section dark-only" id="darkResolutionSection" style="display:none;">
+                <div class="section-title">Aspect Ratio</div>
+                <div class="quality-toggle">
+                    <button class="quality-btn active" data-res="768x1344">9:16</button>
+                    <button class="quality-btn" data-res="1024x1024">1:1</button>
+                    <button class="quality-btn" data-res="1344x768">16:9</button>
+                </div>
+            </div>
+
+            <!-- DARK: LoRA Strength -->
+            <div class="section dark-only" id="darkLoraStrengthSection" style="display:none;">
+                <div class="setting">
+                    <label>LoRA Strength: <span id="darkLoraStrengthLabel">0.95</span></label>
+                    <input type="range" id="darkLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="0.95">
+                </div>
+            </div>
+
+            <!-- VIDEO: Audio Settings -->
+            <div class="section video-only" id="audioSection" style="display:none;">
+                <div class="audio-toggle-row">
+                    <div class="section-title">Audio</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="audioToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="audio-settings" id="audioSettings" style="display:none;">
+                    <textarea id="audioPromptInput"
+                        placeholder="Audio prompt (soft moaning, breathing, water dripping...)" rows="2"></textarea>
+                    <div class="section-title sub">Audio Negative</div>
+                    <textarea id="audioNegativeInput" rows="1">music, speech, talking, noise, static</textarea>
+                </div>
+            </div>
+
+            <!-- VIDEO: Video Settings -->
+            <div class="section video-only" id="videoSettingsSection" style="display:none;">
+                <div class="section-title">Video Settings</div>
+                <div class="video-settings-grid">
+                    <div class="setting">
+                        <label>Frames: <span id="framesLabel">33</span></label>
+                        <input type="range" id="framesSlider" min="17" max="129" step="4" value="33">
+                    </div>
+                    <div class="setting">
+                        <label>FPS: <span id="fpsLabel">16</span></label>
+                        <select id="fpsSelect">
+                            <option value="16" selected>16</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label>Resolution:</label>
+                        <select id="resolutionSelect">
+                            <option value="auto" selected>Auto (from photo)</option>
+                            <option value="480x832">480×832</option>
+                            <option value="720x1280">720×1280</option>
+                        </select>
+                    </div>
+                    <div class="setting" style="grid-column: 1 / -1;">
+                        <label>Action:</label>
+                        <select id="actionSelect">
+                            <option value="none" selected>None</option>
+                            <option value="blowjob">POV Blowjob</option>
+                            <option value="deepthroat">Deepthroat</option>
+                            <option value="doggy">Front Doggy</option>
+                            <option value="missionary">POV Missionary</option>
+                            <option value="side_sex">Side Sex</option>
+                            <option value="cowgirl">Reverse Cowgirl</option>
+                            <option value="fingering">Fingering</option>
+                            <option value="nipple">Nipple Stroke</option>
+                            <option value="allinone">All-In-One</option>
+                        </select>
+                    </div>
+                    <div class="setting" id="aioTriggerRow" style="display:none; grid-column: 1 / -1;">
+                        <label>Trigger:</label>
+                        <div class="preset-row" id="aioTriggers">
+                            <button class="preset-btn" data-trigger="m15510n4ry">m15510n4ry</button>
+                            <button class="preset-btn" data-trigger="bl0wj0b">bl0wj0b</button>
+                            <button class="preset-btn" data-trigger="d0ubl3_bj">d0ubl3_bj</button>
+                            <button class="preset-btn" data-trigger="c0wg1rl">c0wg1rl</button>
+                            <button class="preset-btn" data-trigger="d0gg1e">d0gg1e</button>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label>Shift: <span id="shiftValue">5</span></label>
+                        <input type="range" id="shiftSlider" min="1" max="10" step="0.5" value="5"
+                            oninput="document.getElementById('shiftValue').textContent=this.value">
+                    </div>
+                    <div class="setting">
+                        <label>CFG High: <span id="cfgHighValue">5</span></label>
+                        <input type="range" id="cfgHighSlider" min="1" max="10" step="0.5" value="5"
+                            oninput="document.getElementById('cfgHighValue').textContent=this.value">
+                    </div>
+                    <div class="setting">
+                        <label>CFG Low: <span id="cfgLowValue">1</span></label>
+                        <input type="range" id="cfgLowSlider" min="1" max="5" step="0.5" value="1"
+                            oninput="document.getElementById('cfgLowValue').textContent=this.value">
+                    </div>
+                    <div class="setting">
+                        <label>LoRA: <span id="loraStrValue">1.3</span></label>
+                        <input type="range" id="loraStrSlider" min="0.5" max="2.0" step="0.1" value="1.3"
+                            oninput="document.getElementById('loraStrValue').textContent=this.value">
+                    </div>
+                    <div class="setting">
+                        <label>Steps: <span id="stepsValue">20</span></label>
+                        <input type="range" id="stepsSlider" min="4" max="30" step="1" value="20"
+                            oninput="document.getElementById('stepsValue').textContent=this.value">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Count + Generate Button -->
+            <div class="section" id="generateSection" style="display:none;">
+                <div class="batch-row">
+                    <label class="batch-label">Count:</label>
+                    <div class="batch-selector" id="batchSelector">
+                        <button class="batch-btn active" data-count="1">1</button>
+                        <button class="batch-btn" data-count="2">2</button>
+                        <button class="batch-btn" data-count="3">3</button>
+                        <button class="batch-btn" data-count="4">4</button>
+                    </div>
+                </div>
+                <button class="generate-btn" id="generateBtn">
+                    <span class="btn-text">GENERATE</span>
+                    <span class="btn-loader" style="display:none;">
+                        <span class="spinner"></span> Generating...
+                    </span>
+                </button>
+                <div class="progress-info" id="progressInfo" style="display:none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span id="progressText">Starting...</span>
+                    <button id="cancelVideoBtn" onclick="cancelVideoGeneration()"
+                        style="display:none; margin-top: 8px; padding: 8px 20px; background: rgba(180,50,50,0.3); color: #aaa; border: 1px solid rgba(180,50,50,0.2); border-radius: 999px; cursor: pointer; font-family: var(--font); font-size: 0.72rem; letter-spacing: 1px; width: 100%;">Cancel</button>
+                </div>
+                <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
+                    <span>Loading model...</span>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div class="section" id="resultSection" style="display:none;">
+                <div class="section-title">Result</div>
+                <div class="result-container">
+                    <img id="resultImage" src="" alt="Result" style="display:none;">
+                    <video id="resultVideo" controls loop style="display:none;"></video>
+                </div>
+                <div class="result-actions">
+                    <button class="action-btn" id="downloadBtn">Save</button>
+                    <button class="action-btn" id="copyBtn">Copy</button>
+                    <button class="action-btn send-btn" id="sendBtn">Send</button>
+                    <button class="action-btn iphone-btn" id="iphoneToggle">iPhone</button>
+                    <button class="action-btn secondary" id="retryBtn">Retry</button>
+                </div>
+            </div>
+
+            <!-- Gallery -->
+            <div class="section" id="gallerySection" style="display:none;">
+                <div class="section-title">Gallery</div>
+                <div class="gallery-strip" id="galleryStrip"></div>
             </div>
         </div>
 
         <!-- ============================================ -->
-        <!-- Result (Image or Video) -->
+        <!-- TAB: Profile -->
         <!-- ============================================ -->
-        <div class="section" id="resultSection" style="display:none;">
-            <div class="section-title">Result</div>
-            <div class="result-container">
-                <img id="resultImage" src="" alt="Result" style="display:none;">
-                <video id="resultVideo" controls loop style="display:none;"></video>
+        <div class="tab-content" id="contentProfile" style="display:none;">
+            <!-- User Info Card -->
+            <div class="profile-card">
+                <div class="profile-avatar" id="profileAvatar">👤</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Loading...</div>
+                    <div class="profile-id" id="profileId">ID: —</div>
+                    <div class="profile-badge" id="profileBadge"></div>
+                </div>
             </div>
-            <div class="result-actions">
-                <button class="action-btn" id="downloadBtn">Save</button>
-                <button class="action-btn" id="copyBtn">Copy</button>
-                <button class="action-btn send-btn" id="sendBtn">Send</button>
-                <button class="action-btn iphone-btn" id="iphoneToggle">iPhone</button>
-                <button class="action-btn secondary" id="retryBtn">Retry</button>
-            </div>
-        </div>
 
-        <!-- ============================================ -->
-        <!-- Gallery (Generation History) -->
-        <!-- ============================================ -->
-        <div class="section" id="gallerySection" style="display:none;">
-            <div class="section-title">Gallery</div>
-            <div class="gallery-strip" id="galleryStrip">
-                <!-- Thumbnails injected by JS -->
+            <!-- Tokens -->
+            <div class="section">
+                <div class="profile-tokens-row">
+                    <div class="profile-tokens">
+                        <span class="tokens-count" id="tokenCount">0</span>
+                        <span class="tokens-label">tokens</span>
+                    </div>
+                </div>
+                <!-- Token Packages -->
+                <div class="token-packages" id="tokenPackages">
+                    <div class="token-pkg" data-package="tokens_10">
+                        <div class="pkg-tokens">10</div>
+                        <div class="pkg-label">tokens</div>
+                        <div class="pkg-price">100 Stars</div>
+                    </div>
+                    <div class="token-pkg" data-package="tokens_30">
+                        <div class="pkg-tokens">30</div>
+                        <div class="pkg-label">tokens</div>
+                        <div class="pkg-price">250 Stars</div>
+                    </div>
+                    <div class="token-pkg" data-package="tokens_100">
+                        <div class="pkg-tokens">100</div>
+                        <div class="pkg-label">tokens</div>
+                        <div class="pkg-price">700 Stars</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="section">
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statGens">0</span>
+                        <span class="stat-label">Generations</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statSpent">0</span>
+                        <span class="stat-label">Tokens Spent</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Premium -->
+            <div class="section" id="premiumSection">
+                <div class="premium-card" id="premiumCard">
+                    <div class="premium-title">Premium</div>
+                    <div class="premium-desc" id="premiumDesc">Unlimited generations & priority queue</div>
+                    <button class="premium-btn" id="buyPremiumBtn">Get Premium — 1500 Stars</button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="section">
+                <div class="section-title">History</div>
+                <div class="history-list" id="historyList">
+                    <div class="history-empty">No generations yet</div>
+                </div>
+                <button class="load-more-btn" id="loadMoreHistory" style="display:none;">Load more</button>
             </div>
         </div>
 
@@ -352,7 +471,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=20"></script>
+    <script src="/app.js?v=30"></script>
 </body>
 
 </html>

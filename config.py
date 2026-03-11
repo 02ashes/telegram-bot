@@ -18,3 +18,6 @@ WEBAPP_URL = os.environ.get("WEBAPP_URL", "")
 
 # Admin — only this Telegram user can manage invite codes
 ADMIN_TELEGRAM_ID = int(os.environ.get("ADMIN_TELEGRAM_ID", "1946394239"))
+
+# Database (PostgreSQL on Railway)
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
