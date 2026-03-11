@@ -68,8 +68,6 @@ async def require_auth(request: Request):
     user = auth.validate_webapp_data(init_data, config.TELEGRAM_BOT_TOKEN)
     if not user:
         return None
-    if not auth.is_user_registered(user["id"]):
-        return None
     return user
 
 @app.exception_handler(RequestValidationError)
@@ -134,7 +132,7 @@ async def api_profile(request: Request):
         first_name=user.get("first_name", ""),
     )
     if not db_user:
-        return {"tokens": 0, "total_gens": 0, "total_spent": 0, "is_premium": False}
+        return {"tokens": 0, "is_premium": False, "is_admin": is_admin(user["id"])}
 
     is_premium_active = db_user["is_premium"] and (
         not db_user.get("premium_until") or
@@ -143,9 +141,8 @@ async def api_profile(request: Request):
 
     return {
         "tokens": db_user["tokens"],
-        "total_gens": db_user["total_gens"],
-        "total_spent": db_user["total_spent"],
         "is_premium": is_premium_active,
+        "is_admin": is_admin(user["id"]),
         "premium_until": db_user["premium_until"].isoformat() if db_user.get("premium_until") else None,
     }
 
@@ -273,7 +270,7 @@ async def api_inpaint(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing image, mask, or prompt"})
 
         # Check tokens AFTER validation (premium users skip)
-        if db.is_enabled() and not await db.is_premium(user["id"]):
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
                 return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
             tokens_deducted = True
@@ -364,7 +361,7 @@ async def api_video(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
 
         # Check tokens AFTER validation (premium users skip) — video costs more
-        if db.is_enabled() and not await db.is_premium(user["id"]):
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_VIDEO):
                 return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
             tokens_deducted = True
@@ -466,7 +463,7 @@ async def api_video_cancel(job_id: str, request: Request):
         if success:
             _video_jobs.pop(job_id, None)
             # Refund tokens on user-initiated cancel
-            if db.is_enabled() and not await db.is_premium(user["id"]):
+            if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
                 await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
             return JSONResponse(content={"status": "cancelled", "job_id": job_id})
         else:
@@ -535,7 +532,7 @@ async def api_image_edit(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
 
         # Check tokens AFTER validation (premium users skip)
-        if db.is_enabled() and not await db.is_premium(user["id"]):
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
                 return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
             tokens_deducted = True
@@ -636,7 +633,7 @@ async def api_image_edit_dark(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing face image for Face Swap"})
 
         # Check tokens AFTER all validation (premium users skip)
-        if db.is_enabled() and not await db.is_premium(user["id"]):
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
                 return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
             tokens_deducted = True
@@ -789,32 +786,7 @@ async def notify_admin_generation(
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    """Handle /start — show WebApp only to registered users."""
-    user_id = message.from_user.id
-
-    if not auth.is_user_registered(user_id) and not is_admin(user_id):
-        await message.answer(
-            "🔒 **Доступ ограничен**\n\n"
-            "Чтобы пользоваться ботом, введи инвайт-код:\n"
-            "`/invite ВАШ_КОД`",
-            parse_mode="Markdown",
-        )
-        return
-
-    # Auto-register admin if not registered
-    if is_admin(user_id) and not auth.is_user_registered(user_id):
-        users = auth.list_users()
-        if str(user_id) not in users:
-            import time as _time
-            auth._save_json(auth.USERS_FILE, {
-                **users,
-                str(user_id): {
-                    "username": message.from_user.username or "admin",
-                    "registered_at": _time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "code_used": "ADMIN",
-                },
-            })
-
+    """Handle /start — show WebApp to everyone."""
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -889,50 +861,86 @@ async def on_successful_payment(message: types.Message):
         await message.answer("✅ Оплата получена!")
 
 
-@dp.message(lambda m: m.text and m.text.startswith("/invite"))
-async def cmd_invite(message: types.Message):
-    """Register with invite code: /invite CODE"""
-    user_id = message.from_user.id
+@dp.message(lambda m: m.text and m.text.startswith("/premium"))
+async def cmd_premium(message: types.Message):
+    """Admin: grant premium — supports bulk IDs.
 
-    if auth.is_user_registered(user_id):
-        await message.answer("✅ Ты уже зарегистрирован! Нажми /start")
-        return
-
-    parts = message.text.split(maxsplit=1)
-    if len(parts) < 2:
-        await message.answer("❌ Использование: `/invite ВАШ_КОД`", parse_mode="Markdown")
-        return
-
-    code = parts[1].strip()
-    username = message.from_user.username or message.from_user.first_name or str(user_id)
-
-    if auth.validate_and_use_code(code, user_id, username):
-        logger.info("User %s (%s) registered with code %s", user_id, username, code)
-        await message.answer(
-            "✅ **Добро пожаловать!**\n\n"
-            "Инвайт-код принят. Нажми /start чтобы открыть редактор.",
-            parse_mode="Markdown",
-        )
-    else:
-        await message.answer("❌ Неверный или уже использованный код.")
-
-
-@dp.message(lambda m: m.text and m.text.startswith("/generate"))
-async def cmd_generate(message: types.Message):
-    """Admin: create invite code: /generate CODE"""
+    /premium 123456               → 30 days
+    /premium 123456 90            → 90 days
+    /premium 111,222,333 99999    → 99999 days each
+    /premium 111, 222, 333        → 30 days each
+    """
     if not is_admin(message.from_user.id):
         return
 
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
-        await message.answer("Использование: `/generate КОД`", parse_mode="Markdown")
+        await message.answer(
+            "Использование:\n"
+            "`/premium USER_ID [ДНЕЙ]`\n"
+            "`/premium ID1,ID2,ID3 [ДНЕЙ]`\n"
+            "По умолчанию 30 дней",
+            parse_mode="Markdown",
+        )
         return
 
-    code = parts[1].strip()
-    if auth.create_code(code):
-        await message.answer(f"✅ Инвайт-код создан: `{code}`", parse_mode="Markdown")
-    else:
-        await message.answer(f"❌ Код `{code}` уже существует", parse_mode="Markdown")
+    raw = parts[1].strip()
+    # Split by whitespace — last token might be days
+    tokens = raw.split()
+
+    # Merge all but last, check if last is a pure integer (days)
+    days = 30
+    ids_str = raw
+    if len(tokens) >= 2:
+        try:
+            days = int(tokens[-1])
+            ids_str = " ".join(tokens[:-1])
+        except ValueError:
+            ids_str = raw
+
+    # Parse comma-separated IDs
+    raw_ids = ids_str.replace(" ", "").split(",")
+    user_ids = []
+    for rid in raw_ids:
+        try:
+            user_ids.append(int(rid.strip()))
+        except ValueError:
+            pass
+
+    if not user_ids:
+        await message.answer("❌ Не найдено валидных ID")
+        return
+
+    for uid in user_ids:
+        await db.get_or_create_user(uid)
+        await db.set_premium(uid, days=days)
+
+    ids_display = ", ".join(f"`{u}`" for u in user_ids)
+    await message.answer(
+        f"✅ Premium на {days} дней для: {ids_display}",
+        parse_mode="Markdown",
+    )
+
+
+@dp.message(lambda m: m.text and m.text.startswith("/revoke"))
+async def cmd_revoke(message: types.Message):
+    """Admin: revoke premium from a user: /revoke USER_ID"""
+    if not is_admin(message.from_user.id):
+        return
+
+    parts = message.text.split()
+    if len(parts) < 2:
+        await message.answer("Использование: `/revoke USER_ID`", parse_mode="Markdown")
+        return
+
+    try:
+        target_id = int(parts[1])
+    except ValueError:
+        await message.answer("❌ ID должен быть числом")
+        return
+
+    await db.revoke_premium(target_id)
+    await message.answer(f"✅ Premium снят с `{target_id}`", parse_mode="Markdown")
 
 
 @dp.message(lambda m: m.text and m.text.startswith("/delete"))

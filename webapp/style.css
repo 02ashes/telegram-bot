@@ -381,11 +381,12 @@ body::after {
 /* ============================================================
    Profile Styles
    ============================================================ */
-.profile-card {
+/* Inline header row: name | ID | badge */
+.profile-row {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 20px;
+    gap: 10px;
+    padding: 14px 16px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -393,44 +394,30 @@ body::after {
     margin-bottom: 10px;
 }
 
-.profile-avatar {
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 50%;
-    border: 1px solid var(--border);
-}
-
-.profile-info {
-    flex: 1;
-}
-
 .profile-name {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: var(--accent);
-    margin-bottom: 2px;
+    white-space: nowrap;
 }
 
 .profile-id {
     font-size: 0.72rem;
     color: var(--text-dim);
     letter-spacing: 0.5px;
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 .profile-badge {
     display: inline-block;
-    margin-top: 6px;
     padding: 3px 10px;
     border-radius: var(--radius-pill);
     font-size: 0.6rem;
     font-weight: 500;
     letter-spacing: 1px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .profile-badge.premium {
@@ -451,14 +438,14 @@ body::after {
     color: var(--text-dim);
 }
 
-/* Tokens Row */
-.profile-tokens-row {
+/* Compact tokens row: [count] tokens   [10] [30] [100] */
+.tokens-compact-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.profile-tokens {
+.tokens-compact-count {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -477,114 +464,37 @@ body::after {
     letter-spacing: 1px;
 }
 
-.buy-btn {
-    padding: 8px 18px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+.tokens-compact-buy {
+    display: flex;
+    gap: 6px;
+}
+
+.token-buy-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
     border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.04);
     color: var(--accent);
     font-family: var(--font);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all var(--transition);
 }
 
-.buy-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.05);
-}
-
-/* Token Packages */
-.token-packages {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.token-pkg {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 14px 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition);
-}
-
-.token-pkg:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: var(--border-hover);
-    transform: translateY(-1px);
-}
-
-.token-pkg:active {
-    transform: translateY(0);
+.token-buy-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--border-hover);
 }
 
-.token-pkg.buying {
+.token-buy-btn:active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.token-buy-btn.buying {
     opacity: 0.6;
     pointer-events: none;
-}
-
-.pkg-tokens {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--accent);
-}
-
-.pkg-label {
-    font-size: 0.55rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-
-.pkg-price {
-    font-size: 0.65rem;
-    color: var(--text-dim);
-    margin-top: 4px;
-    opacity: 0.7;
-}
-
-/* Stats */
-.profile-stats {
-    display: flex;
-    gap: 12px;
-}
-
-.stat-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 14px 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-}
-
-.stat-value {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--accent);
-}
-
-.stat-label {
-    font-size: 0.6rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 /* Premium Card */

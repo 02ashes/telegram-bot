@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=30">
+    <link rel="stylesheet" href="/style.css?v=31">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -383,54 +383,24 @@
         <!-- TAB: Profile -->
         <!-- ============================================ -->
         <div class="tab-content" id="contentProfile" style="display:none;">
-            <!-- User Info Card -->
-            <div class="profile-card">
-                <div class="profile-avatar" id="profileAvatar">👤</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="profileName">Loading...</div>
-                    <div class="profile-id" id="profileId">ID: —</div>
-                    <div class="profile-badge" id="profileBadge"></div>
-                </div>
+            <!-- User Info Row (inline) -->
+            <div class="profile-row">
+                <div class="profile-name" id="profileName">Loading...</div>
+                <div class="profile-id" id="profileId">—</div>
+                <div class="profile-badge" id="profileBadge"></div>
             </div>
 
-            <!-- Tokens -->
+            <!-- Tokens + Buy Buttons (compact) -->
             <div class="section">
-                <div class="profile-tokens-row">
-                    <div class="profile-tokens">
+                <div class="tokens-compact-row">
+                    <div class="tokens-compact-count">
                         <span class="tokens-count" id="tokenCount">0</span>
                         <span class="tokens-label">tokens</span>
                     </div>
-                </div>
-                <!-- Token Packages -->
-                <div class="token-packages" id="tokenPackages">
-                    <div class="token-pkg" data-package="tokens_10">
-                        <div class="pkg-tokens">10</div>
-                        <div class="pkg-label">tokens</div>
-                        <div class="pkg-price">100 Stars</div>
-                    </div>
-                    <div class="token-pkg" data-package="tokens_30">
-                        <div class="pkg-tokens">30</div>
-                        <div class="pkg-label">tokens</div>
-                        <div class="pkg-price">250 Stars</div>
-                    </div>
-                    <div class="token-pkg" data-package="tokens_100">
-                        <div class="pkg-tokens">100</div>
-                        <div class="pkg-label">tokens</div>
-                        <div class="pkg-price">700 Stars</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats -->
-            <div class="section">
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <span class="stat-value" id="statGens">0</span>
-                        <span class="stat-label">Generations</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="statSpent">0</span>
-                        <span class="stat-label">Tokens Spent</span>
+                    <div class="tokens-compact-buy" id="tokenPackages">
+                        <button class="token-buy-btn" data-package="tokens_10">10</button>
+                        <button class="token-buy-btn" data-package="tokens_30">30</button>
+                        <button class="token-buy-btn" data-package="tokens_100">100</button>
                     </div>
                 </div>
             </div>
@@ -471,7 +441,7 @@
         </div>
     </div>
 
-    <script src="/app.js?v=30"></script>
+    <script src="/app.js?v=31"></script>
 </body>
 
 </html>

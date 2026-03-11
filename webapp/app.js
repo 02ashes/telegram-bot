@@ -2120,8 +2120,6 @@ async function loadProfile() {
     const idEl = document.getElementById('profileId');
     const badgeEl = document.getElementById('profileBadge');
     const tokenEl = document.getElementById('tokenCount');
-    const statGens = document.getElementById('statGens');
-    const statSpent = document.getElementById('statSpent');
     const premDesc = document.getElementById('premiumDesc');
     const premBtn = document.getElementById('buyPremiumBtn');
     const premCard = document.getElementById('premiumCard');
@@ -2129,7 +2127,7 @@ async function loadProfile() {
     // Set basic info from Telegram
     if (user) {
         nameEl.textContent = user.first_name || user.username || 'User';
-        idEl.textContent = 'ID: ' + user.id;
+        idEl.textContent = user.id;
     }
 
     // Fetch profile from API
@@ -2138,13 +2136,16 @@ async function loadProfile() {
         if (resp.ok) {
             const data = await resp.json();
             tokenEl.textContent = data.tokens ?? 0;
-            statGens.textContent = data.total_gens ?? 0;
-            statSpent.textContent = data.total_spent ?? 0;
 
             // Badge
-            if (user && user.id === ADMIN_ID) {
+            if (data.is_admin) {
                 badgeEl.textContent = 'Admin';
                 badgeEl.className = 'profile-badge admin';
+                // Admin has unlimited — hide premium buy
+                premCard.classList.add('active-premium');
+                premDesc.textContent = 'Unlimited (Admin)';
+                premBtn.textContent = '✓ Admin';
+                premBtn.disabled = true;
             } else if (data.is_premium) {
                 badgeEl.textContent = 'Premium';
                 badgeEl.className = 'profile-badge premium';
@@ -2233,10 +2234,10 @@ function formatDate(dateStr) {
 // ============================================================
 // Buy Tokens & Premium
 // ============================================================
-document.querySelectorAll('.token-pkg').forEach(pkg => {
-    pkg.addEventListener('click', async () => {
-        const packageId = pkg.dataset.package;
-        pkg.classList.add('buying');
+document.querySelectorAll('.token-buy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const packageId = btn.dataset.package;
+        btn.classList.add('buying');
         try {
             const resp = await fetch('/api/buy-tokens', {
                 method: 'POST',
@@ -2249,11 +2250,11 @@ document.querySelectorAll('.token-pkg').forEach(pkg => {
                     window.Telegram.WebApp.close();
                 }
             } else {
-                pkg.classList.remove('buying');
+                btn.classList.remove('buying');
             }
         } catch (e) {
             console.error('Buy error:', e);
-            pkg.classList.remove('buying');
+            btn.classList.remove('buying');
         }
     });
 });
