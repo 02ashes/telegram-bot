@@ -25,7 +25,7 @@ def _add_skin_enhance_and_grain(
     image_source_ref: list,
     save_node_id: str,
     skin_model: str = "1xSkinContrast-High-SuperUltraCompact.pth",
-    blend_factor: float = 0.7,
+    blend_factor: float = 0.45,
     grain_intensity: float = 0.03,
     grain_softness: float = 0.8,
     grain_shadow: float = 0.23,
