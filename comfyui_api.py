@@ -1929,6 +1929,7 @@ CHARACTER_LORAS = {
     "lera":  {"lora_name": "leralora.safetensors", "strength": 0.9},
     "mirana": {"lora_name": "miranalora.safetensors", "strength": 0.9},
     "moondina": {"lora_name": "moonlora.safetensors", "strength": 0.9},
+    "rina":  {"lora_name": "rinalora.safetensors", "strength": 0.9},
 }
 
 
