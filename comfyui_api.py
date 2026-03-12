@@ -80,6 +80,11 @@ def _add_skin_enhance_and_grain(
             "mid": 0.5,
             "scale": 1,
             "grain_type": "Color",
+            "mode": "generate",
+            "grain_saturation": 1.0,
+            "brightness_impact": 0.0,
+            "image_saturation": 1.0,
+            "grain_size": 1.0,
         },
     }
     # Re-target SaveImage to use FilmGrain output
