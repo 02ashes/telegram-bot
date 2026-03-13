@@ -296,7 +296,7 @@ async def api_inpaint(request: Request):
 
         if result_bytes is None:
             # Refund token on generation failure
-            if db.is_enabled():
+            if tokens_deducted and db.is_enabled():
                 await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
@@ -396,7 +396,7 @@ async def api_video(request: Request):
 
         if job_id is None:
             # Refund tokens on submission failure
-            if db.is_enabled():
+            if tokens_deducted and db.is_enabled():
                 await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
             return JSONResponse(
                 status_code=500,
@@ -570,7 +570,7 @@ async def api_image_edit(request: Request):
 
         if result_bytes is None:
             # Refund token on generation failure
-            if db.is_enabled():
+            if tokens_deducted and db.is_enabled():
                 await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
@@ -683,7 +683,7 @@ async def api_image_edit_dark(request: Request):
 
         if result_bytes is None:
             # Refund token on generation failure
-            if db.is_enabled():
+            if tokens_deducted and db.is_enabled():
                 await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
