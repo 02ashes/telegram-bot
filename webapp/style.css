@@ -233,6 +233,9 @@ body::after {
     border: 1px solid var(--border);
     backdrop-filter: blur(20px);
     animation: fadeSlideUp 0.5s ease-out 0.05s both;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .top-tab {
