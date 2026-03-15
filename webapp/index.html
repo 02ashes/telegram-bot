@@ -237,49 +237,8 @@
             <div class="section video-only" id="kenpechiScenesSection" style="display:none;">
                 <div class="section-title">Scenes <span style="opacity:0.5;font-size:0.7em">(6 max)</span></div>
                 <div id="scenesContainer"></div>
-                <div class="kenpechi-global-toggle" id="kenpechiAdvToggle"
-                    style="cursor:pointer; padding:6px 0; opacity:0.6; font-size:0.72rem; letter-spacing:1px; text-align:center;">
-                    ▾ Advanced Settings
-                </div>
-                <div id="kenpechiAdvSettings" style="display:none;">
-                    <div class="video-settings-grid" style="margin-top:8px;">
-                        <div class="setting">
-                            <label>Shift: <span id="kenShiftVal">5</span></label>
-                            <input type="range" id="kenShiftSlider" min="1" max="10" step="0.5" value="5"
-                                oninput="document.getElementById('kenShiftVal').textContent=this.value">
-                        </div>
-                        <div class="setting">
-                            <label>Repulsion: <span id="kenRepVal">1</span></label>
-                            <input type="range" id="kenRepSlider" min="0" max="3" step="0.1" value="1"
-                                oninput="document.getElementById('kenRepVal').textContent=this.value">
-                        </div>
-                        <div class="setting">
-                            <label>Motion: <span id="kenMotionVal">1</span></label>
-                            <input type="range" id="kenMotionSlider" min="0" max="3" step="0.1" value="1"
-                                oninput="document.getElementById('kenMotionVal').textContent=this.value">
-                        </div>
-                        <div class="setting">
-                            <label>RIFE: <span id="kenRifeVal">4</span>x</label>
-                            <select id="kenRifeSelect">
-                                <option value="2">2x</option>
-                                <option value="4" selected>4x</option>
-                            </select>
-                        </div>
-                        <div class="setting">
-                            <label>Steps: <span id="kenStepsVal">7</span></label>
-                            <input type="range" id="kenStepsSlider" min="4" max="15" step="1" value="7"
-                                oninput="document.getElementById('kenStepsVal').textContent=this.value">
-                        </div>
-                        <div class="setting">
-                            <label>Resolution:</label>
-                            <select id="kenResSelect">
-                                <option value="720x1072" selected>720×1072</option>
-                                <option value="480x832">480×832</option>
-                                <option value="720x1280">720×1280</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                <div class="section-title sub" style="margin-top:10px;">Negative</div>
+                <textarea id="kenpechiNegativeInput" rows="2" placeholder="Optional negative prompt..."></textarea>
             </div>
 
             <!-- LoRA Modal -->

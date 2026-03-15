@@ -235,6 +235,12 @@ function switchMode(mode) {
     document.querySelectorAll('.video-only').forEach(el => {
         el.style.display = mode === 'video' && originalImage ? '' : 'none';
     });
+
+    // Hide shared prompt/negative in video mode (Kenpechi has per-scene prompts)
+    const promptSection = document.getElementById('promptSection');
+    if (promptSection && mode === 'video') {
+        promptSection.style.display = 'none';
+    }
     document.querySelectorAll('.image-only').forEach(el => {
         el.style.display = mode === 'image' && originalImage ? '' : 'none';
     });
@@ -618,14 +624,18 @@ stepsSlider.addEventListener('input', (e) => {
     stepsLabel.textContent = e.target.value;
 });
 
-framesSlider.addEventListener('input', (e) => {
-    framesLabel.textContent = e.target.value;
-});
+if (framesSlider) {
+    framesSlider.addEventListener('input', (e) => {
+        framesLabel.textContent = e.target.value;
+    });
+}
 
 // Audio toggle
-audioToggle.addEventListener('change', () => {
-    audioSettings.style.display = audioToggle.checked ? '' : 'none';
-});
+if (audioToggle) {
+    audioToggle.addEventListener('change', () => {
+        audioSettings.style.display = audioToggle.checked ? '' : 'none';
+    });
+}
 
 // Denoise slider
 denoiseSlider.addEventListener('input', (e) => {
@@ -2487,11 +2497,6 @@ document.getElementById('loraModalOverlay')?.addEventListener('click', (e) => {
 });
 
 // Advanced settings toggle
-document.getElementById('kenpechiAdvToggle')?.addEventListener('click', () => {
-    const adv = document.getElementById('kenpechiAdvSettings');
-    if (adv) adv.style.display = adv.style.display === 'none' ? '' : 'none';
-});
-
 // Build scene cards on page load
 buildSceneCards();
 
@@ -2531,10 +2536,6 @@ async function generateKenpechiVideo() {
     const progressText = document.getElementById('progressText');
     const resultSection = document.getElementById('resultSection');
 
-    // Get resolution
-    const resVal = document.getElementById('kenResSelect')?.value || '720x1072';
-    const [width, height] = resVal.split('x').map(Number);
-
     // UI state
     generateBtn.disabled = true;
     generateBtn.querySelector('.btn-text').style.display = 'none';
@@ -2554,16 +2555,16 @@ async function generateKenpechiVideo() {
         const body = {
             image: imageB64,
             scenes: scenes,
-            negative: '',
-            width: width,
-            height: height,
-            steps: parseInt(document.getElementById('kenStepsSlider')?.value || 7),
+            negative: document.getElementById('kenpechiNegativeInput')?.value || '',
+            width: 720,
+            height: 1072,
+            steps: 7,
             split_steps: 3,
             fps: 16,
-            rife_multiplier: parseInt(document.getElementById('kenRifeSelect')?.value || 4),
-            svi_motion_strength: parseFloat(document.getElementById('kenMotionSlider')?.value || 1.0),
-            repulsion_boost: parseFloat(document.getElementById('kenRepSlider')?.value || 1.0),
-            shift: parseFloat(document.getElementById('kenShiftSlider')?.value || 5.0),
+            rife_multiplier: 4,
+            svi_motion_strength: 1.0,
+            repulsion_boost: 1.0,
+            shift: 5.0,
         };
 
         const submitResp = await fetch('/api/video/kenpechi', {
