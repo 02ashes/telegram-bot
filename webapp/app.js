@@ -191,7 +191,7 @@ async function loadProfile() {
         const isPrem = data.is_premium;
         document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
         document.getElementById('profileRole').textContent =
-            data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
+            'DBG:' + JSON.stringify(data).substring(0, 100);
     } catch (e) {
         document.getElementById('profileName').textContent = 'Error: ' + e.message;
     }
