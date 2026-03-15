@@ -1675,9 +1675,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px 12px;
+    padding: 12px 16px 10px;
     border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 500;
     letter-spacing: 1px;
 }
@@ -1686,27 +1686,27 @@ input[type="range"]::-webkit-slider-thumb:hover {
     background: none;
     border: none;
     color: var(--text-dim);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
 }
 
 .lora-modal-body {
     overflow-y: auto;
-    padding: 12px 20px;
+    padding: 8px 16px;
     flex: 1;
 }
 
 .lora-modal-save {
     display: block;
-    width: calc(100% - 40px);
-    margin: 12px 20px 20px;
-    padding: 12px;
+    width: calc(100% - 32px);
+    margin: 8px 16px 16px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     color: var(--text);
     font-family: var(--font);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     letter-spacing: 1px;
     cursor: pointer;
     transition: background 0.2s;
@@ -1717,18 +1717,18 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .lora-group-title {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     letter-spacing: 1.5px;
     color: var(--text-dim);
-    margin: 12px 0 8px;
+    margin: 8px 0 4px;
     text-transform: uppercase;
 }
 
 .lora-slot {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
 .lora-slot select {
@@ -1737,19 +1737,32 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    padding: 6px 8px;
+    padding: 5px 6px;
     font-family: var(--font);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 22px;
+}
+
+.lora-slot select option {
+    background: #1a1a22;
+    color: var(--text);
+    padding: 4px 8px;
 }
 
 .lora-str-input {
-    width: 52px;
+    width: 44px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    padding: 6px 8px;
+    padding: 5px 4px;
     font-family: var(--font);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-align: center;
 }

@@ -2305,10 +2305,44 @@ const KENPECHI_LORAS_HIGH = [
     'HIGH/Deepthroat-W22-I2V-HN.safetensors',
     'HIGH/F4c3spl4sh-high-k3nk.safetensors',
     'HIGH/Oral-insertion-high-v1.0.safetensors',
+    // NSFW_pack
     'NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors',
     'NSFW_pack/WAN-2.2-I2V-Body-Cumshot-HIGH-v1.safetensors',
     'NSFW_pack/wan22-mouthfull-140epoc-high-k3nk.safetensors',
+    'NSFW_pack/Blink_Squatting_Cowgirl_Position_I2V_HIGH.safetensors',
+    'NSFW_pack/PENISLORA_22_i2v_HIGH_e320.safetensors',
+    'NSFW_pack/Pornmaster_wan 2.2_14b_I2V_bukkake_v1.4_high_noise.safetensors',
+    'NSFW_pack/W22_Multiscene_Photoshoot_Softcore_i2v_HN.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-HandjobBlowjobCombo-HIGH-v1.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-SensualTeasingBlowjob-HIGH-v1.safetensors',
+    'NSFW_pack/iGOON_Blink_Blowjob_I2V_HIGH.safetensors',
+    'NSFW_pack/iGoon - Blink_Front_Doggystyle_I2V_HIGH.safetensors',
+    'NSFW_pack/iGoon - Blink_Missionary_I2V_HIGH.safetensors',
+    'NSFW_pack/iGoon - Blink_Back_Doggystyle_HIGH.safetensors',
+    'NSFW_pack/iGoon - Blink_Facial_I2V_HIGH.safetensors',
+    'NSFW_pack/iGoon_Blink_Missionary_I2V_HIGH v2.safetensors',
+    'NSFW_pack/iGoon_Blink_Titjob_I2V_HIGH.safetensors',
+    'NSFW_pack/lips-bj_high_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_doggy_kneel_diagonally_behind_vagina_wan22_i2v_v1_high_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_reverse_cowgirl_lie_front_vagina_wan22_i2v_v1_high_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_spoon_wan22_i2v_v1_high_noise.safetensors',
+    'NSFW_pack/mql_doggy_a_wan22_t2v_v1_high_noise .safetensors',
+    'NSFW_pack/mql_massage_tits_wan22_i2v_v1_high_noise.safetensors',
+    'NSFW_pack/mql_panties_aside_wan22_i2v_v1_high_noise.safetensors',
+    'NSFW_pack/mqlspn_a_wan22_t2v_v1_high_noise.safetensors',
+    'NSFW_pack/sfbehind_v2.1_high_noise.safetensors',
+    'NSFW_pack/sid3l3g_transition_v2.0_H.safetensors',
+    'NSFW_pack/wan2.2_i2v_high_ulitmate_pussy_asshole.safetensors',
+    // Root loras
     'erect_penis_epoch_80.safetensors',
+    'pov-blowjob-i2v-v1.2.safetensors',
+    'jfj-deepthroat-W22-I2V-HN.safetensors',
+    'front_doggy_plow_v1_1_wan.safetensors',
+    'pov-missionary-i2v-high-v1.0.safetensors',
+    'side-sex-i2v-v10.safetensors',
+    'wan22.r3v3rs3_c0wg1rl-14b-High-i2v_e70.safetensors',
+    'fingering-high-v1.0.safetensors',
+    'nipple_stroke_WAN22_I2V_v1_high_noise.safetensors',
 ];
 
 const KENPECHI_LORAS_LOW = [
@@ -2317,10 +2351,44 @@ const KENPECHI_LORAS_LOW = [
     'LOW/Deepthroat-W22-I2V-LN.safetensors',
     'LOW/F4c3spl4sh-low-k3nk.safetensors',
     'LOW/Oral-insertion-low-v1.0.safetensors',
+    // NSFW_pack
     'NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors',
     'NSFW_pack/WAN-2.2-I2V-Body-Cumshot-LOW-v1.safetensors',
     'NSFW_pack/wan22-mouthfull-152epoc-low-k3nk.safetensors',
+    'NSFW_pack/Blink_Squatting_Cowgirl_Position_I2V_LOW.safetensors',
+    'NSFW_pack/PENISLORA_22_i2v_LOW_e496.safetensors',
+    'NSFW_pack/Pornmaster_wan 2.2_14b_I2V_bukkake_v1.4_low_noise.safetensors',
+    'NSFW_pack/W22_Multiscene_Photoshoot_Softcore_i2v_LN.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-HandjobBlowjobCombo-LOW-v1.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-SensualTeasingBlowjob-LOW-v1.safetensors',
+    'NSFW_pack/iGOON_Blink_Blowjob_I2V_LOW.safetensors',
+    'NSFW_pack/iGoon - Blink_Front_Doggystyle_I2V_LOW.safetensors',
+    'NSFW_pack/iGoon - Blink_Missionary_I2V_LOW v2.safetensors',
+    'NSFW_pack/iGoon - Blink_Missionary_I2V_LOW.safetensors',
+    'NSFW_pack/iGoon - Blink_Back_Doggystyle_LOW.safetensors',
+    'NSFW_pack/iGoon - Blink_Facial_I2V_LOW.safetensors',
+    'NSFW_pack/iGoon_Blink_Titjob_I2V_LOW.safetensors',
+    'NSFW_pack/lips-bj_low_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_doggy_kneel_diagonally_behind_vagina_wan22_i2v_v1_low_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_reverse_cowgirl_lie_front_vagina_wan22_i2v_v1_low_noise.safetensors',
+    'NSFW_pack/mql_casting_sex_spoon_wan22_i2v_v1_low_noise.safetensors',
+    'NSFW_pack/mql_doggy_a_wan22_t2v_v1_low_noise.safetensors',
+    'NSFW_pack/mql_massage_tits_wan22_i2v_v1_low_noise.safetensors',
+    'NSFW_pack/mql_panties_aside_wan22_i2v_v1_low_noise.safetensors',
+    'NSFW_pack/mqlspn_a_wan22_t2v_v1_low_noise.safetensors',
+    'NSFW_pack/sfbehind_v2.1_low_noise.safetensors',
+    'NSFW_pack/sid3l3g_transition_v2.0_L.safetensors',
+    'NSFW_pack/wan2.2_i2v_low_ulitmate_pussy_asshole.safetensors',
+    // Root loras
     'erect_penis_epoch_80.safetensors',
+    'pov-blowjob-i2v-v1.2.safetensors',
+    'jfj-deepthroat-W22-I2V-LN.safetensors',
+    'front_doggy_plow_v1_1_wan.safetensors',
+    'pov-missionary-i2v-low-v1.0.safetensors',
+    'side-sex-i2v-v10.safetensors',
+    'wan22.r3v3rs3_c0wg1rl-14b-Low-i2v_e70.safetensors',
+    'fingering-low-v1.0.safetensors',
+    'nipple_stroke_WAN22_I2V_v1_low_noise.safetensors',
 ];
 
 // Default scene configs
@@ -2407,12 +2475,12 @@ function openLoraModal(sceneIdx) {
     title.textContent = `Scene ${sceneIdx + 1} — LoRAs`;
 
     const scene = kenpechiScenes[sceneIdx];
-    let html = '<div class="lora-group-title">🔴 HIGH Model LoRAs</div>';
+    let html = '<div class="lora-group-title">HIGH Model</div>';
     for (let s = 0; s < 4; s++) {
         const lora = scene.high_loras[s];
         html += buildLoraSlotHTML('high', s, lora, KENPECHI_LORAS_HIGH);
     }
-    html += '<div class="lora-group-title">🔵 LOW Model LoRAs</div>';
+    html += '<div class="lora-group-title">LOW Model</div>';
     for (let s = 0; s < 4; s++) {
         const lora = scene.low_loras[s];
         html += buildLoraSlotHTML('low', s, lora, KENPECHI_LORAS_LOW);
