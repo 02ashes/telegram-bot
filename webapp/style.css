@@ -673,6 +673,8 @@ body::after {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     backdrop-filter: blur(20px);
+    overflow: hidden;
+    transform: translateZ(0);
 }
 
 .faq-question {

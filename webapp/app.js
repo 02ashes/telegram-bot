@@ -176,7 +176,7 @@ function switchTab(tab) {
 // ============================================================
 async function loadProfile() {
     try {
-        const resp = await fetch('/api/auth', { headers: authHeaders() });
+        const resp = await fetch('/api/profile', { headers: authHeaders() });
         if (!resp.ok) {
             document.getElementById('profileName').textContent = 'Auth Error ' + resp.status;
             return;
@@ -185,18 +185,29 @@ async function loadProfile() {
 
         document.getElementById('profileName').textContent =
             window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
-        document.getElementById('profileTokens').textContent = data.tokens ?? 0;
-        document.getElementById('profileGens').textContent = data.total_gens ?? 0;
+        document.getElementById('profileId').textContent =
+            'ID: ' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '—');
 
+        // Token count
+        document.getElementById('tokenCount').textContent = data.tokens ?? 0;
+
+        // Role badge
         const isPrem = data.is_premium;
-        document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
-        document.getElementById('profileRole').textContent =
-            data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
+        const role = data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
+        const badge = document.getElementById('profileBadge');
+        badge.textContent = role;
+        badge.className = 'profile-badge ' + (data.is_admin ? 'admin' : (isPrem ? 'premium' : 'free'));
 
-        // Temporary debug: if tokens is 0, show raw response
-        if (!data.tokens) {
-            document.getElementById('profileRole').textContent =
-                'DEBUG: ' + JSON.stringify(data).substring(0, 80);
+        // Premium card
+        const premiumCard = document.getElementById('premiumCard');
+        const premiumDesc = document.getElementById('premiumDesc');
+        if (isPrem) {
+            premiumCard?.classList.add('active-premium');
+            const until = data.premium_until ? new Date(data.premium_until).toLocaleDateString() : '';
+            premiumDesc.textContent = until ? `Active until ${until}` : 'Active — unlimited generations';
+        } else {
+            premiumCard?.classList.remove('active-premium');
+            premiumDesc.textContent = 'Unlimited generations & priority queue';
         }
     } catch (e) {
         document.getElementById('profileName').textContent = 'Error: ' + e.message;
