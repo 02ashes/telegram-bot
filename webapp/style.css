@@ -47,7 +47,7 @@ body::before {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -2;
     background:
         radial-gradient(1.5px 1.5px at 10% 15%, rgba(255, 255, 255, 0.25) 50%, transparent 50%),
         radial-gradient(1px 1px at 25% 35%, rgba(255, 255, 255, 0.15) 50%, transparent 50%),
@@ -86,7 +86,7 @@ body::after {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
     background: radial-gradient(ellipse 70% 60% at 50% 50%,
             transparent 0%,
@@ -97,7 +97,6 @@ body::after {
 .app {
     position: relative;
     z-index: 1;
-    isolation: isolate;
     max-width: 480px;
     margin: 0 auto;
     padding: 10px 14px 24px;

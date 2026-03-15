@@ -178,11 +178,10 @@ async function loadProfile() {
     try {
         const resp = await fetch('/api/auth', { headers: authHeaders() });
         if (!resp.ok) {
-            console.error('loadProfile: auth failed', resp.status);
+            document.getElementById('profileName').textContent = 'Auth Error ' + resp.status;
             return;
         }
         const data = await resp.json();
-        console.log('loadProfile data:', JSON.stringify(data));
 
         document.getElementById('profileName').textContent =
             window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
@@ -193,8 +192,14 @@ async function loadProfile() {
         document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
         document.getElementById('profileRole').textContent =
             data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
+
+        // Temporary debug: if tokens is 0, show raw response
+        if (!data.tokens) {
+            document.getElementById('profileRole').textContent =
+                'DEBUG: ' + JSON.stringify(data).substring(0, 80);
+        }
     } catch (e) {
-        console.error('loadProfile error:', e);
+        document.getElementById('profileName').textContent = 'Error: ' + e.message;
     }
 }
 
