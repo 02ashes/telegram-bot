@@ -441,17 +441,16 @@
 
     <script src="/app.js?v=48"></script>
     <script>
-        // Override loadProfile — Telegram WebView caches app.js aggressively
+        // Override functions — Telegram WebView caches app.js aggressively
         (function () {
+            const hdr = () => ({
+                'Content-Type': 'application/json',
+                'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
+            });
+
             async function prodLoadProfile() {
                 try {
-                    const initData = window.Telegram?.WebApp?.initData || '';
-                    const resp = await fetch('/api/profile', {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Telegram-Init-Data': initData
-                        }
-                    });
+                    const resp = await fetch('/api/profile', { headers: hdr() });
                     if (!resp.ok) {
                         document.getElementById('profileName').textContent = 'Auth Error ' + resp.status;
                         return;
@@ -469,7 +468,47 @@
                     document.getElementById('profileName').textContent = 'Error: ' + e.message;
                 }
             }
-            setTimeout(() => { window.loadProfile = prodLoadProfile; }, 100);
+
+            function openInvoiceSafe(url) {
+                try {
+                    if (window.Telegram?.WebApp?.openInvoice) {
+                        window.Telegram.WebApp.openInvoice(url, (status) => {
+                            if (status === 'paid') prodLoadProfile();
+                        });
+                    } else {
+                        window.open(url, '_blank');
+                    }
+                } catch (e) {
+                    alert('Invoice error: ' + e.message);
+                }
+            }
+
+            async function prodBuyPremium() {
+                try {
+                    const resp = await fetch('/api/buy-premium', {
+                        method: 'POST',
+                        headers: hdr(),
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) { alert(data.error || 'Failed'); return; }
+                    if (!data.invoice_url) { alert('No invoice URL'); return; }
+                    openInvoiceSafe(data.invoice_url);
+                } catch (e) {
+                    alert('Premium error: ' + e.message);
+                }
+            }
+
+            setTimeout(() => {
+                window.loadProfile = prodLoadProfile;
+                window.buyPremium = prodBuyPremium;
+                // Re-bind premium button
+                const btn = document.getElementById('buyPremiumBtn');
+                if (btn) {
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+                    newBtn.addEventListener('click', prodBuyPremium);
+                }
+            }, 100);
         })();
     </script>
 </body>
