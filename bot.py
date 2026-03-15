@@ -429,7 +429,7 @@ async def api_video(request: Request):
         )
 
 
-TOKEN_COST_KENPECHI = 30  # Multi-scene SVI video is expensive
+TOKEN_COST_KENPECHI = 37  # ~$0.47 cost + 60% margin
 
 
 @app.post("/api/video/kenpechi")

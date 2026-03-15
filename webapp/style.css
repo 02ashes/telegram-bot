@@ -1807,6 +1807,62 @@ input[type="range"]::-webkit-slider-thumb:hover {
     -moz-appearance: textfield;
 }
 
+/* ── FAQ Accordion ─────────────────────── */
+.faq-container {
+    padding: 8px 0;
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--border);
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+    transition: color 0.2s;
+}
+
+.faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-question::after {
+    content: '+';
+    font-size: 1rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-left: 12px;
+    transition: transform 0.2s;
+}
+
+details[open]>.faq-question::after {
+    content: '−';
+}
+
+details[open]>.faq-question {
+    color: var(--accent);
+}
+
+.faq-answer {
+    padding: 0 4px 14px;
+    font-family: var(--font);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+}
+
 /* Hide number input spinners */
 .lora-str-input::-webkit-outer-spin-button,
 .lora-str-input::-webkit-inner-spin-button {

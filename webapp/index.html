@@ -30,32 +30,89 @@
         <!-- ============================================ -->
         <div class="tab-content" id="contentFaq" style="display:none;">
             <div class="faq-container">
-                <div class="faq-item">
-                    <div class="faq-question">What is Angel Arena?</div>
-                    <div class="faq-answer">AI-powered image & video generation bot. Upload a photo, describe what you
-                        want, and let AI create it.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">How do tokens work?</div>
-                    <div class="faq-answer">Each generation costs tokens. Images cost 1 token, videos cost 5 tokens. Buy
-                        more tokens or get Premium for unlimited access.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">What modes are available?</div>
+                <details class="faq-item">
+                    <summary class="faq-question">What is Angel Arena?</summary>
                     <div class="faq-answer">
-                        <b>Inpaint</b> — Mask & replace parts of an image<br>
-                        <b>Video</b> — Animate a photo into a video<br>
-                        <b>Edit Easy</b> — Quick AI edit with flexible strength<br>
-                        <b>Edit Dark</b> — Advanced edit with DarkBeast model<br>
-                        <b>Generate</b> — Create images from text only
+                        Angel Arena is an AI-powered creative studio inside Telegram. Upload a photo, describe what you
+                        want, and let AI generate images or videos. All processing runs on high-end GPUs (NVIDIA H100)
+                        for maximum quality and speed.
                     </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">What is Premium?</div>
-                    <div class="faq-answer">Premium gives you unlimited generations, priority queue, and access to all
-                        features. Purchase via Telegram Stars.</div>
-                </div>
-                <div class="faq-placeholder">More info coming soon...</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">How do tokens work?</summary>
+                    <div class="faq-answer">
+                        Each generation costs tokens:<br>
+                        • <b>Image</b> (Inpaint / Edit / Generate) — <b>1 token</b><br>
+                        • <b>Video</b> — <b>37 tokens</b><br><br>
+                        Token packages:<br>
+                        • 10 tokens — 100 ⭐<br>
+                        • 30 tokens — 250 ⭐<br>
+                        • 100 tokens — 700 ⭐<br><br>
+                        <b>Premium</b> users get unlimited generations.
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">What modes are available?</summary>
+                    <div class="faq-answer">
+                        <b>Inpaint</b> — Mask &amp; replace parts of an image. Draw over the area you want to change,
+                        describe the result.<br><br>
+                        <b>Video</b> — Animate a photo into a multi-scene NSFW video using AI. Supports 6 scenes with
+                        customizable prompts and LoRAs.<br><br>
+                        <b>Edit Easy</b> — Quick AI edit with flexible strength. Good for subtle modifications.<br><br>
+                        <b>Edit Dark</b> — Advanced edit with DarkBeast model. Best for face swaps, style changes, and
+                        high-detail work.<br><br>
+                        <b>Generate</b> — Create images from text only. No photo needed.
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">How to generate a video?</summary>
+                    <div class="faq-answer">
+                        1. Switch to <b>Video</b> mode<br>
+                        2. Upload a source photo<br>
+                        3. Pick a <b>preset</b> (Missionary, Blowjob, etc.) or write your own prompt for each scene<br>
+                        4. Adjust <b>LoRAs</b> per scene for action style (⚙️ button)<br>
+                        5. Hit <b>Generate</b><br><br>
+                        Generation takes ~5 minutes. The result is a multi-scene video (6 scenes, ~15 seconds at 32
+                        FPS).
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">What are LoRAs?</summary>
+                    <div class="faq-answer">
+                        LoRAs are small AI models trained to produce specific actions or styles. Each scene has 4 HIGH
+                        and 4 LOW LoRA slots. The first two are pre-filled with quality LoRAs (DR34ML4Y + NSFW-22). Use
+                        the ⚙️ icon to change them per scene.<br><br>
+                        <b>Tip:</b> Match your LoRA to your prompt. For example, use "Missionary" LoRAs with a
+                        missionary prompt for best results.
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">What is Premium?</summary>
+                    <div class="faq-answer">
+                        Premium gives you:<br>
+                        • <b>Unlimited</b> image and video generations<br>
+                        • <b>Priority</b> queue (faster processing)<br>
+                        • Access to all features and modes<br><br>
+                        Price: <b>1500 ⭐</b> for 30 days. Purchase via Telegram Stars in the Profile tab.
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">Tips for best results</summary>
+                    <div class="faq-answer">
+                        • Use <b>high-quality photos</b> with good lighting<br>
+                        • For video, <b>portrait orientation</b> works best<br>
+                        • Be <b>specific</b> in prompts — describe the action, camera angle, and details<br>
+                        • For face consistency, use a <b>face LoRA</b> trained on your character<br>
+                        • LoRA strength 0.6–0.9 is optimal. Too high = artifacts, too low = no effect<br>
+                        • The first 2 scenes set the motion direction, later scenes follow
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">Need help?</summary>
+                    <div class="faq-answer">
+                        Contact <b>@your_support_handle</b> on Telegram for bugs, feature requests, or account issues.
+                    </div>
+                </details>
             </div>
         </div>
 

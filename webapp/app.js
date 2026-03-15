@@ -315,6 +315,10 @@ function switchMode(mode) {
     document.getElementById('promptSection').style.display = (hasContent && mode !== 'video') ? '' : 'none';
     document.getElementById('generateSection').style.display = hasContent ? '' : 'none';
 
+    // Hide batch count for video (only 1 generation at a time)
+    const batchRow = document.querySelector('.batch-row');
+    if (batchRow) batchRow.style.display = mode === 'video' ? 'none' : '';
+
     // In Dark Generate mode, show prompt + generate even without image
     if (darkGenNoImage) {
         document.getElementById('promptSection').style.display = '';
