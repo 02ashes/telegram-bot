@@ -273,6 +273,7 @@ body::after {
 /* Tab content containers */
 .tab-content {
     animation: fadeSlideUp 0.3s ease-out both;
+    transform: translateZ(0);
 }
 
 /* ============================================================
@@ -1944,6 +1945,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .faq-item {
     border-bottom: 1px solid var(--border);
     background: var(--bg);
+    transform: translateZ(0);
 }
 
 .faq-item:last-child {
