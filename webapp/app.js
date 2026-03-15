@@ -177,8 +177,12 @@ function switchTab(tab) {
 async function loadProfile() {
     try {
         const resp = await fetch('/api/auth', { headers: authHeaders() });
-        if (!resp.ok) return;
+        if (!resp.ok) {
+            console.error('loadProfile: auth failed', resp.status);
+            return;
+        }
         const data = await resp.json();
+        console.log('loadProfile data:', JSON.stringify(data));
 
         document.getElementById('profileName').textContent =
             window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';

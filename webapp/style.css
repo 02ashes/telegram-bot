@@ -97,6 +97,7 @@ body::after {
 .app {
     position: relative;
     z-index: 1;
+    isolation: isolate;
     max-width: 480px;
     margin: 0 auto;
     padding: 10px 14px 24px;
@@ -227,11 +228,10 @@ body::after {
     display: flex;
     gap: 3px;
     margin-bottom: 14px;
-    background: var(--surface);
+    background: rgba(18, 18, 24, 0.95);
     border-radius: var(--radius);
     padding: 4px;
     border: 1px solid var(--border);
-    backdrop-filter: blur(20px);
     animation: fadeSlideUp 0.5s ease-out 0.05s both;
     position: sticky;
     top: 0;
@@ -273,7 +273,6 @@ body::after {
 /* Tab content containers */
 .tab-content {
     animation: fadeSlideUp 0.3s ease-out both;
-    transform: translateZ(0);
 }
 
 /* ============================================================
@@ -1944,8 +1943,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .faq-item {
     border-bottom: 1px solid var(--border);
-    background: var(--bg);
-    transform: translateZ(0);
 }
 
 .faq-item:last-child {
