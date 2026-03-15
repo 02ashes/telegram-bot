@@ -1934,10 +1934,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* ── FAQ Accordion ─────────────────────── */
 .faq-container {
     padding: 8px 0;
+    position: relative;
+    z-index: 1;
 }
 
 .faq-item {
     border-bottom: 1px solid var(--border);
+    background: var(--bg);
 }
 
 .faq-item:last-child {
