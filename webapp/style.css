@@ -669,12 +669,11 @@ body::after {
 
 .faq-item {
     padding: 14px 16px;
-    background: var(--surface);
+    background: #121218;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    backdrop-filter: blur(20px);
     overflow: hidden;
-    transform: translateZ(0);
+    contain: layout style paint;
 }
 
 .faq-question {
