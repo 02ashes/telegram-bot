@@ -429,6 +429,106 @@ async def api_video(request: Request):
         )
 
 
+TOKEN_COST_KENPECHI = 30  # Multi-scene SVI video is expensive
+
+
+@app.post("/api/video/kenpechi")
+async def api_video_kenpechi(request: Request):
+    """Submit Kenpechi SVI 6-scene video generation job."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
+    try:
+        body = await request.json()
+        image_b64 = body.get("image", "")
+        scenes = body.get("scenes", [])
+        negative = body.get("negative", "")
+        width = int(body.get("width", 720))
+        height = int(body.get("height", 1072))
+        steps = int(body.get("steps", 7))
+        split_steps = int(body.get("split_steps", 3))
+        fps = float(body.get("fps", 16))
+        rife_multiplier = int(body.get("rife_multiplier", 4))
+        svi_motion_strength = float(body.get("svi_motion_strength", 1.0))
+        repulsion_boost = float(body.get("repulsion_boost", 1.0))
+        shift = float(body.get("shift", 5.0))
+
+        if not image_b64:
+            return JSONResponse(status_code=400, content={"error": "Missing image"})
+        if not scenes or len(scenes) < 1:
+            return JSONResponse(status_code=400, content={"error": "At least 1 scene required"})
+        if len(scenes) > 6:
+            scenes = scenes[:6]
+
+        for i, sc in enumerate(scenes):
+            if not sc.get("prompt", "").strip():
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": f"Scene {i + 1} is missing a prompt"},
+                )
+
+        # Token check
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_KENPECHI):
+                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+            tokens_deducted = True
+
+        image_bytes = base64.b64decode(image_b64)
+
+        logger.info(
+            "Kenpechi video request: %d scenes, %dx%d, steps=%d, user=%s",
+            len(scenes), width, height, steps, user["id"],
+        )
+
+        job_id = await comfyui_api.submit_kenpechi_video(
+            image_bytes=image_bytes,
+            scenes=scenes,
+            negative=negative,
+            width=width,
+            height=height,
+            steps=steps,
+            split_steps=split_steps,
+            fps=fps,
+            rife_multiplier=rife_multiplier,
+            svi_motion_strength=svi_motion_strength,
+            repulsion_boost=repulsion_boost,
+            shift=shift,
+        )
+
+        if job_id is None:
+            if tokens_deducted and db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_KENPECHI)
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Failed to submit Kenpechi video job."},
+            )
+
+        if len(_video_jobs) > _VIDEO_JOBS_MAX:
+            keys = list(_video_jobs.keys())[:len(_video_jobs) // 2]
+            for k in keys:
+                _video_jobs.pop(k, None)
+        _video_jobs[job_id] = user["id"]
+
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"],
+            prompt=scenes[0].get("prompt", "")[:100],
+            mode="kenpechi_video",
+            tokens_spent=TOKEN_COST_KENPECHI,
+        ))
+
+        return JSONResponse(content={"job_id": job_id})
+
+    except Exception as e:
+        logger.exception("Kenpechi video submit error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_KENPECHI)
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
+
+
 @app.get("/api/video/status/{job_id}")
 async def api_video_status(job_id: str, request: Request):
     """Poll video generation status. Returns video base64 when complete."""

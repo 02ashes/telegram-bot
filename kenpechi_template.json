@@ -1,0 +1,2837 @@
+{
+  "833": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "1398",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "Выборка модели SD3"
+    }
+  },
+  "834": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "1400",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "Выборка модели SD3"
+    }
+  },
+  "846": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "851",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "1st_Math Ex"
+    }
+  },
+  "851": {
+    "inputs": {
+      "value": 2.5
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "1st_Second"
+    }
+  },
+  "853": {
+    "inputs": {
+      "value": 7
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "Total_Steps"
+    }
+  },
+  "860": {
+    "inputs": {
+      "value": 720
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "Width"
+    }
+  },
+  "861": {
+    "inputs": {
+      "value": 1072
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "Height"
+    }
+  },
+  "864": {
+    "inputs": {
+      "image": "gallery_28.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image_1st"
+    }
+  },
+  "867": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 1,
+      "device": "cpu",
+      "image": [
+        "864",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "973": {
+    "inputs": {
+      "text": "watermark, text, subtitles, letterbox, pillarbox, frame, border, split screen, noise, artifacts, blur, vignette, 色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走,",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)_Negative"
+    }
+  },
+  "975": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones\n",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "1st_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1024": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "2nd_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1025": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "3rd_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1030": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "4th_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1098": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.9
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "HIGH/Deepthroat-W22-I2V-HN.safetensors",
+        "strength": 0.6
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_1st_High"
+    }
+  },
+  "1111": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "LOW/Deepthroat-W22-I2V-LN.safetensors",
+        "strength": 0.6
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_1st_Low"
+    }
+  },
+  "1112": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 0.8
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_2nd_High"
+    }
+  },
+  "1113": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 0.8
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_2nd_Low"
+    }
+  },
+  "1114": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "HIGH/Deepthroat-W22-I2V-HN.safetensors",
+        "strength": 0.6
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_3rd_High"
+    }
+  },
+  "1115": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors",
+        "strength": 0.3
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "LOW/Deepthroat-W22-I2V-LN.safetensors",
+        "strength": 0.5999999999999996
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_3rd_Low"
+    }
+  },
+  "1116": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors",
+        "strength": 0.8
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "HIGH/Deepthroat-W22-I2V-HN.safetensors",
+        "strength": 0.6
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_4th_High"
+    }
+  },
+  "1117": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors",
+        "strength": 0.5
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "LOW/Deepthroat-W22-I2V-LN.safetensors",
+        "strength": 0.6
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ],
+      "clip": [
+        "1116",
+        1
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_4th_Low"
+    }
+  },
+  "1133": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors",
+        "strength": 0.6
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 1
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_5th_High"
+    }
+  },
+  "1135": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.5
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors",
+        "strength": 0.6
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 1
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_5th_Low"
+    }
+  },
+  "1139": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "5th_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1194": {
+    "inputs": {
+      "value": 3
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "Split_Steps"
+    }
+  },
+  "1270": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "Structual_Repulsion_Boost"
+    }
+  },
+  "1271": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "SVI_Motion_Strength"
+    }
+  },
+  "1308": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": false,
+        "lora": "LOW/F4c3spl4sh-low-k3nk.safetensors",
+        "strength": 0.5
+      },
+      "lora_2": {
+        "on": false,
+        "lora": "LOW/Oral-insertion-low-v1.0.safetensors",
+        "strength": 0.3
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "None",
+        "strength": 1
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "None",
+        "strength": 1
+      },
+      "➕ Add Lora": ""
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)"
+    }
+  },
+  "1309": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "HIGH/DR34ML4Y_HIGH_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "HIGH/NSFW-22-H-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/wan22-mouthfull-140epoc-high-k3nk.safetensors",
+        "strength": 0.8
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 0.5
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_6th_High"
+    }
+  },
+  "1310": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "LOW/DR34ML4Y_LOW_V2.safetensors",
+        "strength": 0.8
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "LOW/NSFW-22-L-e8.safetensors",
+        "strength": 0.6
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "NSFW_pack/wan22-mouthfull-152epoc-low-k3nk.safetensors",
+        "strength": 0.8
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "erect_penis_epoch_80.safetensors",
+        "strength": 0.5
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)_6th_Low"
+    }
+  },
+  "1313": {
+    "inputs": {
+      "text": "d0ubl3_bj, A close-up POV view looking steeply down at two slim pale gothic girls performing a double blowjob on a man's average-sized erect penis. Both girls kneel side by side on a dark wooden floor, their faces pressed close together cheek to cheek. The girl on the left has short messy black hair, pale skin, dark eyeliner, gothic chest tattoos, blue-grey eyes looking up at the camera. The girl on the right has short messy black hair with bangs, pale skin, heavy black eyeliner, small ear piercings, dark eyes looking up at the camera. Both girls are topless and nude, their tongues extended together licking both sides of the shaft simultaneously, taking turns wrapping their lips around the head. The girl on the left grips the base with her right hand, slowly stroking up and down. Saliva glistens on the shaft and both girls' lips. They alternate rhythmically — one sucks the tip while the other licks the side, then they switch. Both maintain eager upward eye contact through their lashes. Harsh direct flash lighting from above, dark wooden floor and white radiator visible in the background. A water bottle sits on the floor behind them. Amateur snapshot quality, warm tones",
+      "clip": [
+        "1383:1474",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "6th_CLIP Text Encode (Prompt)"
+    }
+  },
+  "1330": {
+    "inputs": {
+      "value": 2.5
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "2nd_Second"
+    }
+  },
+  "1331": {
+    "inputs": {
+      "value": 2.5
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "3rd_Second"
+    }
+  },
+  "1332": {
+    "inputs": {
+      "value": 2
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "4th_Second"
+    }
+  },
+  "1333": {
+    "inputs": {
+      "value": 1.5
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "5th_Second"
+    }
+  },
+  "1334": {
+    "inputs": {
+      "value": 4
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "6th_Second"
+    }
+  },
+  "1341": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "1330",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "2nd_Math_Ex"
+    }
+  },
+  "1342": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "1331",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "3rd_Math Ex"
+    }
+  },
+  "1343": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "1332",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "4th_Math Ex"
+    }
+  },
+  "1344": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "1333",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "5th_Math Ex"
+    }
+  },
+  "1345": {
+    "inputs": {
+      "expression": "a*b+1\n",
+      "a": [
+        "1334",
+        0
+      ],
+      "b": [
+        "1363",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "6th_Math Ex"
+    }
+  },
+  "1347": {
+    "inputs": {
+      "value": 4
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "RIFE_VFI_Multiplier"
+    }
+  },
+  "1348": {
+    "inputs": {
+      "expression": "a*b\n",
+      "a": [
+        "1363",
+        0
+      ],
+      "b": [
+        "1347",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "RIFE_VFI_Math Ex"
+    }
+  },
+  "1363": {
+    "inputs": {
+      "value": 16
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "Frame_Rate"
+    }
+  },
+  "1385": {
+    "inputs": {
+      "model": [
+        "1365:1473",
+        0
+      ]
+    },
+    "class_type": "Context (rgthree)",
+    "_meta": {
+      "title": "Context (rgthree)"
+    }
+  },
+  "1386": {
+    "inputs": {},
+    "class_type": "Context (rgthree)",
+    "_meta": {
+      "title": "Context (rgthree)"
+    }
+  },
+  "1387": {
+    "inputs": {
+      "ctx_01": [
+        "1385",
+        0
+      ],
+      "ctx_02": [
+        "1386",
+        0
+      ]
+    },
+    "class_type": "Context Switch (rgthree)",
+    "_meta": {
+      "title": "Context Switch (rgthree)"
+    }
+  },
+  "1388": {
+    "inputs": {
+      "ctx_01": [
+        "1389",
+        0
+      ],
+      "ctx_02": [
+        "1390",
+        0
+      ]
+    },
+    "class_type": "Context Switch (rgthree)",
+    "_meta": {
+      "title": "Context Switch (rgthree)"
+    }
+  },
+  "1389": {
+    "inputs": {
+      "model": [
+        "1365:865",
+        0
+      ]
+    },
+    "class_type": "Context (rgthree)",
+    "_meta": {
+      "title": "Context (rgthree)"
+    }
+  },
+  "1390": {
+    "inputs": {},
+    "class_type": "Context (rgthree)",
+    "_meta": {
+      "title": "Context (rgthree)"
+    }
+  },
+  "1398": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "1399",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "1399": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "1383:1476",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "1400": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "1401",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "1401": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "1383:869",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "1413": {
+    "inputs": {
+      "lora_name": "HIGH/Wan_2_2_I2V_A14B_HIGH_lightx2v_4step_lora_v1030_rank_64_bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "1387",
+        1
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "Lightx2v_Lora_High"
+    }
+  },
+  "1414": {
+    "inputs": {
+      "lora_name": "LOW/Wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
+      "strength_model": 1,
+      "model": [
+        "1388",
+        1
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "Lightx2v_Lora_Low"
+    }
+  },
+  "1415": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "1st_Seed (rgthree)"
+    }
+  },
+  "1416": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "2nd_Seed (rgthree)"
+    }
+  },
+  "1417": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "3rd_Seed (rgthree)"
+    }
+  },
+  "1418": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "4th_Seed (rgthree)"
+    }
+  },
+  "1419": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "5th_Seed (rgthree)"
+    }
+  },
+  "1420": {
+    "inputs": {
+      "seed": -1
+    },
+    "class_type": "Seed (rgthree)",
+    "_meta": {
+      "title": "6th_Seed (rgthree)"
+    }
+  },
+  "1365:1473": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Загрузить модель диффузии"
+    }
+  },
+  "1365:865": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Загрузить модель диффузии"
+    }
+  },
+  "815:823": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuva444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "815:748",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "815:874": {
+    "inputs": {
+      "overlap": 5,
+      "overlap_side": "source",
+      "overlap_mode": "linear_blend",
+      "source_images": [
+        "814:8",
+        0
+      ],
+      "new_images": [
+        "815:748",
+        0
+      ]
+    },
+    "class_type": "ImageBatchExtendWithOverlap",
+    "_meta": {
+      "title": "Image Batch Extend With Overlap"
+    }
+  },
+  "815:705": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1416",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "815:877",
+        0
+      ],
+      "positive": [
+        "815:873",
+        0
+      ],
+      "negative": [
+        "815:873",
+        2
+      ],
+      "latent_image": [
+        "815:873",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_2nd_High"
+    }
+  },
+  "815:707": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1416",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "815:878",
+        0
+      ],
+      "positive": [
+        "815:873",
+        1
+      ],
+      "negative": [
+        "815:873",
+        2
+      ],
+      "latent_image": [
+        "815:705",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_2nd_Low"
+    }
+  },
+  "815:748": {
+    "inputs": {
+      "samples": [
+        "815:707",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "815:871": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1112",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "815:877": {
+    "inputs": {
+      "model": [
+        "815:871",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "815:876": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1113",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "815:878": {
+    "inputs": {
+      "model": [
+        "815:876",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "815:873": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "1341",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "1024",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ],
+      "prev_latent": [
+        "814:90",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "1046:1421": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuva444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "1046:1424",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1046:1422": {
+    "inputs": {
+      "overlap": 5,
+      "overlap_side": "source",
+      "overlap_mode": "linear_blend",
+      "source_images": [
+        "815:874",
+        2
+      ],
+      "new_images": [
+        "1046:1424",
+        0
+      ]
+    },
+    "class_type": "ImageBatchExtendWithOverlap",
+    "_meta": {
+      "title": "Image Batch Extend With Overlap"
+    }
+  },
+  "1046:1423": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1417",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "1046:1426",
+        0
+      ],
+      "positive": [
+        "1046:1430",
+        1
+      ],
+      "negative": [
+        "1046:1430",
+        2
+      ],
+      "latent_image": [
+        "1046:1429",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_3rd_Low"
+    }
+  },
+  "1046:1424": {
+    "inputs": {
+      "samples": [
+        "1046:1423",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "1046:1425": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1115",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1046:1426": {
+    "inputs": {
+      "model": [
+        "1046:1425",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1046:1427": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1114",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1046:1428": {
+    "inputs": {
+      "model": [
+        "1046:1427",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1046:1429": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1417",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "1046:1428",
+        0
+      ],
+      "positive": [
+        "1046:1430",
+        0
+      ],
+      "negative": [
+        "1046:1430",
+        2
+      ],
+      "latent_image": [
+        "1046:1430",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_3rd_High"
+    }
+  },
+  "1046:1430": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "1342",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "1025",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ],
+      "prev_latent": [
+        "815:707",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "1062:1431": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuva444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "1062:1434",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1062:1432": {
+    "inputs": {
+      "overlap": 5,
+      "overlap_side": "source",
+      "overlap_mode": "linear_blend",
+      "source_images": [
+        "1046:1422",
+        2
+      ],
+      "new_images": [
+        "1062:1434",
+        0
+      ]
+    },
+    "class_type": "ImageBatchExtendWithOverlap",
+    "_meta": {
+      "title": "Image Batch Extend With Overlap"
+    }
+  },
+  "1062:1433": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1418",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "1062:1438",
+        0
+      ],
+      "positive": [
+        "1062:1440",
+        1
+      ],
+      "negative": [
+        "1062:1440",
+        2
+      ],
+      "latent_image": [
+        "1062:1439",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_4th_Low"
+    }
+  },
+  "1062:1434": {
+    "inputs": {
+      "samples": [
+        "1062:1433",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "1062:1435": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1116",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1062:1436": {
+    "inputs": {
+      "model": [
+        "1062:1435",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1062:1437": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1117",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1062:1438": {
+    "inputs": {
+      "model": [
+        "1062:1437",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1062:1439": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1418",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "1062:1436",
+        0
+      ],
+      "positive": [
+        "1062:1440",
+        0
+      ],
+      "negative": [
+        "1062:1440",
+        2
+      ],
+      "latent_image": [
+        "1062:1440",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_4th_High"
+    }
+  },
+  "1062:1440": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "1343",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "1030",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ],
+      "prev_latent": [
+        "1046:1423",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "1161:1450": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuva444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "1161:1453",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1161:1451": {
+    "inputs": {
+      "overlap": 5,
+      "overlap_side": "source",
+      "overlap_mode": "linear_blend",
+      "source_images": [
+        "1062:1432",
+        2
+      ],
+      "new_images": [
+        "1161:1453",
+        0
+      ]
+    },
+    "class_type": "ImageBatchExtendWithOverlap",
+    "_meta": {
+      "title": "Image Batch Extend With Overlap"
+    }
+  },
+  "1161:1452": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1419",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "1161:1457",
+        0
+      ],
+      "positive": [
+        "1161:1459",
+        1
+      ],
+      "negative": [
+        "1161:1459",
+        2
+      ],
+      "latent_image": [
+        "1161:1458",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_5th_Low"
+    }
+  },
+  "1161:1453": {
+    "inputs": {
+      "samples": [
+        "1161:1452",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "1161:1454": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1133",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1161:1455": {
+    "inputs": {
+      "model": [
+        "1161:1454",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1161:1456": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1135",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1161:1457": {
+    "inputs": {
+      "model": [
+        "1161:1456",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1161:1458": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1419",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "1161:1455",
+        0
+      ],
+      "positive": [
+        "1161:1459",
+        0
+      ],
+      "negative": [
+        "1161:1459",
+        2
+      ],
+      "latent_image": [
+        "1161:1459",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_5th_High"
+    }
+  },
+  "1161:1459": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "1344",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "1139",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ],
+      "prev_latent": [
+        "1062:1433",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "1297:1460": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuva444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "1297:1462",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1297:1461": {
+    "inputs": {
+      "overlap": 5,
+      "overlap_side": "source",
+      "overlap_mode": "linear_blend",
+      "source_images": [
+        "1161:1451",
+        2
+      ],
+      "new_images": [
+        "1297:1462",
+        0
+      ]
+    },
+    "class_type": "ImageBatchExtendWithOverlap",
+    "_meta": {
+      "title": "Image Batch Extend With Overlap"
+    }
+  },
+  "1297:1462": {
+    "inputs": {
+      "samples": [
+        "1297:1468",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "1297:1463": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1309",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1297:1464": {
+    "inputs": {
+      "model": [
+        "1297:1463",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1297:1465": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1310",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "1297:1466": {
+    "inputs": {
+      "model": [
+        "1297:1465",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "1297:1467": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1420",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "1297:1464",
+        0
+      ],
+      "positive": [
+        "1297:1469",
+        0
+      ],
+      "negative": [
+        "1297:1469",
+        2
+      ],
+      "latent_image": [
+        "1297:1469",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_6th_High"
+    }
+  },
+  "1297:1468": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1420",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "1297:1466",
+        0
+      ],
+      "positive": [
+        "1297:1469",
+        1
+      ],
+      "negative": [
+        "1297:1469",
+        2
+      ],
+      "latent_image": [
+        "1297:1467",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_6th_Low"
+    }
+  },
+  "1297:1469": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "1345",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "1313",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ],
+      "prev_latent": [
+        "1161:1452",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "814:854": {
+    "inputs": {
+      "model": [
+        "814:848",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "814:848": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1098",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "814:852": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default",
+      "model": [
+        "1111",
+        0
+      ],
+      "conditioning": [
+        "973",
+        0
+      ]
+    },
+    "class_type": "WanVideoNAG",
+    "_meta": {
+      "title": "WanVideoNAG"
+    }
+  },
+  "814:855": {
+    "inputs": {
+      "model": [
+        "814:852",
+        0
+      ]
+    },
+    "class_type": "CFGZeroStar",
+    "_meta": {
+      "title": "CFGZeroStar"
+    }
+  },
+  "814:227": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "1415",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "1194",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "814:854",
+        0
+      ],
+      "positive": [
+        "814:850",
+        0
+      ],
+      "negative": [
+        "814:850",
+        2
+      ],
+      "latent_image": [
+        "814:850",
+        3
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)_1st_High"
+    }
+  },
+  "814:90": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "1415",
+        0
+      ],
+      "steps": [
+        "853",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "1194",
+        0
+      ],
+      "end_at_step": 999,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "814:855",
+        0
+      ],
+      "positive": [
+        "814:850",
+        1
+      ],
+      "negative": [
+        "814:850",
+        2
+      ],
+      "latent_image": [
+        "814:227",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)1st_Low"
+    }
+  },
+  "814:8": {
+    "inputs": {
+      "samples": [
+        "814:90",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Декодировать VAE"
+    }
+  },
+  "814:850": {
+    "inputs": {
+      "width": [
+        "860",
+        0
+      ],
+      "height": [
+        "861",
+        0
+      ],
+      "length": [
+        "846",
+        0
+      ],
+      "batch_size": 1,
+      "mode": "NORMAL",
+      "middle_frame_ratio": 0.5,
+      "video_frame_offset": 0,
+      "long_video_mode": "SVI",
+      "continue_frames_count": 1,
+      "high_noise_mid_strength": 1,
+      "low_noise_start_strength": 0.7,
+      "low_noise_mid_strength": 1,
+      "low_noise_end_strength": 0.2,
+      "structural_repulsion_boost": [
+        "1270",
+        0
+      ],
+      "enable_middle_frame": 1,
+      "positive": [
+        "975",
+        0
+      ],
+      "negative": [
+        "973",
+        0
+      ],
+      "vae": [
+        "1383:872",
+        0
+      ],
+      "start_image": [
+        "867",
+        0
+      ],
+      "clip_vision_start_image": [
+        "1383:870",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedI2V",
+    "_meta": {
+      "title": "Wan Advanced I2V (Ultimate)"
+    }
+  },
+  "814:843": {
+    "inputs": {
+      "frame_rate": [
+        "1363",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Wan2.2-sub-save/temp_save",
+      "format": "video/ffv1-mkv",
+      "level": "3",
+      "coder": "1",
+      "context": "1",
+      "gop_size": 1,
+      "slices": "16",
+      "slicecrc": "1",
+      "pix_fmt": "yuv444p",
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "814:8",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1303:1470": {
+    "inputs": {
+      "anything": [
+        "1297:1461",
+        2
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  },
+  "1303:1471": {
+    "inputs": {
+      "frame_rate": [
+        "1348",
+        1
+      ],
+      "loop_count": 0,
+      "filename_prefix": "Video/wanvideo_20260315",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 18,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "1303:1472",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1303:1472": {
+    "inputs": {
+      "ckpt_name": "rife49.pth",
+      "clear_cache_after_n_frames": 10,
+      "multiplier": [
+        "1347",
+        0
+      ],
+      "fast_mode": true,
+      "ensemble": true,
+      "scale_factor": 1,
+      "dtype": "float32",
+      "torch_compile": false,
+      "batch_size": 1,
+      "frames": [
+        "1303:1470",
+        0
+      ]
+    },
+    "class_type": "RIFE VFI",
+    "_meta": {
+      "title": "RIFE VFI (recommend rife47 and rife49)"
+    }
+  },
+  "1383:1474": {
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "cpu"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Загрузить CLIP"
+    }
+  },
+  "1383:872": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Загрузить VAE"
+    }
+  },
+  "1383:1475": {
+    "inputs": {
+      "clip_name": "clip_vision_h.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Загрузить видение CLIP"
+    }
+  },
+  "1383:870": {
+    "inputs": {
+      "crop": "center",
+      "clip_vision": [
+        "1383:1475",
+        0
+      ],
+      "image": [
+        "867",
+        0
+      ]
+    },
+    "class_type": "CLIPVisionEncode",
+    "_meta": {
+      "title": "Кодирование видения CLIP"
+    }
+  },
+  "1383:1476": {
+    "inputs": {
+      "lora_name": "HIGH/SVI_v2_PRO_Wan2.2-I2V-A14B_HIGH_lora_rank_128_fp16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "1413",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "SVI LORA"
+    }
+  },
+  "1383:869": {
+    "inputs": {
+      "lora_name": "LOW/SVI_v2_PRO_Wan2.2-I2V-A14B_LOW_lora_rank_128_fp16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "1414",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "SVI LORA"
+    }
+  }
+}

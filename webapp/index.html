@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=31">
+    <link rel="stylesheet" href="/style.css?v=32">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -233,96 +233,66 @@
                 </div>
             </div>
 
-            <!-- VIDEO: Audio Settings -->
-            <div class="section video-only" id="audioSection" style="display:none;">
-                <div class="audio-toggle-row">
-                    <div class="section-title">Audio</div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="audioToggle">
-                        <span class="toggle-slider"></span>
-                    </label>
+            <!-- VIDEO: Kenpechi SVI Scenes -->
+            <div class="section video-only" id="kenpechiScenesSection" style="display:none;">
+                <div class="section-title">Scenes <span style="opacity:0.5;font-size:0.7em">(6 max)</span></div>
+                <div id="scenesContainer"></div>
+                <div class="kenpechi-global-toggle" id="kenpechiAdvToggle"
+                    style="cursor:pointer; padding:6px 0; opacity:0.6; font-size:0.72rem; letter-spacing:1px; text-align:center;">
+                    ▾ Advanced Settings
                 </div>
-                <div class="audio-settings" id="audioSettings" style="display:none;">
-                    <textarea id="audioPromptInput"
-                        placeholder="Audio prompt (soft moaning, breathing, water dripping...)" rows="2"></textarea>
-                    <div class="section-title sub">Audio Negative</div>
-                    <textarea id="audioNegativeInput" rows="1">music, speech, talking, noise, static</textarea>
+                <div id="kenpechiAdvSettings" style="display:none;">
+                    <div class="video-settings-grid" style="margin-top:8px;">
+                        <div class="setting">
+                            <label>Shift: <span id="kenShiftVal">5</span></label>
+                            <input type="range" id="kenShiftSlider" min="1" max="10" step="0.5" value="5"
+                                oninput="document.getElementById('kenShiftVal').textContent=this.value">
+                        </div>
+                        <div class="setting">
+                            <label>Repulsion: <span id="kenRepVal">1</span></label>
+                            <input type="range" id="kenRepSlider" min="0" max="3" step="0.1" value="1"
+                                oninput="document.getElementById('kenRepVal').textContent=this.value">
+                        </div>
+                        <div class="setting">
+                            <label>Motion: <span id="kenMotionVal">1</span></label>
+                            <input type="range" id="kenMotionSlider" min="0" max="3" step="0.1" value="1"
+                                oninput="document.getElementById('kenMotionVal').textContent=this.value">
+                        </div>
+                        <div class="setting">
+                            <label>RIFE: <span id="kenRifeVal">4</span>x</label>
+                            <select id="kenRifeSelect">
+                                <option value="2">2x</option>
+                                <option value="4" selected>4x</option>
+                            </select>
+                        </div>
+                        <div class="setting">
+                            <label>Steps: <span id="kenStepsVal">7</span></label>
+                            <input type="range" id="kenStepsSlider" min="4" max="15" step="1" value="7"
+                                oninput="document.getElementById('kenStepsVal').textContent=this.value">
+                        </div>
+                        <div class="setting">
+                            <label>Resolution:</label>
+                            <select id="kenResSelect">
+                                <option value="720x1072" selected>720×1072</option>
+                                <option value="480x832">480×832</option>
+                                <option value="720x1280">720×1280</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- VIDEO: Video Settings -->
-            <div class="section video-only" id="videoSettingsSection" style="display:none;">
-                <div class="section-title">Video Settings</div>
-                <div class="video-settings-grid">
-                    <div class="setting">
-                        <label>Frames: <span id="framesLabel">33</span></label>
-                        <input type="range" id="framesSlider" min="17" max="129" step="4" value="33">
+            <!-- LoRA Modal -->
+            <div class="lora-modal-overlay" id="loraModalOverlay" style="display:none;">
+                <div class="lora-modal">
+                    <div class="lora-modal-header">
+                        <span id="loraModalTitle">Scene 1 — LoRAs</span>
+                        <button class="lora-modal-close" id="loraModalClose">✕</button>
                     </div>
-                    <div class="setting">
-                        <label>FPS: <span id="fpsLabel">16</span></label>
-                        <select id="fpsSelect">
-                            <option value="16" selected>16</option>
-                            <option value="24">24</option>
-                        </select>
+                    <div class="lora-modal-body" id="loraModalBody">
+                        <!-- Populated by JS -->
                     </div>
-                    <div class="setting">
-                        <label>Resolution:</label>
-                        <select id="resolutionSelect">
-                            <option value="auto" selected>Auto (from photo)</option>
-                            <option value="480x832">480×832</option>
-                            <option value="720x1280">720×1280</option>
-                        </select>
-                    </div>
-                    <div class="setting" style="grid-column: 1 / -1;">
-                        <label>Action:</label>
-                        <select id="actionSelect">
-                            <option value="none" selected>None</option>
-                            <option value="blowjob">POV Blowjob</option>
-                            <option value="deepthroat">Deepthroat</option>
-                            <option value="doggy">Front Doggy</option>
-                            <option value="missionary">POV Missionary</option>
-                            <option value="side_sex">Side Sex</option>
-                            <option value="cowgirl">Reverse Cowgirl</option>
-                            <option value="fingering">Fingering</option>
-                            <option value="nipple">Nipple Stroke</option>
-                            <option value="allinone">All-In-One</option>
-                        </select>
-                    </div>
-                    <div class="setting" id="aioTriggerRow" style="display:none; grid-column: 1 / -1;">
-                        <label>Trigger:</label>
-                        <div class="preset-row" id="aioTriggers">
-                            <button class="preset-btn" data-trigger="m15510n4ry">m15510n4ry</button>
-                            <button class="preset-btn" data-trigger="bl0wj0b">bl0wj0b</button>
-                            <button class="preset-btn" data-trigger="d0ubl3_bj">d0ubl3_bj</button>
-                            <button class="preset-btn" data-trigger="c0wg1rl">c0wg1rl</button>
-                            <button class="preset-btn" data-trigger="d0gg1e">d0gg1e</button>
-                        </div>
-                    </div>
-                    <div class="setting">
-                        <label>Shift: <span id="shiftValue">5</span></label>
-                        <input type="range" id="shiftSlider" min="1" max="10" step="0.5" value="5"
-                            oninput="document.getElementById('shiftValue').textContent=this.value">
-                    </div>
-                    <div class="setting">
-                        <label>CFG High: <span id="cfgHighValue">5</span></label>
-                        <input type="range" id="cfgHighSlider" min="1" max="10" step="0.5" value="5"
-                            oninput="document.getElementById('cfgHighValue').textContent=this.value">
-                    </div>
-                    <div class="setting">
-                        <label>CFG Low: <span id="cfgLowValue">1</span></label>
-                        <input type="range" id="cfgLowSlider" min="1" max="5" step="0.5" value="1"
-                            oninput="document.getElementById('cfgLowValue').textContent=this.value">
-                    </div>
-                    <div class="setting">
-                        <label>LoRA: <span id="loraStrValue">1.3</span></label>
-                        <input type="range" id="loraStrSlider" min="0.5" max="2.0" step="0.1" value="1.3"
-                            oninput="document.getElementById('loraStrValue').textContent=this.value">
-                    </div>
-                    <div class="setting">
-                        <label>Steps: <span id="stepsValue">20</span></label>
-                        <input type="range" id="stepsSlider" min="4" max="30" step="1" value="20"
-                            oninput="document.getElementById('stepsValue').textContent=this.value">
-                    </div>
+                    <button class="lora-modal-save" id="loraModalSave">✅ Save & Close</button>
                 </div>
             </div>
 

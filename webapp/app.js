@@ -951,6 +951,13 @@ function getImageDataURL() {
 // ============================================================
 generateBtn.addEventListener('click', async () => {
     const prompt = document.getElementById('promptInput').value.trim();
+
+    // Video mode uses per-scene prompts, not the shared prompt field
+    if (currentMode === 'video') {
+        await generateKenpechiVideo();
+        return;
+    }
+
     if (!prompt) {
         alert('Enter a prompt!');
         return;
@@ -961,8 +968,7 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Video mode: always 1 (too slow for batch)
-    const count = (currentMode === 'video') ? 1 : batchCount;
+    const count = batchCount;
 
     for (let i = 0; i < count; i++) {
         if (count > 1) {
@@ -972,8 +978,6 @@ generateBtn.addEventListener('click', async () => {
 
         if (currentMode === 'inpaint') {
             await generateInpaint(prompt);
-        } else if (currentMode === 'video') {
-            await generateVideo(prompt);
         } else if (currentMode === 'dark') {
             await generateDarkEdit(prompt);
         } else {
@@ -2284,3 +2288,356 @@ if (premiumBtn) {
         }
     });
 }
+
+// ============================================================
+// Kenpechi SVI — 6-Scene Multi-Pass Video
+// ============================================================
+
+// Available LoRAs (pairs: HIGH and LOW variants)
+const KENPECHI_LORAS_HIGH = [
+    'HIGH/DR34ML4Y_HIGH_V2.safetensors',
+    'HIGH/NSFW-22-H-e8.safetensors',
+    'HIGH/Deepthroat-W22-I2V-HN.safetensors',
+    'HIGH/F4c3spl4sh-high-k3nk.safetensors',
+    'HIGH/Oral-insertion-high-v1.0.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-Double-Blowjob-HIGH-v1.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-Body-Cumshot-HIGH-v1.safetensors',
+    'NSFW_pack/wan22-mouthfull-140epoc-high-k3nk.safetensors',
+    'erect_penis_epoch_80.safetensors',
+];
+
+const KENPECHI_LORAS_LOW = [
+    'LOW/DR34ML4Y_LOW_V2.safetensors',
+    'LOW/NSFW-22-L-e8.safetensors',
+    'LOW/Deepthroat-W22-I2V-LN.safetensors',
+    'LOW/F4c3spl4sh-low-k3nk.safetensors',
+    'LOW/Oral-insertion-low-v1.0.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-Double-Blowjob-LOW-v1.safetensors',
+    'NSFW_pack/WAN-2.2-I2V-Body-Cumshot-LOW-v1.safetensors',
+    'NSFW_pack/wan22-mouthfull-152epoc-low-k3nk.safetensors',
+    'erect_penis_epoch_80.safetensors',
+];
+
+// Default scene configs
+const DEFAULT_DURATIONS = [2.5, 2.5, 2.5, 2.0, 1.5, 4.0];
+const DEFAULT_HIGH_LORAS = [
+    { on: true, lora: 'HIGH/DR34ML4Y_HIGH_V2.safetensors', strength: 0.9 },
+    { on: true, lora: 'HIGH/NSFW-22-H-e8.safetensors', strength: 0.6 },
+    { on: false, lora: 'None', strength: 1.0 },
+    { on: false, lora: 'None', strength: 1.0 },
+];
+const DEFAULT_LOW_LORAS = [
+    { on: true, lora: 'LOW/DR34ML4Y_LOW_V2.safetensors', strength: 0.8 },
+    { on: true, lora: 'LOW/NSFW-22-L-e8.safetensors', strength: 0.6 },
+    { on: false, lora: 'None', strength: 1.0 },
+    { on: false, lora: 'None', strength: 1.0 },
+];
+
+// Scene state (6 scenes)
+const kenpechiScenes = [];
+for (let i = 0; i < 6; i++) {
+    kenpechiScenes.push({
+        prompt: '',
+        duration: DEFAULT_DURATIONS[i],
+        high_loras: JSON.parse(JSON.stringify(DEFAULT_HIGH_LORAS)),
+        low_loras: JSON.parse(JSON.stringify(DEFAULT_LOW_LORAS)),
+    });
+}
+
+let activeLoraScene = 0; // Which scene the LoRA modal is editing
+
+function loraBaseName(path) {
+    return path.replace(/^(HIGH|LOW|NSFW_pack)\//, '').replace('.safetensors', '');
+}
+
+function buildSceneCards() {
+    const container = document.getElementById('scenesContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+        const scene = kenpechiScenes[i];
+        const card = document.createElement('div');
+        card.className = 'scene-card';
+        card.innerHTML = `
+            <div class="scene-card-header">
+                <span class="scene-card-num">SCENE ${i + 1}</span>
+                <div class="scene-card-duration">
+                    <input type="number" step="0.5" min="0.5" max="7" value="${scene.duration}" data-scene="${i}" class="scene-dur-input">
+                    <span>s</span>
+                </div>
+                <button class="scene-card-gear" data-scene="${i}" title="LoRA settings">⚙️</button>
+            </div>
+            <textarea rows="2" placeholder="Scene ${i + 1} prompt..." data-scene="${i}" class="scene-prompt-input">${scene.prompt}</textarea>
+            <div class="scene-card-lora-badges" id="loraBadges${i}"></div>
+        `;
+        container.appendChild(card);
+        updateLoraBadges(i);
+    }
+
+    // Bind events
+    container.querySelectorAll('.scene-prompt-input').forEach(el => {
+        el.addEventListener('input', (e) => {
+            kenpechiScenes[parseInt(e.target.dataset.scene)].prompt = e.target.value;
+        });
+    });
+    container.querySelectorAll('.scene-dur-input').forEach(el => {
+        el.addEventListener('change', (e) => {
+            kenpechiScenes[parseInt(e.target.dataset.scene)].duration = parseFloat(e.target.value) || 2.5;
+        });
+    });
+    container.querySelectorAll('.scene-card-gear').forEach(el => {
+        el.addEventListener('click', (e) => {
+            openLoraModal(parseInt(e.target.dataset.scene));
+        });
+    });
+}
+
+function updateLoraBadges(sceneIdx) {
+    const badge = document.getElementById(`loraBadges${sceneIdx}`);
+    if (!badge) return;
+    const scene = kenpechiScenes[sceneIdx];
+    const active = [];
+    scene.high_loras.forEach(l => { if (l.on && l.lora !== 'None') active.push(loraBaseName(l.lora)); });
+    scene.low_loras.forEach(l => { if (l.on && l.lora !== 'None') active.push(loraBaseName(l.lora)); });
+    // Deduplicate
+    const unique = [...new Set(active)];
+    badge.innerHTML = unique.map(name => `<span class="lora-badge">${name}</span>`).join('');
+}
+
+// LoRA Modal
+function openLoraModal(sceneIdx) {
+    activeLoraScene = sceneIdx;
+    const overlay = document.getElementById('loraModalOverlay');
+    const title = document.getElementById('loraModalTitle');
+    const body = document.getElementById('loraModalBody');
+    title.textContent = `Scene ${sceneIdx + 1} — LoRAs`;
+
+    const scene = kenpechiScenes[sceneIdx];
+    let html = '<div class="lora-group-title">🔴 HIGH Model LoRAs</div>';
+    for (let s = 0; s < 4; s++) {
+        const lora = scene.high_loras[s];
+        html += buildLoraSlotHTML('high', s, lora, KENPECHI_LORAS_HIGH);
+    }
+    html += '<div class="lora-group-title">🔵 LOW Model LoRAs</div>';
+    for (let s = 0; s < 4; s++) {
+        const lora = scene.low_loras[s];
+        html += buildLoraSlotHTML('low', s, lora, KENPECHI_LORAS_LOW);
+    }
+    body.innerHTML = html;
+
+    // Bind strength sliders
+    body.querySelectorAll('.lora-str-slider').forEach(el => {
+        el.addEventListener('input', () => {
+            el.nextElementSibling.textContent = parseFloat(el.value).toFixed(1);
+        });
+    });
+
+    overlay.style.display = 'flex';
+}
+
+function buildLoraSlotHTML(type, slot, lora, loraList) {
+    const selId = `lora_${type}_${slot}`;
+    const strId = `str_${type}_${slot}`;
+    let options = `<option value="None"${!lora.on || lora.lora === 'None' ? ' selected' : ''}>Off</option>`;
+    loraList.forEach(name => {
+        const sel = lora.on && lora.lora === name ? ' selected' : '';
+        options += `<option value="${name}"${sel}>${loraBaseName(name)}</option>`;
+    });
+    return `
+        <div class="lora-slot">
+            <select id="${selId}">${options}</select>
+            <input type="range" class="lora-str-slider" id="${strId}" min="0.1" max="2.0" step="0.1" value="${lora.strength}">
+            <span class="lora-str-label">${lora.strength.toFixed(1)}</span>
+        </div>
+    `;
+}
+
+function closeLoraModal() {
+    // Save values back to state
+    const scene = kenpechiScenes[activeLoraScene];
+    for (let s = 0; s < 4; s++) {
+        const highSel = document.getElementById(`lora_high_${s}`);
+        const highStr = document.getElementById(`str_high_${s}`);
+        if (highSel) {
+            scene.high_loras[s] = {
+                on: highSel.value !== 'None',
+                lora: highSel.value === 'None' ? 'None' : highSel.value,
+                strength: parseFloat(highStr?.value || 1.0),
+            };
+        }
+        const lowSel = document.getElementById(`lora_low_${s}`);
+        const lowStr = document.getElementById(`str_low_${s}`);
+        if (lowSel) {
+            scene.low_loras[s] = {
+                on: lowSel.value !== 'None',
+                lora: lowSel.value === 'None' ? 'None' : lowSel.value,
+                strength: parseFloat(lowStr?.value || 1.0),
+            };
+        }
+    }
+    updateLoraBadges(activeLoraScene);
+    document.getElementById('loraModalOverlay').style.display = 'none';
+}
+
+// Bind modal close & save
+document.getElementById('loraModalClose')?.addEventListener('click', closeLoraModal);
+document.getElementById('loraModalSave')?.addEventListener('click', closeLoraModal);
+document.getElementById('loraModalOverlay')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeLoraModal();
+});
+
+// Advanced settings toggle
+document.getElementById('kenpechiAdvToggle')?.addEventListener('click', () => {
+    const adv = document.getElementById('kenpechiAdvSettings');
+    if (adv) adv.style.display = adv.style.display === 'none' ? '' : 'none';
+});
+
+// Build scene cards on page load
+buildSceneCards();
+
+// Override generateVideo for Kenpechi
+const _originalGenerateVideo = typeof generateVideo === 'function' ? generateVideo : null;
+
+async function generateKenpechiVideo() {
+    if (!originalImage) {
+        alert('Please upload a photo first');
+        return;
+    }
+
+    // Collect scenes (only non-empty prompts)
+    const scenes = kenpechiScenes
+        .filter(s => s.prompt.trim())
+        .map(s => ({
+            prompt: s.prompt,
+            duration: s.duration,
+            seed: -1,
+            high_loras: s.high_loras,
+            low_loras: s.low_loras,
+        }));
+
+    if (scenes.length === 0) {
+        alert('Please add a prompt to at least one scene');
+        return;
+    }
+
+    // Pad to 6 scenes if less (reuse last prompt)
+    while (scenes.length < 6) {
+        scenes.push({ ...scenes[scenes.length - 1], seed: -1 });
+    }
+
+    const generateBtn = document.getElementById('generateBtn');
+    const progressInfo = document.getElementById('progressInfo');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const resultSection = document.getElementById('resultSection');
+
+    // Get resolution
+    const resVal = document.getElementById('kenResSelect')?.value || '720x1072';
+    const [width, height] = resVal.split('x').map(Number);
+
+    // UI state
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+    progressInfo.style.display = '';
+    resultSection.style.display = 'none';
+    progressFill.style.width = '5%';
+    progressText.textContent = 'Submitting Kenpechi job...';
+
+    const cancelBtn = document.getElementById('cancelVideoBtn');
+    if (cancelBtn) cancelBtn.style.display = '';
+
+    try {
+        const imageDataURL = getImageDataURL();
+        const imageB64 = imageDataURL.split(',')[1];
+
+        const body = {
+            image: imageB64,
+            scenes: scenes,
+            negative: '',
+            width: width,
+            height: height,
+            steps: parseInt(document.getElementById('kenStepsSlider')?.value || 7),
+            split_steps: 3,
+            fps: 16,
+            rife_multiplier: parseInt(document.getElementById('kenRifeSelect')?.value || 4),
+            svi_motion_strength: parseFloat(document.getElementById('kenMotionSlider')?.value || 1.0),
+            repulsion_boost: parseFloat(document.getElementById('kenRepSlider')?.value || 1.0),
+            shift: parseFloat(document.getElementById('kenShiftSlider')?.value || 5.0),
+        };
+
+        const submitResp = await fetch('/api/video/kenpechi', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(body),
+        });
+
+        if (!submitResp.ok) {
+            const errData = await submitResp.json().catch(() => null);
+            throw new Error(errData?.error || `Server error: ${submitResp.status}`);
+        }
+
+        const submitData = await submitResp.json();
+        if (!submitData.job_id) throw new Error('No job_id in response');
+
+        currentVideoJobId = submitData.job_id;
+        console.log('Kenpechi job submitted:', currentVideoJobId);
+        progressFill.style.width = '10%';
+        progressText.textContent = 'Job queued...';
+
+        // Poll for status
+        let pollCount = 0;
+        const maxPolls = 600; // 30min max
+        while (pollCount < maxPolls) {
+            await new Promise(r => setTimeout(r, 3000));
+            pollCount++;
+
+            try {
+                const statusResp = await fetch(`/api/video/status/${currentVideoJobId}`, {
+                    headers: authHeaders(),
+                });
+                if (!statusResp.ok) continue;
+                const statusData = await statusResp.json();
+
+                if (statusData.status === 'COMPLETED') {
+                    progressFill.style.width = '100%';
+                    progressText.textContent = 'Done!';
+
+                    if (statusData.video) {
+                        const resultVideo = document.getElementById('resultVideo');
+                        const resultImage = document.getElementById('resultImage');
+                        lastResultB64 = statusData.video;
+                        lastResultType = 'video';
+                        resultVideo.src = 'data:video/mp4;base64,' + statusData.video;
+                        resultVideo.style.display = '';
+                        resultImage.style.display = 'none';
+                        resultSection.style.display = '';
+                        resultSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    break;
+                } else if (statusData.status === 'FAILED') {
+                    throw new Error(statusData.error || 'Job failed');
+                } else {
+                    const pct = Math.min(10 + pollCount * 0.5, 95);
+                    progressFill.style.width = pct + '%';
+                    progressText.textContent = statusData.status === 'IN_PROGRESS' ? 'Generating...' : 'Waiting for GPU...';
+                }
+            } catch (pollErr) {
+                console.warn('Poll error:', pollErr);
+            }
+        }
+
+    } catch (err) {
+        progressFill.style.width = '0%';
+        progressText.textContent = 'Error: ' + err.message;
+        alert('Error: ' + err.message);
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    }
+}
+
+// Monkey-patch: if mode is 'video', use Kenpechi instead of old generateVideo
+const _origPrepareAndGenerate = typeof prepareAndGenerate === 'function' ? prepareAndGenerate : null;
