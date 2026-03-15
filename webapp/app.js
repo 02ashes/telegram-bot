@@ -202,13 +202,25 @@ async function buyTokens(packageId) {
             body: JSON.stringify({ package: packageId }),
         });
         const data = await resp.json();
-        if (data.invoice_url && window.Telegram?.WebApp?.openInvoice) {
+        if (!resp.ok) {
+            alert(data.error || 'Failed to create invoice');
+            return;
+        }
+        if (!data.invoice_url) {
+            alert('No invoice URL received');
+            return;
+        }
+        if (window.Telegram?.WebApp?.openInvoice) {
             window.Telegram.WebApp.openInvoice(data.invoice_url, (status) => {
                 if (status === 'paid') loadProfile();
             });
+        } else {
+            // Fallback: open in browser
+            window.open(data.invoice_url, '_blank');
         }
     } catch (e) {
         console.error('buyTokens error:', e);
+        alert('Error: ' + e.message);
     }
 }
 
@@ -219,13 +231,24 @@ async function buyPremium() {
             headers: { 'Content-Type': 'application/json', ...authHeaders() },
         });
         const data = await resp.json();
-        if (data.invoice_url && window.Telegram?.WebApp?.openInvoice) {
+        if (!resp.ok) {
+            alert(data.error || 'Failed to create invoice');
+            return;
+        }
+        if (!data.invoice_url) {
+            alert('No invoice URL received');
+            return;
+        }
+        if (window.Telegram?.WebApp?.openInvoice) {
             window.Telegram.WebApp.openInvoice(data.invoice_url, (status) => {
                 if (status === 'paid') loadProfile();
             });
+        } else {
+            window.open(data.invoice_url, '_blank');
         }
     } catch (e) {
         console.error('buyPremium error:', e);
+        alert('Error: ' + e.message);
     }
 }
 
