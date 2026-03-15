@@ -185,30 +185,13 @@ async function loadProfile() {
 
         document.getElementById('profileName').textContent =
             window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
-        document.getElementById('profileId').textContent =
-            'ID: ' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '—');
+        document.getElementById('profileTokens').textContent = data.tokens ?? 0;
+        document.getElementById('profileGens').textContent = data.total_gens ?? 0;
 
-        // Token count
-        document.getElementById('tokenCount').textContent = data.tokens ?? 0;
-
-        // Role badge
         const isPrem = data.is_premium;
-        const role = data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
-        const badge = document.getElementById('profileBadge');
-        badge.textContent = role;
-        badge.className = 'profile-badge ' + (data.is_admin ? 'admin' : (isPrem ? 'premium' : 'free'));
-
-        // Premium card
-        const premiumCard = document.getElementById('premiumCard');
-        const premiumDesc = document.getElementById('premiumDesc');
-        if (isPrem) {
-            premiumCard?.classList.add('active-premium');
-            const until = data.premium_until ? new Date(data.premium_until).toLocaleDateString() : '';
-            premiumDesc.textContent = until ? `Active until ${until}` : 'Active — unlimited generations';
-        } else {
-            premiumCard?.classList.remove('active-premium');
-            premiumDesc.textContent = 'Unlimited generations & priority queue';
-        }
+        document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
+        document.getElementById('profileRole').textContent =
+            data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
     } catch (e) {
         document.getElementById('profileName').textContent = 'Error: ' + e.message;
     }
