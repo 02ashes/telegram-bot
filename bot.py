@@ -409,7 +409,7 @@ async def api_video(request: Request):
             keys = list(_video_jobs.keys())[:len(_video_jobs) // 2]
             for k in keys:
                 _video_jobs.pop(k, None)
-        _video_jobs[job_id] = user["id"]
+        _video_jobs[job_id] = (user["id"], None)  # (user_id, endpoint_id)
 
         # Log to history
         asyncio.create_task(db.log_generation(
@@ -508,7 +508,7 @@ async def api_video_kenpechi(request: Request):
             keys = list(_video_jobs.keys())[:len(_video_jobs) // 2]
             for k in keys:
                 _video_jobs.pop(k, None)
-        _video_jobs[job_id] = user["id"]
+        _video_jobs[job_id] = (user["id"], config.RUNPOD_KENPECHI_ENDPOINT_ID)
 
         asyncio.create_task(db.log_generation(
             telegram_id=user["id"],
@@ -537,9 +537,14 @@ async def api_video_status(job_id: str, request: Request):
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
         # Verify job ownership
-        if _video_jobs.get(job_id) and _video_jobs[job_id] != user["id"]:
-            return JSONResponse(status_code=403, content={"error": "Not your job"})
-        result = await comfyui_api.check_video_status(job_id)
+        job_info = _video_jobs.get(job_id)
+        if job_info:
+            job_user_id, job_endpoint_id = job_info
+            if job_user_id != user["id"]:
+                return JSONResponse(status_code=403, content={"error": "Not your job"})
+        else:
+            job_endpoint_id = None
+        result = await comfyui_api.check_video_status(job_id, endpoint_id=job_endpoint_id)
         # Clean up completed/failed jobs
         if result.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
             _video_jobs.pop(job_id, None)

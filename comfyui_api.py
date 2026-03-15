@@ -1650,12 +1650,13 @@ async def cancel_job(job_id: str) -> bool:
         return False
 
 
-async def get_job_status(job_id: str) -> dict:
+async def get_job_status(job_id: str, endpoint_id: str | None = None) -> dict:
     """Get current status of a RunPod job.
     
     Returns dict with {status, output?}.
     """
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
+    ep = endpoint_id or config.RUNPOD_ENDPOINT_ID
+    url = f"{RUNPOD_API_BASE}/{ep}/status/{job_id}"
     
     try:
         session = _get_session()
@@ -2445,7 +2446,7 @@ async def submit_video(
     return job_id
 
 
-async def check_video_status(job_id: str) -> dict:
+async def check_video_status(job_id: str, endpoint_id: str | None = None) -> dict:
     """Check video generation job status and extract result if complete.
 
     Returns dict with:
@@ -2453,7 +2454,7 @@ async def check_video_status(job_id: str) -> dict:
          "video": "base64..." (only when COMPLETED),
          "error": "..." (only when FAILED)}
     """
-    status_data = await get_job_status(job_id)
+    status_data = await get_job_status(job_id, endpoint_id=endpoint_id)
     status = status_data.get("status", "UNKNOWN")
 
     if status == "COMPLETED":
