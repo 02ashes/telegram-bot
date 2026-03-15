@@ -2537,7 +2537,7 @@ async function generateKenpechiVideo() {
             steps: 7,
             split_steps: 3,
             fps: 16,
-            rife_multiplier: 4,
+            rife_multiplier: 2,
             svi_motion_strength: 1.0,
             repulsion_boost: 1.0,
             shift: 5.0,

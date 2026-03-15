@@ -2446,6 +2446,63 @@ async def submit_video(
     return job_id
 
 
+def _add_silent_audio(video_bytes: bytes) -> bytes:
+    """Add a silent audio track to MP4 so Telegram treats it as video, not GIF.
+    
+    Uses ffmpeg subprocess. Returns original bytes if ffmpeg is unavailable.
+    """
+    import subprocess
+    import tempfile
+    import shutil
+
+    if not shutil.which("ffmpeg"):
+        logger.warning("ffmpeg not found — skipping silent audio injection")
+        return video_bytes
+
+    tmp_in_path = None
+    tmp_out_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_in:
+            tmp_in.write(video_bytes)
+            tmp_in_path = tmp_in.name
+
+        tmp_out_path = tmp_in_path.replace(".mp4", "_audio.mp4")
+
+        result = subprocess.run(
+            [
+                "ffmpeg", "-y",
+                "-i", tmp_in_path,
+                "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono",
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-shortest",
+                tmp_out_path,
+            ],
+            capture_output=True,
+            timeout=30,
+        )
+
+        if result.returncode == 0 and os.path.exists(tmp_out_path):
+            with open(tmp_out_path, "rb") as f:
+                out_bytes = f.read()
+            logger.info("Silent audio added: %d -> %d bytes", len(video_bytes), len(out_bytes))
+            return out_bytes
+        else:
+            logger.warning("ffmpeg silent audio failed: %s", result.stderr[:200])
+            return video_bytes
+
+    except Exception as e:
+        logger.warning("Silent audio injection error: %s", e)
+        return video_bytes
+    finally:
+        for p in [tmp_in_path, tmp_out_path]:
+            if p:
+                try:
+                    os.unlink(p)
+                except Exception:
+                    pass
+
+
 async def check_video_status(job_id: str, endpoint_id: str | None = None) -> dict:
     """Check video generation job status and extract result if complete.
 
@@ -2470,6 +2527,9 @@ async def check_video_status(job_id: str, endpoint_id: str | None = None) -> dic
             if len(video_bytes) > 8:
                 logger.info("Video output: %d bytes, magic: %s",
                             len(video_bytes), video_bytes[:12].hex())
+
+            # Add silent audio track so Telegram treats it as video, not GIF
+            video_bytes = _add_silent_audio(video_bytes)
 
             video_b64 = base64.b64encode(video_bytes).decode("utf-8")
             return {"status": "COMPLETED", "video": video_b64}
