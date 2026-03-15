@@ -141,6 +141,7 @@ async def api_profile(request: Request):
 
     return {
         "tokens": db_user["tokens"],
+        "total_gens": db_user.get("total_gens", 0),
         "is_premium": is_premium_active,
         "is_admin": is_admin(user["id"]),
         "premium_until": db_user["premium_until"].isoformat() if db_user.get("premium_until") else None,
@@ -185,7 +186,7 @@ async def api_delete_history(request: Request, gen_id: int):
 # ============================================================
 @app.post("/api/buy-tokens")
 async def api_buy_tokens(request: Request):
-    """Send Stars invoice for token package."""
+    """Create invoice link for token package (for WebApp openInvoice)."""
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
@@ -201,40 +202,38 @@ async def api_buy_tokens(request: Request):
         return JSONResponse(status_code=400, content={"error": "Invalid package"})
 
     try:
-        await bot.send_invoice(
-            chat_id=user["id"],
+        invoice_link = await bot.create_invoice_link(
             title=pkg["label"],
             description=f"{pkg['tokens']} generation tokens for Angel Arena",
             payload=package_id,
             currency="XTR",
             prices=[LabeledPrice(label=pkg["label"], amount=pkg["stars"])],
         )
-        return {"ok": True, "message": "Invoice sent to chat"}
+        return {"ok": True, "invoice_url": invoice_link}
     except Exception as e:
-        logger.exception("Failed to send invoice")
-        return JSONResponse(status_code=500, content={"error": "Failed to send invoice. Make sure you haven't blocked the bot."})
+        logger.exception("Failed to create invoice link")
+        return JSONResponse(status_code=500, content={"error": "Failed to create invoice"})
 
 
 @app.post("/api/buy-premium")
 async def api_buy_premium(request: Request):
-    """Send Stars invoice for 30-day premium."""
+    """Create invoice link for 30-day premium (for WebApp openInvoice)."""
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
 
     try:
-        await bot.send_invoice(
-            chat_id=user["id"],
+        invoice_link = await bot.create_invoice_link(
             title="Premium 30 Days",
             description="Unlimited generations & priority queue for 30 days",
             payload="premium_30",
             currency="XTR",
             prices=[LabeledPrice(label="Premium 30 Days", amount=PREMIUM_PRICE)],
         )
-        return {"ok": True, "message": "Invoice sent to chat"}
+        return {"ok": True, "invoice_url": invoice_link}
     except Exception as e:
-        logger.exception("Failed to send premium invoice")
-        return JSONResponse(status_code=500, content={"error": "Failed to send invoice. Make sure you haven't blocked the bot."})
+        logger.exception("Failed to create premium invoice link")
+        return JSONResponse(status_code=500, content={"error": "Failed to create invoice"})
 
 
 @app.get("/api/packages")
@@ -896,20 +895,117 @@ async def cmd_start(message: types.Message):
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🎨 Открыть редактор",
+                    text="Open Editor",
                     web_app=WebAppInfo(url=WEBAPP_URL),
                 )
-            ]
+            ],
+            [
+                InlineKeyboardButton(text="Profile", callback_data="cb_profile"),
+                InlineKeyboardButton(text="Tokens", callback_data="cb_tokens"),
+                InlineKeyboardButton(text="Premium", callback_data="cb_premium"),
+            ],
         ]
     )
 
     await message.answer(
-        "👋 **Добро пожаловать в Angel Arena!**\n\n"
-        "Нажми кнопку ниже, чтобы открыть редактор:\n"
-        "📷 Загрузи фото → ✏️ Промпт → 🚀 Генерация",
+        "**Welcome to Angel Arena**\n\n"
+        "AI-powered image and video generation.\n\n"
+        "How to start:\n"
+        "1. Tap the button below\n"
+        "2. Upload a photo\n"
+        "3. Choose a mode and describe what you want\n"
+        "4. Hit Generate",
         parse_mode="Markdown",
         reply_markup=keyboard,
     )
+
+
+# ============================================================
+# Inline Button Callbacks (Profile / Tokens / Premium)
+# ============================================================
+@dp.callback_query(F.data == "cb_profile")
+async def cb_profile(callback: types.CallbackQuery):
+    """Show user profile info."""
+    user_id = callback.from_user.id
+    db_user = await db.get_or_create_user(
+        user_id,
+        username=callback.from_user.username or "",
+        first_name=callback.from_user.first_name or "",
+    )
+    is_prem = db_user["is_premium"] and (
+        not db_user.get("premium_until") or
+        db_user["premium_until"] > datetime.now(timezone.utc)
+    )
+    prem_str = "Active" if is_prem else "None"
+    if is_prem and db_user.get("premium_until"):
+        prem_str += f" (until {db_user['premium_until'].strftime('%d.%m.%Y')})"
+    role = "Admin" if is_admin(user_id) else ("Premium" if is_prem else "User")
+
+    await callback.message.answer(
+        f"**Your Profile**\n\n"
+        f"Name: {callback.from_user.first_name or 'N/A'}\n"
+        f"Role: {role}\n"
+        f"Tokens: {db_user.get('tokens', 0)}\n"
+        f"Total generations: {db_user.get('total_gens', 0)}\n"
+        f"Premium: {prem_str}",
+        parse_mode="Markdown",
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "cb_tokens")
+async def cb_tokens(callback: types.CallbackQuery):
+    """Show token packages to buy."""
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text=f"{pkg['tokens']} Tokens — {pkg['stars']} Stars",
+                callback_data=f"buy_{key}",
+            )]
+            for key, pkg in TOKEN_PACKAGES.items()
+        ]
+    )
+    await callback.message.answer(
+        "**Buy Tokens**\n\n"
+        "Image generation: 1 token\n"
+        "Video generation: 37 tokens\n\n"
+        "Choose a package:",
+        parse_mode="Markdown",
+        reply_markup=keyboard,
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("buy_tokens_"))
+async def cb_buy_tokens(callback: types.CallbackQuery):
+    """Send Stars invoice for selected token package."""
+    key = callback.data.replace("buy_", "")
+    pkg = TOKEN_PACKAGES.get(key)
+    if not pkg:
+        await callback.answer("Package not found", show_alert=True)
+        return
+
+    await callback.message.answer_invoice(
+        title=pkg["label"],
+        description=f"{pkg['tokens']} generation tokens for Angel Arena",
+        payload=key,
+        currency="XTR",
+        prices=[LabeledPrice(label=pkg["label"], amount=pkg["stars"])],
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "cb_premium")
+async def cb_premium(callback: types.CallbackQuery):
+    """Send Stars invoice for Premium."""
+    await callback.message.answer_invoice(
+        title="Premium 30 Days",
+        description="Unlimited generations + priority queue for 30 days",
+        payload="premium_30",
+        currency="XTR",
+        prices=[LabeledPrice(label="Premium 30 Days", amount=PREMIUM_PRICE)],
+    )
+    await callback.answer()
 
 
 # ============================================================
@@ -944,8 +1040,8 @@ async def on_successful_payment(message: types.Message):
         )
         await db.add_tokens(user_id, pkg["tokens"])
         await message.answer(
-            f"✅ **+{pkg['tokens']} токенов** добавлено!\n"
-            f"Оплачено: {stars} ⭐",
+            f"+{pkg['tokens']} tokens added!\n"
+            f"Paid: {stars} Stars",
             parse_mode="Markdown",
         )
     elif payload == "premium_30":
@@ -956,14 +1052,14 @@ async def on_successful_payment(message: types.Message):
         )
         await db.set_premium(user_id, days=30)
         await message.answer(
-            "✅ **Premium активирован** на 30 дней!\n"
-            f"Оплачено: {stars} ⭐\n\n"
-            "Безлимитные генерации и приоритетная очередь.",
+            "**Premium activated** for 30 days!\n"
+            f"Paid: {stars} Stars\n\n"
+            "Unlimited generations and priority queue.",
             parse_mode="Markdown",
         )
     else:
         logger.warning("Unknown payment payload: %s", payload)
-        await message.answer("✅ Оплата получена!")
+        await message.answer("Payment received!")
 
 
 @dp.message(lambda m: m.text and m.text.startswith("/premium"))

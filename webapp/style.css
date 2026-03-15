@@ -1807,6 +1807,130 @@ input[type="range"]::-webkit-slider-thumb:hover {
     -moz-appearance: textfield;
 }
 
+/* ── Profile Tab ───────────────────────── */
+.profile-container {
+    padding: 8px 0;
+}
+
+.profile-card {
+    text-align: center;
+    padding: 20px 0 12px;
+}
+
+.profile-name {
+    font-family: var(--font);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.profile-role {
+    font-family: var(--font);
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.profile-stats {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 4px;
+}
+
+.stat-value {
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.stat-label {
+    font-family: var(--font);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.profile-section {
+    margin-bottom: 16px;
+}
+
+.profile-section-title {
+    font-family: var(--font);
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.profile-desc {
+    font-family: var(--font);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.buy-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.buy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.8rem;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.buy-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-hover);
+}
+
+.buy-btn:active {
+    transform: scale(0.98);
+}
+
+.buy-price {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+}
+
+.premium-btn {
+    background: rgba(255, 215, 0, 0.05);
+    border-color: rgba(255, 215, 0, 0.12);
+}
+
+.premium-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.2);
+}
+
 /* ── FAQ Accordion ─────────────────────── */
 .faq-container {
     padding: 8px 0;

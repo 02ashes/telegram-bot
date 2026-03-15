@@ -172,6 +172,70 @@ function switchTab(tab) {
 }
 
 // ============================================================
+// Profile + In-App Purchases (Telegram Stars)
+// ============================================================
+async function loadProfile() {
+    try {
+        const resp = await fetch('/api/auth', { headers: authHeaders() });
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        document.getElementById('profileName').textContent =
+            window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
+        document.getElementById('profileTokens').textContent = data.tokens ?? 0;
+        document.getElementById('profileGens').textContent = data.total_gens ?? 0;
+
+        const isPrem = data.is_premium;
+        document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
+        document.getElementById('profileRole').textContent =
+            data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
+    } catch (e) {
+        console.error('loadProfile error:', e);
+    }
+}
+
+async function buyTokens(packageId) {
+    try {
+        const resp = await fetch('/api/buy-tokens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ package: packageId }),
+        });
+        const data = await resp.json();
+        if (data.invoice_url && window.Telegram?.WebApp?.openInvoice) {
+            window.Telegram.WebApp.openInvoice(data.invoice_url, (status) => {
+                if (status === 'paid') loadProfile();
+            });
+        }
+    } catch (e) {
+        console.error('buyTokens error:', e);
+    }
+}
+
+async function buyPremium() {
+    try {
+        const resp = await fetch('/api/buy-premium', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        });
+        const data = await resp.json();
+        if (data.invoice_url && window.Telegram?.WebApp?.openInvoice) {
+            window.Telegram.WebApp.openInvoice(data.invoice_url, (status) => {
+                if (status === 'paid') loadProfile();
+            });
+        }
+    } catch (e) {
+        console.error('buyPremium error:', e);
+    }
+}
+
+// Bind buy buttons
+document.querySelectorAll('.buy-btn[data-package]').forEach(btn => {
+    btn.addEventListener('click', () => buyTokens(btn.dataset.package));
+});
+document.getElementById('buyPremiumBtn')?.addEventListener('click', buyPremium);
+
+// ============================================================
 // Mode Dropdown (Custom)
 // ============================================================
 const customSelect = document.getElementById('customSelect');

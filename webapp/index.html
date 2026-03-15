@@ -117,6 +117,56 @@
         </div>
 
         <!-- ============================================ -->
+        <!-- TAB: Profile -->
+        <!-- ============================================ -->
+        <div class="tab-content" id="contentProfile" style="display:none;">
+            <div class="profile-container">
+                <!-- User Info Card -->
+                <div class="profile-card">
+                    <div class="profile-name" id="profileName">—</div>
+                    <div class="profile-role" id="profileRole">User</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="profileTokens">0</div>
+                        <div class="stat-label">Tokens</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="profileGens">0</div>
+                        <div class="stat-label">Generations</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="profilePremium">—</div>
+                        <div class="stat-label">Premium</div>
+                    </div>
+                </div>
+
+                <!-- Buy Tokens -->
+                <div class="profile-section">
+                    <div class="profile-section-title">Buy Tokens</div>
+                    <div class="buy-grid" id="buyTokensGrid">
+                        <button class="buy-btn" data-package="tokens_10">10 Tokens<span class="buy-price">100
+                                Stars</span></button>
+                        <button class="buy-btn" data-package="tokens_30">30 Tokens<span class="buy-price">250
+                                Stars</span></button>
+                        <button class="buy-btn" data-package="tokens_100">100 Tokens<span class="buy-price">700
+                                Stars</span></button>
+                    </div>
+                </div>
+
+                <!-- Buy Premium -->
+                <div class="profile-section">
+                    <div class="profile-section-title">Premium</div>
+                    <p class="profile-desc">Unlimited generations + priority queue for 30 days</p>
+                    <button class="buy-btn premium-btn" id="buyPremiumBtn">Premium 30 Days<span class="buy-price">1500
+                            Stars</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
         <!-- TAB: Generate -->
         <!-- ============================================ -->
         <div class="tab-content" id="contentGenerate">
