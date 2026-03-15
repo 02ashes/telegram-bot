@@ -2423,6 +2423,35 @@ function loraBaseName(path) {
     return path.replace(/^(HIGH|LOW|NSFW_pack)\//, '').replace('.safetensors', '');
 }
 
+// Preset prompts — fill all 6 scenes at once
+const PRESET_PROMPTS = {
+    missionary: `m15510n4ry, a woman is lying on her back with her legs spread looking up at the viewer, having violent sex with a man. Man's big penis immediately thrusting fully deep in and fully out of her vagina, so we can see it, he is piston fucking causing her body hips into a rocking motion while her breasts bounce from each thrust, she bounces forward, her breasts are bouncing. The camera zooms in on the woman's waist. She keeps looking at the camera. Authentic film look,High-fidelity details`,
+    blowjob: `bl0wj0b. She sensually starts performing a deepthroat blowjob. She is bobbing her head back and forth slowly while sucking the man's erect penis with the foreskin pulled back, the penis is going deep into her mouth and throat. She rams her head forward, swallowing the entire penis until her nose smashes against his hips, then pulls back gasping for air. The camera zooms in on the man's penis. She keeps looking at the man with eyes open. Authentic film look,High-fidelity details`,
+    doggy: `d0gg1e, A woman is having doggy style sex with a man. She thrusts her ass violently towards the camera repeatedly. she is fucking the man by rapidly moving her hips, her buttocks move around. She bounces her ass up and down. jiggle with recoil, rhythmic up-and-down motion with her hips, dynamic hip thrusts, thighs shaking, peak jiggle moments, realistic skin deformation. twerks causing her ass to jiggle and shake. A woman facing forward while turning only her head to look behind her. She stares at the camera with a seductive stare. She keeps looking at the camera. Authentic film look,High-fidelity details`,
+    cowgirl: `c0wg1rl,A woman straddling a man who is lying on his back. The woman's legs are spread wide and she is sitting on top of the man in the cowgirl position with his erect penis penetrating her vagina. His penis is going in and out of her pussy. He is piston fucking causing her body hips into a rocking motion while her breasts bounce from each thrust, she bounces forward, her breasts are bouncing. She keeps looking at the camera. Authentic film look, High-fidelity details`,
+    handjob: `handj0b. She is gripping his penis with one hand.The mans veiny detailed penis is prominent. During the video she tightens her grip on his penis and quickly strokes the erect firm penis up to the top and down to the bottom giving the man a handjob, stroking his penis quickly and efficiently trying to make the man orgasm as fast as possible. She stares at the camera with a seductive stare. The camera zooms in on his penis. She smiles at camera. She stares at the camera with a seductive stare. She keeps looking at the camera. Authentic film look, High-fidelity details`,
+};
+
+function applyPresetPrompt(presetKey) {
+    const prompt = PRESET_PROMPTS[presetKey];
+    if (!prompt) return;
+    for (let i = 0; i < 6; i++) {
+        kenpechiScenes[i].prompt = prompt;
+    }
+    buildSceneCards();
+}
+
+// Bind preset buttons
+document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const key = btn.dataset.preset;
+        applyPresetPrompt(key);
+        // Highlight active preset
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
 function buildSceneCards() {
     const container = document.getElementById('scenesContainer');
     if (!container) return;

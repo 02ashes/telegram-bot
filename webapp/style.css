@@ -1568,6 +1568,41 @@ input[type="range"]::-webkit-slider-thumb:hover {
     position: relative;
 }
 
+/* Preset prompt buttons */
+.preset-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.preset-btn {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-pill);
+    color: var(--text-dim);
+    font-family: var(--font);
+    font-size: 0.7rem;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.preset-btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text);
+}
+
+.preset-btn.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text);
+}
+
 .scene-card-header {
     display: flex;
     align-items: center;
@@ -1692,6 +1727,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .lora-modal-body {
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 8px 16px;
     flex: 1;
 }
@@ -1733,6 +1769,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .lora-slot select {
     flex: 1;
+    min-width: 0;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -1747,6 +1784,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     background-repeat: no-repeat;
     background-position: right 8px center;
     padding-right: 22px;
+    text-overflow: ellipsis;
 }
 
 .lora-slot select option {
@@ -1757,6 +1795,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .lora-str-input {
     width: 44px;
+    flex-shrink: 0;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     border-radius: 8px;
