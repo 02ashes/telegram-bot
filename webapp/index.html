@@ -438,6 +438,32 @@
             </div>
         </div>
     </div>
+    <!-- Custom alert modal (replaces native alert) -->
+    <div id="customAlert"
+        style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+        <div
+            style="background:#16161e; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px 20px 18px; max-width:300px; width:85%; text-align:center;">
+            <div id="customAlertText"
+                style="color:#d4d4d8; font-family:'Outfit',sans-serif; font-size:0.9rem; line-height:1.5; margin-bottom:18px;">
+            </div>
+            <button id="customAlertOk"
+                style="background:rgba(255,255,255,0.06); color:#e4e4e7; border:1px solid rgba(255,255,255,0.1); border-radius:999px; padding:10px 40px; font-family:'Outfit',sans-serif; font-size:0.85rem; letter-spacing:1px; cursor:pointer;">OK</button>
+        </div>
+    </div>
+    <script>
+        // Replace native alert with custom modal
+        (function () {
+            const overlay = document.getElementById('customAlert');
+            const textEl = document.getElementById('customAlertText');
+            const okBtn = document.getElementById('customAlertOk');
+            okBtn.addEventListener('click', () => { overlay.style.display = 'none'; });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+            window.alert = function (msg) {
+                textEl.textContent = msg;
+                overlay.style.display = 'flex';
+            };
+        })();
+    </script>
 
     <script src="/app.js?v=48"></script>
     <script>
