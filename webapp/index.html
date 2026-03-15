@@ -441,10 +441,9 @@
 
     <script src="/app.js?v=48"></script>
     <script>
-        // TEMP DEBUG: override loadProfile to show raw API response
+        // Override loadProfile — Telegram WebView caches app.js aggressively
         (function () {
-            const origLP = window.loadProfile || (typeof loadProfile !== 'undefined' ? loadProfile : null);
-            async function debugLoadProfile() {
+            async function prodLoadProfile() {
                 try {
                     const initData = window.Telegram?.WebApp?.initData || '';
                     const resp = await fetch('/api/profile', {
@@ -453,23 +452,24 @@
                             'X-Telegram-Init-Data': initData
                         }
                     });
-                    const el = document.getElementById('profileRole');
                     if (!resp.ok) {
-                        el.textContent = 'ERR:' + resp.status;
+                        document.getElementById('profileName').textContent = 'Auth Error ' + resp.status;
                         return;
                     }
                     const data = await resp.json();
-                    el.textContent = JSON.stringify(data).substring(0, 120);
                     document.getElementById('profileName').textContent =
                         window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
-                    document.getElementById('profileTokens').textContent = data.tokens ?? '?';
-                    document.getElementById('profileGens').textContent = data.total_gens ?? '?';
+                    document.getElementById('profileTokens').textContent = data.tokens ?? 0;
+                    document.getElementById('profileGens').textContent = data.total_gens ?? 0;
+                    const isPrem = data.is_premium;
+                    document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
+                    document.getElementById('profileRole').textContent =
+                        data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
                 } catch (e) {
-                    document.getElementById('profileRole').textContent = 'EX:' + e.message;
+                    document.getElementById('profileName').textContent = 'Error: ' + e.message;
                 }
             }
-            // Override after a small delay to let app.js define switchTab
-            setTimeout(() => { window.loadProfile = debugLoadProfile; }, 100);
+            setTimeout(() => { window.loadProfile = prodLoadProfile; }, 100);
         })();
     </script>
 </body>
