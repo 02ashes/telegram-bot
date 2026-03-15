@@ -1582,44 +1582,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
     color: var(--text-dim);
 }
 
-.scene-card-duration {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-}
-
-.scene-card-duration input {
-    width: 50px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 3px 6px;
-    font-size: 0.72rem;
-    font-family: var(--font);
-    text-align: center;
-}
-
 .scene-card-gear {
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-dim);
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     cursor: pointer;
-    padding: 2px 6px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    line-height: 1;
 }
 
 .scene-card-gear:hover {
-    opacity: 1;
+    border-color: rgba(255, 255, 255, 0.25);
+    color: var(--text);
 }
 
 .scene-card textarea {
     width: 100%;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
@@ -1657,29 +1639,36 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .lora-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(6px);
     z-index: 9999;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
 }
 
 .lora-modal {
     background: #111118;
     border: 1px solid var(--border);
-    border-radius: 20px 20px 0 0;
-    width: 100%;
-    max-width: 500px;
+    border-radius: var(--radius);
+    width: 92%;
+    max-width: 400px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.25s ease-out;
+    animation: fadeIn 0.2s ease-out;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .lora-modal-header {
@@ -1712,7 +1701,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     width: calc(100% - 40px);
     margin: 12px 20px 20px;
     padding: 12px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     color: var(--text);
@@ -1724,7 +1713,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .lora-modal-save:hover {
-    background: rgba(255,255,255,0.14);
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .lora-group-title {
@@ -1744,7 +1733,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .lora-slot select {
     flex: 1;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
@@ -1753,13 +1742,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
     font-size: 0.75rem;
 }
 
-.lora-slot input[type="range"] {
-    width: 70px;
-}
-
-.lora-slot .lora-str-label {
-    font-size: 0.68rem;
-    color: var(--text-dim);
-    min-width: 28px;
-    text-align: right;
+.lora-str-input {
+    width: 52px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 6px 8px;
+    font-family: var(--font);
+    font-size: 0.75rem;
+    text-align: center;
 }

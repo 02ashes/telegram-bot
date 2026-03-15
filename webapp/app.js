@@ -235,12 +235,6 @@ function switchMode(mode) {
     document.querySelectorAll('.video-only').forEach(el => {
         el.style.display = mode === 'video' && originalImage ? '' : 'none';
     });
-
-    // Hide shared prompt/negative in video mode (Kenpechi has per-scene prompts)
-    const promptSection = document.getElementById('promptSection');
-    if (promptSection && mode === 'video') {
-        promptSection.style.display = 'none';
-    }
     document.querySelectorAll('.image-only').forEach(el => {
         el.style.display = mode === 'image' && originalImage ? '' : 'none';
     });
@@ -316,8 +310,9 @@ function switchMode(mode) {
     }
 
     // Show/hide shared sections (Prompt + Generate) when image is loaded
+    // Video mode hides prompt section (Kenpechi has per-scene prompts)
     const hasContent = originalImage || darkGenNoImage;
-    document.getElementById('promptSection').style.display = hasContent ? '' : 'none';
+    document.getElementById('promptSection').style.display = (hasContent && mode !== 'video') ? '' : 'none';
     document.getElementById('generateSection').style.display = hasContent ? '' : 'none';
 
     // In Dark Generate mode, show prompt + generate even without image
@@ -2371,17 +2366,11 @@ function buildSceneCards() {
         card.innerHTML = `
             <div class="scene-card-header">
                 <span class="scene-card-num">SCENE ${i + 1}</span>
-                <div class="scene-card-duration">
-                    <input type="number" step="0.5" min="0.5" max="7" value="${scene.duration}" data-scene="${i}" class="scene-dur-input">
-                    <span>s</span>
-                </div>
-                <button class="scene-card-gear" data-scene="${i}" title="LoRA settings">⚙️</button>
+                <button class="scene-card-gear" data-scene="${i}" title="LoRA settings">⚙</button>
             </div>
             <textarea rows="2" placeholder="Scene ${i + 1} prompt..." data-scene="${i}" class="scene-prompt-input">${scene.prompt}</textarea>
-            <div class="scene-card-lora-badges" id="loraBadges${i}"></div>
         `;
         container.appendChild(card);
-        updateLoraBadges(i);
     }
 
     // Bind events
@@ -2390,14 +2379,9 @@ function buildSceneCards() {
             kenpechiScenes[parseInt(e.target.dataset.scene)].prompt = e.target.value;
         });
     });
-    container.querySelectorAll('.scene-dur-input').forEach(el => {
-        el.addEventListener('change', (e) => {
-            kenpechiScenes[parseInt(e.target.dataset.scene)].duration = parseFloat(e.target.value) || 2.5;
-        });
-    });
     container.querySelectorAll('.scene-card-gear').forEach(el => {
         el.addEventListener('click', (e) => {
-            openLoraModal(parseInt(e.target.dataset.scene));
+            openLoraModal(parseInt(e.currentTarget.dataset.scene));
         });
     });
 }
@@ -2435,13 +2419,6 @@ function openLoraModal(sceneIdx) {
     }
     body.innerHTML = html;
 
-    // Bind strength sliders
-    body.querySelectorAll('.lora-str-slider').forEach(el => {
-        el.addEventListener('input', () => {
-            el.nextElementSibling.textContent = parseFloat(el.value).toFixed(1);
-        });
-    });
-
     overlay.style.display = 'flex';
 }
 
@@ -2456,8 +2433,7 @@ function buildLoraSlotHTML(type, slot, lora, loraList) {
     return `
         <div class="lora-slot">
             <select id="${selId}">${options}</select>
-            <input type="range" class="lora-str-slider" id="${strId}" min="0.1" max="2.0" step="0.1" value="${lora.strength}">
-            <span class="lora-str-label">${lora.strength.toFixed(1)}</span>
+            <input type="number" class="lora-str-input" id="${strId}" min="0.1" max="2.0" step="0.1" value="${lora.strength.toFixed(1)}">
         </div>
     `;
 }
