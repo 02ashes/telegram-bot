@@ -2615,6 +2615,9 @@ def build_kenpechi_svi_workflow(
     wf["833"]["inputs"]["shift"] = shift
     wf["834"]["inputs"]["shift"] = shift
 
+    # Patch LoadImage node to use uploaded file name
+    wf["864"]["inputs"]["image"] = "video_input.png"
+
     # Negative prompt
     if negative:
         wf[_KENPECHI_NEGATIVE_ID]["inputs"]["text"] = negative
