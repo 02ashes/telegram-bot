@@ -440,6 +440,38 @@
     </div>
 
     <script src="/app.js?v=48"></script>
+    <script>
+        // TEMP DEBUG: override loadProfile to show raw API response
+        (function () {
+            const origLP = window.loadProfile || (typeof loadProfile !== 'undefined' ? loadProfile : null);
+            async function debugLoadProfile() {
+                try {
+                    const initData = window.Telegram?.WebApp?.initData || '';
+                    const resp = await fetch('/api/profile', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Telegram-Init-Data': initData
+                        }
+                    });
+                    const el = document.getElementById('profileRole');
+                    if (!resp.ok) {
+                        el.textContent = 'ERR:' + resp.status;
+                        return;
+                    }
+                    const data = await resp.json();
+                    el.textContent = JSON.stringify(data).substring(0, 120);
+                    document.getElementById('profileName').textContent =
+                        window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
+                    document.getElementById('profileTokens').textContent = data.tokens ?? '?';
+                    document.getElementById('profileGens').textContent = data.total_gens ?? '?';
+                } catch (e) {
+                    document.getElementById('profileRole').textContent = 'EX:' + e.message;
+                }
+            }
+            // Override after a small delay to let app.js define switchTab
+            setTimeout(() => { window.loadProfile = debugLoadProfile; }, 100);
+        })();
+    </script>
 </body>
 
 </html>
