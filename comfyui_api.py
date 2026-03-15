@@ -2728,13 +2728,8 @@ async def submit_kenpechi_video(
     3. Submit to Kenpechi RunPod Serverless endpoint
     4. Return job_id (does NOT wait for completion)
     """
-    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    img = img.resize((width, height), Image.LANCZOS)
-
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    resized_bytes = buf.getvalue()
-    image_b64 = _image_to_base64(resized_bytes)
+    # Send image as-is — workflow handles resolution via its own nodes
+    image_b64 = _image_to_base64(image_bytes)
 
     logger.info(
         "Building Kenpechi SVI workflow (%d scenes, %dx%d, steps=%d)...",
