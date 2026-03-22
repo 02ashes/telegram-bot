@@ -108,10 +108,9 @@ TOKEN_PACKAGES = {
 }
 PREMIUM_PRICE = 1500  # Stars for 30 days
 TOKEN_COST_IMAGE = 1
-TOKEN_COST_VIDEO = 5
 
-# Track video job ownership: {job_id: user_telegram_id}
-_video_jobs: dict[str, int] = {}
+# Track video job ownership: {job_id: (user_telegram_id, endpoint_id)}
+_video_jobs: dict[str, tuple] = {}
 _VIDEO_JOBS_MAX = 1000  # Auto-cleanup threshold
 
 
@@ -245,7 +244,7 @@ async def api_packages():
         ],
         "premium_stars": PREMIUM_PRICE,
         "token_cost_image": TOKEN_COST_IMAGE,
-        "token_cost_video": TOKEN_COST_VIDEO,
+        "token_cost_kenpechi": TOKEN_COST_KENPECHI,
     }
 
 @app.post("/api/inpaint")
@@ -327,105 +326,6 @@ async def api_inpaint(request: Request):
             content={"error": str(e)},
         )
 
-
-@app.post("/api/video")
-async def api_video(request: Request):
-    """Submit video generation job — returns job_id immediately."""
-    user = await require_auth(request)
-    if not user:
-        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
-    tokens_deducted = False
-    try:
-        # Parse + validate FIRST (before spending tokens)
-        body = await request.json()
-        image_b64 = body.get("image", "")
-        prompt = body.get("prompt", "")
-        negative = body.get("negative", "")
-        audio_enabled = body.get("audio_enabled", False)
-        audio_prompt = body.get("audio_prompt", "")
-        audio_negative = body.get("audio_negative", "music, speech, talking, noise, static")
-        frames = int(body.get("frames", 33))
-        fps = int(body.get("fps", 16))
-        width = int(body.get("width", 0))
-        height = int(body.get("height", 0))
-        action = body.get("action", "none")
-        shift = float(body.get("shift", 5.0))
-        cfg_high = float(body.get("cfg_high", 5.0))
-        cfg_low = float(body.get("cfg_low", 1.0))
-        lora_strength = float(body.get("lora_strength", 1.3))
-        scheduler = body.get("scheduler", "beta")
-        video_steps = int(body.get("video_steps", 20))
-
-        if not image_b64 or not prompt:
-            return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
-
-        # Check tokens AFTER validation (premium users skip) — video costs more
-        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
-            if not await db.spend_tokens(user["id"], TOKEN_COST_VIDEO):
-                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
-            tokens_deducted = True
-
-        image_bytes = base64.b64decode(image_b64)
-
-        logger.info(
-            "Video request: prompt=%s, frames=%d, fps=%d, %dx%d, audio=%s, action=%s, shift=%.1f, cfg=%.1f/%.1f, steps=%d",
-            prompt[:60], frames, fps, width, height, audio_enabled, action, shift, cfg_high, cfg_low, video_steps,
-        )
-
-        # Submit job — returns immediately with job_id
-        job_id = await comfyui_api.submit_video(
-            image_bytes=image_bytes,
-            prompt=prompt,
-            negative=negative,
-            audio_enabled=audio_enabled,
-            audio_prompt=audio_prompt,
-            audio_negative=audio_negative,
-            frames=frames,
-            fps=fps,
-            width=width,
-            height=height,
-            action=action,
-            shift=shift,
-            cfg_high=cfg_high,
-            cfg_low=cfg_low,
-            lora_strength=lora_strength,
-            scheduler=scheduler,
-            steps=video_steps,
-        )
-
-        if job_id is None:
-            # Refund tokens on submission failure
-            if tokens_deducted and db.is_enabled():
-                await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
-            return JSONResponse(
-                status_code=500,
-                content={"error": "Failed to submit video job to RunPod."},
-            )
-
-        # Track job ownership (auto-cleanup if dict grows too large)
-        if len(_video_jobs) > _VIDEO_JOBS_MAX:
-            # Remove oldest half — simple eviction
-            keys = list(_video_jobs.keys())[:len(_video_jobs) // 2]
-            for k in keys:
-                _video_jobs.pop(k, None)
-        _video_jobs[job_id] = (user["id"], None)  # (user_id, endpoint_id)
-
-        # Log to history
-        asyncio.create_task(db.log_generation(
-            telegram_id=user["id"], prompt=prompt, mode="video",
-            tokens_spent=TOKEN_COST_VIDEO,
-        ))
-
-        return JSONResponse(content={"job_id": job_id})
-
-    except Exception as e:
-        logger.exception("Video submit error")
-        if tokens_deducted and db.is_enabled():
-            await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)},
-        )
 
 
 TOKEN_COST_KENPECHI = 37  # ~$0.47 cost + 60% margin
@@ -561,14 +461,16 @@ async def api_video_cancel(job_id: str, request: Request):
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
     try:
         # Verify job ownership
-        if _video_jobs.get(job_id) and _video_jobs[job_id] != user["id"]:
+        job_info = _video_jobs.get(job_id)
+        if job_info and job_info[0] != user["id"]:
             return JSONResponse(status_code=403, content={"error": "Not your job"})
-        success = await comfyui_api.cancel_job(job_id)
+        job_endpoint_id = job_info[1] if job_info else None
+        success = await comfyui_api.cancel_job(job_id, endpoint_id=job_endpoint_id)
         if success:
             _video_jobs.pop(job_id, None)
             # Refund tokens on user-initiated cancel
             if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
-                await db.add_tokens(user["id"], TOKEN_COST_VIDEO)
+                await db.add_tokens(user["id"], TOKEN_COST_KENPECHI)
             return JSONResponse(content={"status": "cancelled", "job_id": job_id})
         else:
             return JSONResponse(
@@ -1146,7 +1048,7 @@ async def cmd_revoke(message: types.Message):
 
 @dp.message(lambda m: m.text and m.text.startswith("/delete"))
 async def cmd_delete(message: types.Message):
-    """Admin: remove user: /delete USER_ID"""
+    """Admin: remove user from database: /delete USER_ID"""
     if not is_admin(message.from_user.id):
         return
 
@@ -1161,67 +1063,35 @@ async def cmd_delete(message: types.Message):
         await message.answer("❌ ID должен быть числом")
         return
 
-    if auth.remove_user(target_id):
-        await message.answer(f"✅ Пользователь {target_id} удалён")
+    if await db.delete_user(target_id):
+        await message.answer(f"✅ Пользователь {target_id} удалён из базы")
     else:
         await message.answer(f"❌ Пользователь {target_id} не найден")
 
 
-@dp.message(lambda m: m.text and m.text.startswith("/add"))
-async def cmd_add(message: types.Message):
-    """Admin: bulk register users: /add 123,456,789"""
-    if not is_admin(message.from_user.id):
-        return
-
-    parts = message.text.split(maxsplit=1)
-    if len(parts) < 2:
-        await message.answer("Использование: `/add 123456,789012,345678`", parse_mode="Markdown")
-        return
-
-    raw_ids = parts[1].replace(" ", "").split(",")
-    user_ids = []
-    for raw in raw_ids:
-        try:
-            user_ids.append(int(raw.strip()))
-        except ValueError:
-            pass
-
-    if not user_ids:
-        await message.answer("❌ Не найдено валидных ID")
-        return
-
-    added = auth.add_users_bulk(user_ids)
-    if added:
-        await message.answer(
-            f"✅ Добавлено: {len(added)} юзер(ов)\n"
-            f"ID: `{', '.join(str(x) for x in added)}`",
-            parse_mode="Markdown",
-        )
-    else:
-        await message.answer("ℹ️ Все указанные юзеры уже зарегистрированы")
-
-
 @dp.message(lambda m: m.text and m.text.strip() == "/list")
 async def cmd_list(message: types.Message):
-    """Admin: list registered users with details."""
+    """Admin: list all users from database."""
     if not is_admin(message.from_user.id):
         return
 
-    users = auth.list_users()
+    users = await db.list_all_users()
     if not users:
         await message.answer("Нет зарегистрированных пользователей")
         return
 
-    # Line 1: comma-separated IDs
-    ids_line = ", ".join(users.keys())
+    ids_line = ", ".join(str(u["telegram_id"]) for u in users)
 
-    # Details
     detail_lines = []
-    for uid, info in users.items():
-        uname = info.get('username', '')
+    for u in users:
+        uname = u.get("username", "")
         tag = f"@{uname}" if uname else "—"
-        code = info.get('code_used', '—')
-        detail_lines.append(f"• {tag}  |  ID: <code>{uid}</code>  |  код: {code}")
+        tokens = u.get("tokens", 0)
+        gens = u.get("total_gens", 0)
+        prem = "⭐" if u.get("is_premium") else ""
+        detail_lines.append(
+            f"• {tag} | ID: <code>{u['telegram_id']}</code> | 💰{tokens} | 🎨{gens} {prem}"
+        )
 
     text = (
         f"👥 <b>Пользователи ({len(users)}):</b>\n\n"
@@ -1231,23 +1101,12 @@ async def cmd_list(message: types.Message):
     await message.answer(text, parse_mode="HTML")
 
 
-@dp.message(lambda m: m.text and m.text.strip() in ("/users", "/codes"))
+@dp.message(lambda m: m.text and m.text.strip() == "/users")
 async def cmd_legacy(message: types.Message):
-    """Redirect old commands."""
+    """Redirect /users to /list."""
     if not is_admin(message.from_user.id):
         return
-    if message.text.strip() == "/users":
-        await cmd_list(message)
-    else:
-        codes = auth.list_codes()
-        if not codes:
-            await message.answer("Нет инвайт-кодов")
-            return
-        lines = ["🎟 **Инвайт-коды:**\n"]
-        for code, info in codes.items():
-            status = f"✅ использован ({info['used_by']})" if info.get('used_by') else "⏳ свободен"
-            lines.append(f"• `{code}` — {status}")
-        await message.answer("\n".join(lines), parse_mode="Markdown")
+    await cmd_list(message)
 
 
 # ============================================================

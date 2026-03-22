@@ -1178,220 +1178,6 @@ async function generateInpaint(prompt) {
 // ============================================================
 let currentVideoController = null; // AbortController for cancel support
 let currentVideoJobId = null; // RunPod job ID for polling
-let videoPollingInterval = null; // Polling timer
-
-async function generateVideo(prompt) {
-    const negative = document.getElementById('negativeInput').value;
-    const frames = parseInt(framesSlider.value);
-    const fps = parseInt(fpsSelect.value);
-    const resVal = resolutionSelect.value;
-    let width = 0, height = 0;
-    if (resVal !== 'auto') {
-        const resolution = resVal.split('x');
-        width = parseInt(resolution[0]);
-        height = parseInt(resolution[1]);
-    }
-    const audioEnabled = audioToggle.checked;
-    const audioPrompt = document.getElementById('audioPromptInput')?.value || '';
-    const audioNegative = document.getElementById('audioNegativeInput')?.value || 'music, speech, talking, noise, static';
-
-    // UI state
-    generateBtn.disabled = true;
-    generateBtn.querySelector('.btn-text').style.display = 'none';
-    generateBtn.querySelector('.btn-loader').style.display = '';
-    progressInfo.style.display = '';
-    resultSection.style.display = 'none';
-
-    // Show cancel button
-    const cancelBtn = document.getElementById('cancelVideoBtn');
-    if (cancelBtn) cancelBtn.style.display = '';
-
-    progressFill.style.width = '5%';
-    progressText.textContent = 'Submitting job...';
-
-    try {
-        const imageDataURL = getImageDataURL();
-        const imageB64 = imageDataURL.split(',')[1];
-
-        const body = {
-            image: imageB64,
-            prompt: prompt,
-            negative: negative,
-            frames: frames,
-            fps: fps,
-            width: width,
-            height: height,
-            audio_enabled: audioEnabled,
-            action: document.getElementById('actionSelect')?.value || 'none',
-            shift: parseFloat(document.getElementById('shiftSlider')?.value || 5),
-            cfg_high: parseFloat(document.getElementById('cfgHighSlider')?.value || 5),
-            cfg_low: parseFloat(document.getElementById('cfgLowSlider')?.value || 1),
-            lora_strength: parseFloat(document.getElementById('loraStrSlider')?.value || 1.3),
-            scheduler: 'beta',
-            video_steps: parseInt(document.getElementById('stepsSlider')?.value || 20),
-        };
-
-        if (audioEnabled) {
-            body.audio_prompt = audioPrompt;
-            body.audio_negative = audioNegative;
-        }
-
-        // Step 1: Submit job (fast — returns immediately)
-        const submitResp = await fetch('/api/video', {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify(body),
-        });
-
-        if (!submitResp.ok) {
-            const errData = await submitResp.json().catch(() => null);
-            throw new Error(errData?.error || `Server error: ${submitResp.status}`);
-        }
-
-        const submitData = await submitResp.json();
-        if (!submitData.job_id) {
-            throw new Error('No job_id in response');
-        }
-
-        currentVideoJobId = submitData.job_id;
-        console.log('Video job submitted:', currentVideoJobId);
-        progressFill.style.width = '10%';
-        progressText.textContent = 'Job queued...';
-
-        // Step 2: Poll for status every 3 seconds
-        const videoDuration = frames / fps;
-        let pollCount = 0;
-        const maxPolls = 400; // 400 * 3s = 20 min max
-
-        const result = await new Promise((resolve, reject) => {
-            videoPollingInterval = setInterval(async () => {
-                pollCount++;
-
-                if (pollCount > maxPolls) {
-                    clearInterval(videoPollingInterval);
-                    videoPollingInterval = null;
-                    reject(new Error('Video generation timed out (20 min)'));
-                    return;
-                }
-
-                try {
-                    const statusResp = await fetch(`/api/video/status/${currentVideoJobId}`, {
-                        headers: authHeaders(),
-                    });
-
-                    if (!statusResp.ok) {
-                        console.warn('Status poll error:', statusResp.status);
-                        return; // retry on next poll
-                    }
-
-                    const statusData = await statusResp.json();
-                    console.log('Poll #' + pollCount + ':', statusData.status);
-
-                    if (statusData.status === 'IN_QUEUE') {
-                        progressFill.style.width = '15%';
-                        progressText.textContent = 'In queue...';
-                    } else if (statusData.status === 'IN_PROGRESS') {
-                        // Gradually fill progress bar during generation
-                        const progress = Math.min(15 + (pollCount * 2), 85);
-                        progressFill.style.width = progress + '%';
-                        if (progress < 50) {
-                            progressText.textContent = `Generating video (${frames} frames, ~${videoDuration.toFixed(1)}s)...`;
-                        } else if (audioEnabled && progress > 70) {
-                            progressText.textContent = 'Generating audio...';
-                        } else {
-                            progressText.textContent = `Generating... ${Math.round(progress)}%`;
-                        }
-                    } else if (statusData.status === 'COMPLETED') {
-                        clearInterval(videoPollingInterval);
-                        videoPollingInterval = null;
-                        resolve(statusData);
-                    } else if (statusData.status === 'FAILED') {
-                        clearInterval(videoPollingInterval);
-                        videoPollingInterval = null;
-                        reject(new Error(statusData.error || 'Video generation failed'));
-                    } else if (statusData.status === 'CANCELLED') {
-                        clearInterval(videoPollingInterval);
-                        videoPollingInterval = null;
-                        reject(new Error('Video generation was cancelled'));
-                    }
-                } catch (pollErr) {
-                    console.warn('Poll error:', pollErr);
-                    // Don't reject — just retry on next interval
-                }
-            }, 3000);
-        });
-
-        // Step 3: Display video
-        progressFill.style.width = '95%';
-        progressText.textContent = 'Loading video...';
-
-        console.log('Video completed. Base64 length:', result.video?.length || 0);
-        lastResultB64 = result.video;
-        lastResultType = 'video';
-        const videoBlob = base64ToBlob(result.video, 'video/mp4');
-        console.log('Video blob size:', videoBlob.size);
-        const videoUrl = URL.createObjectURL(videoBlob);
-        resultVideo.src = videoUrl;
-        resultVideo.style.display = '';
-        resultImage.style.display = 'none';
-        resultSection.style.display = '';
-
-        progressFill.style.width = '100%';
-        progressText.textContent = 'Video ready';
-        resultSection.scrollIntoView({ behavior: 'smooth' });
-
-    } catch (err) {
-        if (videoPollingInterval) {
-            clearInterval(videoPollingInterval);
-            videoPollingInterval = null;
-        }
-        progressFill.style.width = '0%';
-        const msg = err.name === 'AbortError' ? 'Request cancelled or timed out' : err.message;
-        progressText.textContent = 'Error: ' + msg;
-        if (err.name !== 'AbortError') alert('Error: ' + msg);
-    } finally {
-        currentVideoController = null;
-        currentVideoJobId = null;
-        generateBtn.disabled = false;
-        generateBtn.querySelector('.btn-text').style.display = '';
-        generateBtn.querySelector('.btn-loader').style.display = 'none';
-        if (cancelBtn) cancelBtn.style.display = 'none';
-    }
-}
-
-async function cancelVideoGeneration() {
-    // Stop polling
-    if (videoPollingInterval) {
-        clearInterval(videoPollingInterval);
-        videoPollingInterval = null;
-    }
-
-    // Cancel RunPod job
-    if (currentVideoJobId) {
-        progressText.textContent = 'Cancelling...';
-        try {
-            await fetch(`/api/video/cancel/${currentVideoJobId}`, {
-                method: 'POST',
-                headers: authHeaders(),
-            });
-        } catch (e) {
-            console.warn('Cancel request failed:', e);
-        }
-        currentVideoJobId = null;
-    }
-
-    // Abort any pending fetch
-    if (currentVideoController) {
-        currentVideoController.abort();
-        currentVideoController = null;
-    }
-
-    progressText.textContent = 'Cancelled';
-}
-
-
-// ============================================================
-// Image Edit Generation (Flux 2 Klein)
 // ============================================================
 async function generateImageEdit(prompt) {
     const negative = document.getElementById('negativeInput').value.trim();
@@ -2045,11 +1831,7 @@ const PRESETS = {
             prompt: 'thick white cum dripping on skin, semen splattered, creampie leaking, wet glistening cum drops, realistic bodily fluid, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
-        {
-            label: 'Pee',
-            prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
-            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
-        },
+
         {
             label: 'Shit',
             prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
@@ -2072,11 +1854,7 @@ const PRESETS = {
             prompt: 'thick white cum dripping on skin, semen splattered, wet glistening cum drops, realistic bodily fluid, photorealistic',
             negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
         },
-        {
-            label: 'Pee',
-            prompt: 'clear transparent stream of pee flowing between legs, warm liquid dripping on thighs, wet glistening skin, watersports, clear fluid like water, photorealistic',
-            negative: 'blurry, ugly, deformed, watermark, text, low quality, cartoon, bad anatomy',
-        },
+
         {
             label: 'Shit',
             prompt: 'brown feces smeared on skin, dirty messy scat, soiled body, realistic texture, photorealistic',
@@ -2099,6 +1877,11 @@ const PRESETS = {
 function renderPresets() {
     const row = document.getElementById('presetRow');
     if (!row) return;
+    // Hide presets in Generate mode (only for edit tabs)
+    if (currentMode === 'dark' && darkMode === 'generate') {
+        row.innerHTML = '';
+        return;
+    }
     const presets = PRESETS[currentMode] || [];
     row.innerHTML = '';
     presets.forEach(p => {
@@ -2667,8 +2450,6 @@ document.getElementById('loraModalOverlay')?.addEventListener('click', (e) => {
 // Build scene cards on page load
 buildSceneCards();
 
-// Override generateVideo for Kenpechi
-const _originalGenerateVideo = typeof generateVideo === 'function' ? generateVideo : null;
 
 async function generateKenpechiVideo() {
     if (!originalImage) {
@@ -2807,5 +2588,3 @@ async function generateKenpechiVideo() {
     }
 }
 
-// Monkey-patch: if mode is 'video', use Kenpechi instead of old generateVideo
-const _origPrepareAndGenerate = typeof prepareAndGenerate === 'function' ? prepareAndGenerate : null;

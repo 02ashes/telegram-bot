@@ -225,6 +225,35 @@ async def revoke_premium(telegram_id: int) -> None:
         )
 
 
+async def delete_user(telegram_id: int) -> bool:
+    """Delete user and their generations. Returns True if user existed."""
+    if not _pool:
+        return False
+    async with _pool.acquire() as conn:
+        # Delete generations first (FK constraint)
+        await conn.execute(
+            "DELETE FROM generations WHERE telegram_id = $1", telegram_id
+        )
+        result = await conn.execute(
+            "DELETE FROM users WHERE telegram_id = $1", telegram_id
+        )
+        return result == "DELETE 1"
+
+
+async def list_all_users(limit: int = 200) -> list[dict]:
+    """List all users with profiles."""
+    if not _pool:
+        return []
+    async with _pool.acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT telegram_id, username, first_name, is_premium,
+                      premium_until, tokens, total_gens, created_at
+               FROM users ORDER BY created_at DESC LIMIT $1""",
+            limit,
+        )
+        return [dict(r) for r in rows]
+
+
 # ============================================================
 # Generations
 # ============================================================
