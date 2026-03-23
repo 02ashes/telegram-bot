@@ -109,6 +109,10 @@ TOKEN_PACKAGES = {
 PREMIUM_PRICE = 1500  # Stars for 30 days
 TOKEN_COST_IMAGE = 1
 
+# Quick-buy: single generation prices (Stars)
+QUICK_BUY_IMAGE_STARS = 15
+QUICK_BUY_VIDEO_STARS = 399
+
 # Track video job ownership: {job_id: (user_telegram_id, endpoint_id)}
 _video_jobs: dict[str, tuple] = {}
 _VIDEO_JOBS_MAX = 1000  # Auto-cleanup threshold
@@ -235,6 +239,45 @@ async def api_buy_premium(request: Request):
         return JSONResponse(status_code=500, content={"error": "Failed to create invoice"})
 
 
+@app.post("/api/quick-buy")
+async def api_quick_buy(request: Request):
+    """Create invoice link for single image/video generation (for WebApp openInvoice)."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
+
+    buy_type = body.get("type", "image")
+    if buy_type == "video":
+        title = "1 Video Generation"
+        description = "37 tokens for one video generation"
+        payload = "quick_video"
+        stars = QUICK_BUY_VIDEO_STARS
+    else:
+        title = "1 Image Generation"
+        description = "1 token for one image generation"
+        payload = "quick_image"
+        stars = QUICK_BUY_IMAGE_STARS
+
+    try:
+        invoice_link = await bot.create_invoice_link(
+            title=title,
+            description=description,
+            payload=payload,
+            currency="XTR",
+            prices=[LabeledPrice(label=title, amount=stars)],
+        )
+        return {"ok": True, "invoice_url": invoice_link}
+    except Exception as e:
+        logger.exception("Failed to create quick-buy invoice link")
+        return JSONResponse(status_code=500, content={"error": "Failed to create invoice"})
+
+
+
 @app.get("/api/packages")
 async def api_packages():
     """Return available token packages and premium price."""
@@ -245,6 +288,8 @@ async def api_packages():
         "premium_stars": PREMIUM_PRICE,
         "token_cost_image": TOKEN_COST_IMAGE,
         "token_cost_kenpechi": TOKEN_COST_KENPECHI,
+        "quick_buy_image": QUICK_BUY_IMAGE_STARS,
+        "quick_buy_video": QUICK_BUY_VIDEO_STARS,
     }
 
 @app.post("/api/inpaint")
@@ -267,11 +312,17 @@ async def api_inpaint(request: Request):
         if not image_b64 or not mask_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image, mask, or prompt"})
 
-        # Check tokens AFTER validation (premium users skip)
+        # Check tokens AFTER validation (premium/admin skip)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
-                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
-            tokens_deducted = True
+                # Try free generation
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
 
         # Decode base64 images
         image_bytes = base64.b64decode(image_b64)
@@ -367,10 +418,13 @@ async def api_video_kenpechi(request: Request):
                     content={"error": f"Scene {i + 1} is missing a prompt"},
                 )
 
-        # Token check
+        # Token check (no free gens for video)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_KENPECHI):
-                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
+                return JSONResponse(status_code=402, content={
+                    "error": "Not enough tokens",
+                    "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                })
             tokens_deducted = True
 
         image_bytes = base64.b64decode(image_b64)
@@ -537,11 +591,17 @@ async def api_image_edit(request: Request):
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
 
-        # Check tokens AFTER validation (premium users skip)
+        # Check tokens AFTER validation (premium/admin skip)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
-                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
-            tokens_deducted = True
+                # Try free generation
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
 
         image_bytes = base64.b64decode(image_b64)
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
@@ -638,11 +698,17 @@ async def api_image_edit_dark(request: Request):
         if dark_mode == "generate" and submode == "faceswap" and not face_b64:
             return JSONResponse(status_code=400, content={"error": "Missing face image for Face Swap"})
 
-        # Check tokens AFTER all validation (premium users skip)
+        # Check tokens AFTER all validation (premium/admin skip)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
             if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
-                return JSONResponse(status_code=402, content={"error": "Not enough tokens"})
-            tokens_deducted = True
+                # Try free generation
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
 
         image_bytes = base64.b64decode(image_b64) if image_b64 else None
         image2_bytes = base64.b64decode(image2_b64) if image2_b64 else None
@@ -806,6 +872,9 @@ async def cmd_start(message: types.Message):
                 InlineKeyboardButton(text="Tokens", callback_data="cb_tokens"),
                 InlineKeyboardButton(text="Premium", callback_data="cb_premium"),
             ],
+            [
+                InlineKeyboardButton(text="📖 Instructions", callback_data="cb_instructions"),
+            ],
         ]
     )
 
@@ -823,8 +892,36 @@ async def cmd_start(message: types.Message):
 
 
 # ============================================================
-# Inline Button Callbacks (Profile / Tokens / Premium)
+# Inline Button Callbacks (Profile / Tokens / Premium / Instructions)
 # ============================================================
+@dp.callback_query(F.data == "cb_instructions")
+async def cb_instructions(callback: types.CallbackQuery):
+    """Show mode instructions."""
+    text = (
+        "📖 <b>Instructions</b>\n\n"
+        "<b>🖌 Inpaint</b>\n"
+        "Great for adding specific objects or text. For example, use the \"Name\" "
+        "auto-prompt to write your name on skin.\n\n"
+        "<b>🎥 Video</b>\n"
+        "Split into 6 sections. You can edit each one, but it works best "
+        "with the same prompt across all sections. Max duration ~13 sec. "
+        "Estimated wait time ~4 minutes.\n\n"
+        "<b>✏️ Edit Easy (Default)</b>\n"
+        "Standard image editor — add objects or elements to your photo.\n\n"
+        "<b>⚡ Edit Easy (Depth/Fast/Detailed)</b>\n"
+        "NSFW editor. Undress, add cum, or transform by prompt — anything goes.\n\n"
+        "<b>🎨 Generate</b>\n"
+        "Create images from scratch. You can include your own girls/characters "
+        "in generations (contact @vowofquiet to add your character).\n\n"
+        "<b>🔄 Face Swap</b>\n"
+        "Generates an image, then blends in facial details from your photo.\n\n"
+        "<i>Remember — everything depends on your prompt. "
+        "Think carefully about your prompts and you'll get exactly the result you want.</i>"
+    )
+    await callback.message.answer(text, parse_mode="HTML")
+    await callback.answer()
+
+
 @dp.callback_query(F.data == "cb_profile")
 async def cb_profile(callback: types.CallbackQuery):
     """Show user profile info."""
@@ -957,6 +1054,30 @@ async def on_successful_payment(message: types.Message):
             "**Premium activated** for 30 days!\n"
             f"Paid: {stars} Stars\n\n"
             "Unlimited generations and priority queue.",
+            parse_mode="Markdown",
+        )
+    elif payload == "quick_image":
+        await db.get_or_create_user(
+            user_id,
+            username=message.from_user.username or "",
+            first_name=message.from_user.first_name or "",
+        )
+        await db.add_tokens(user_id, 1)
+        await message.answer(
+            "+1 token added! You can now generate.\n"
+            f"Paid: {stars} Stars",
+            parse_mode="Markdown",
+        )
+    elif payload == "quick_video":
+        await db.get_or_create_user(
+            user_id,
+            username=message.from_user.username or "",
+            first_name=message.from_user.first_name or "",
+        )
+        await db.add_tokens(user_id, TOKEN_COST_KENPECHI)
+        await message.answer(
+            f"+{TOKEN_COST_KENPECHI} tokens added! You can now generate a video.\n"
+            f"Paid: {stars} Stars",
             parse_mode="Markdown",
         )
     else:

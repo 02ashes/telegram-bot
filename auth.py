@@ -44,7 +44,7 @@ def validate_webapp_data(init_data: str, bot_token: str) -> Optional[dict]:
 
         # Check auth_date freshness (reject initData older than 24h)
         auth_date = int(parsed.get("auth_date", ["0"])[0])
-        if auth_date and (time.time() - auth_date > 86400):
+        if auth_date and (time.time() - auth_date > 604800):  # 7 days
             return None
 
         # Extract user info

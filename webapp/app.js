@@ -20,16 +20,113 @@ function authHeaders() {
     };
 }
 
-function handleAuthError(resp) {
+async function handleAuthError(resp) {
     if (resp.status === 401) {
-        alert('❌ Access denied. Enter invite code in bot: /invite CODE');
+        alert('❌ Session expired. Please restart the bot.');
         return true;
     }
     if (resp.status === 402) {
-        alert('❌ Not enough tokens. Buy more in the Profile tab.');
+        try {
+            const data = await resp.clone().json();
+            if (data?.quick_buy) {
+                showQuickBuyModal(data.quick_buy);
+            } else {
+                alert('❌ Not enough tokens. Buy more in the Profile tab.');
+            }
+        } catch {
+            alert('❌ Not enough tokens. Buy more in the Profile tab.');
+        }
         return true;
     }
     return false;
+}
+
+// Quick-buy modal: offers single generation purchase via Stars
+function showQuickBuyModal(prices) {
+    const isVideo = (currentMode === 'video');
+    const price = isVideo ? prices.video : prices.image;
+    const label = isVideo ? 'Video' : 'Image';
+
+    // Remove existing modal if any
+    const existing = document.getElementById('quickBuyOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'quickBuyOverlay';
+    overlay.style.cssText = 'display:flex; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;';
+
+    overlay.innerHTML = `
+        <div style="background:#16161e; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px 20px 18px; max-width:320px; width:85%; text-align:center;">
+            <div style="color:#d4d4d8; font-family:'Outfit',sans-serif; font-size:0.95rem; line-height:1.5; margin-bottom:6px;">
+                ❌ Not enough tokens
+            </div>
+            <div style="color:#71717a; font-family:'Outfit',sans-serif; font-size:0.78rem; margin-bottom:18px;">
+                Buy a single generation or get a token package
+            </div>
+            <button id="quickBuyBtn" style="background:linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.3)); color:#e4e4e7; border:1px solid rgba(99,102,241,0.3); border-radius:999px; padding:12px 20px; font-family:'Outfit',sans-serif; font-size:0.85rem; letter-spacing:0.5px; cursor:pointer; width:100%; margin-bottom:10px;">
+                Buy 1 ${label} — ${price} ⭐
+            </button>
+            <button id="quickBuyPackages" style="background:rgba(255,255,255,0.06); color:#a1a1aa; border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:10px 20px; font-family:'Outfit',sans-serif; font-size:0.8rem; letter-spacing:0.5px; cursor:pointer; width:100%; margin-bottom:10px;">
+                Token Packages
+            </button>
+            <button id="quickBuyClose" style="background:none; color:#71717a; border:none; font-family:'Outfit',sans-serif; font-size:0.78rem; cursor:pointer; padding:8px;">
+                Cancel
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Close
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    document.getElementById('quickBuyClose').addEventListener('click', () => overlay.remove());
+
+    // Go to packages tab
+    document.getElementById('quickBuyPackages').addEventListener('click', () => {
+        overlay.remove();
+        document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById('tabProfile').classList.add('active');
+        document.getElementById('contentProfile').style.display = 'block';
+    });
+
+    // Quick buy
+    document.getElementById('quickBuyBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('quickBuyBtn');
+        btn.textContent = 'Creating invoice...';
+        btn.disabled = true;
+        try {
+            const hdr = {
+                'Content-Type': 'application/json',
+                'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
+            };
+            const resp = await fetch('/api/quick-buy', {
+                method: 'POST',
+                headers: hdr,
+                body: JSON.stringify({ type: isVideo ? 'video' : 'image' }),
+            });
+            const data = await resp.json();
+            if (!resp.ok || !data.invoice_url) {
+                alert(data.error || 'Failed to create invoice');
+                overlay.remove();
+                return;
+            }
+            overlay.remove();
+            if (window.Telegram?.WebApp?.openInvoice) {
+                window.Telegram.WebApp.openInvoice(data.invoice_url, (status) => {
+                    if (status === 'paid') {
+                        if (typeof loadProfile === 'function') loadProfile();
+                        alert('✅ Payment successful! You can now generate.');
+                    }
+                });
+            } else {
+                window.open(data.invoice_url, '_blank');
+            }
+        } catch (e) {
+            alert('Error: ' + e.message);
+            overlay.remove();
+        }
+    });
 }
 
 // ============================================================
@@ -1134,6 +1231,9 @@ async function generateInpaint(prompt) {
             }),
         });
 
+        if (await handleAuthError(resp)) {
+            return;
+        }
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
             throw new Error(errData?.error || errData?.detail || `Server error: ${resp.status}`);
@@ -1239,7 +1339,7 @@ async function generateImageEdit(prompt) {
 
         clearInterval(progressInterval);
 
-        if (handleAuthError(response)) {
+        if (await handleAuthError(response)) {
             progressFill.style.width = '0%';
             progressText.textContent = '';
             return;
@@ -1369,7 +1469,7 @@ async function generateDarkEdit(prompt) {
         clearTimeout(fetchTimeout);
         clearInterval(progressInterval);
 
-        if (handleAuthError(response)) {
+        if (await handleAuthError(response)) {
             progressFill.style.width = '0%';
             progressText.textContent = '';
             return;
@@ -2521,6 +2621,9 @@ async function generateKenpechiVideo() {
             body: JSON.stringify(body),
         });
 
+        if (await handleAuthError(submitResp)) {
+            return;
+        }
         if (!submitResp.ok) {
             const errData = await submitResp.json().catch(() => null);
             throw new Error(errData?.error || `Server error: ${submitResp.status}`);

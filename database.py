@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_premium      BOOLEAN DEFAULT FALSE,
     premium_until   TIMESTAMPTZ,
     tokens          INTEGER DEFAULT 0,
+    free_gens       INTEGER DEFAULT 1,
     total_spent     INTEGER DEFAULT 0,
     total_gens      INTEGER DEFAULT 0,
     created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -85,6 +86,10 @@ async def init():
 
     async with _pool.acquire() as conn:
         await conn.execute(SCHEMA_SQL)
+        # Migration: add free_gens column if missing
+        await conn.execute("""
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS free_gens INTEGER DEFAULT 1
+        """)
 
     logger.info("✅ Database ready")
 
@@ -148,6 +153,20 @@ async def get_user(telegram_id: int) -> dict | None:
             "SELECT * FROM users WHERE telegram_id = $1", telegram_id
         )
         return dict(row) if row else None
+
+
+async def use_free_gen(telegram_id: int) -> bool:
+    """Try to consume one free generation. Returns True if successful."""
+    if not _pool:
+        return False
+    async with _pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """UPDATE users SET free_gens = free_gens - 1, updated_at = NOW()
+               WHERE telegram_id = $1 AND free_gens > 0
+               RETURNING free_gens""",
+            telegram_id,
+        )
+        return row is not None
 
 
 async def is_premium(telegram_id: int) -> bool:
