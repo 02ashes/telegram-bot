@@ -30,6 +30,7 @@ from fastapi.exceptions import RequestValidationError
 import auth
 import comfyui_api
 import config
+import prompt_enhance
 
 # Logging
 logging.basicConfig(
@@ -292,6 +293,49 @@ async def api_packages():
         "quick_buy_video": QUICK_BUY_VIDEO_STARS,
     }
 
+
+@app.post("/api/enhance-prompt")
+async def api_enhance_prompt(request: Request):
+    """Enhance user prompt via SiliconFlow Vision LLM (standalone call)."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+    try:
+        body = await request.json()
+        user_prompt = body.get("prompt", "").strip()
+        image_b64 = body.get("image", "")  # optional: uploaded photo for vision analysis
+        mode = body.get("mode", "edit")  # "edit", "generate", "dark"
+        lora_trigger = body.get("lora_trigger", "")
+
+        if not user_prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing prompt"})
+
+        if not config.AUTOPROMPT_ENABLED:
+            return JSONResponse(content={
+                "enhanced": user_prompt,
+                "original": user_prompt,
+                "time_ms": 0,
+            })
+
+        result = await prompt_enhance.enhance_prompt(
+            user_prompt=user_prompt,
+            image_b64=image_b64 or None,
+            mode=mode,
+            lora_trigger=lora_trigger,
+        )
+
+        return JSONResponse(content=result)
+
+    except Exception as e:
+        logger.exception("Enhance prompt error")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "enhanced": body.get("prompt", ""),
+            "original": body.get("prompt", ""),
+        })
+
+
 @app.post("/api/inpaint")
 async def api_inpaint(request: Request):
     """Run inpainting via RunPod Serverless."""
@@ -308,9 +352,21 @@ async def api_inpaint(request: Request):
         negative = body.get("negative", "blurry, ugly, deformed, watermark, text, low quality, cartoon")
         cfg = float(body.get("cfg", 3.5))
         steps = int(body.get("steps", 25))
+        auto_prompt = body.get("auto_prompt", False)
 
         if not image_b64 or not mask_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image, mask, or prompt"})
+
+        # Auto-prompt enhancement
+        original_prompt = prompt
+        enhanced_info = None
+        if auto_prompt and config.AUTOPROMPT_ENABLED:
+            enhanced_info = await prompt_enhance.enhance_prompt(
+                user_prompt=prompt,
+                image_b64=image_b64,
+                mode="edit",
+            )
+            prompt = enhanced_info["enhanced"]
 
         # Check tokens AFTER validation (premium/admin skip)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
@@ -321,6 +377,7 @@ async def api_inpaint(request: Request):
                         "error": "Not enough tokens",
                         "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
                     })
+                # free_gen consumed — no token refund needed on failure
             else:
                 tokens_deducted = True
 
@@ -360,12 +417,26 @@ async def api_inpaint(request: Request):
             telegram_id=user["id"], prompt=prompt, mode="inpaint",
         ))
 
+        # Build admin caption with both prompts
+        admin_prompt = prompt
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            admin_prompt = f"✨ AUTO-PROMPT ({enhanced_info['time_ms']}ms)\n📝 Original: {original_prompt}\n🔮 Enhanced: {prompt}"
+
         # Notify admin
         asyncio.create_task(notify_admin_generation(
+            user=user, prompt=admin_prompt, image_bytes_list=[result_bytes],
+        ))
+
+        # Send result to user's DM
+        asyncio.create_task(send_result_to_user(
             user=user, prompt=prompt, image_bytes_list=[result_bytes],
         ))
 
-        return JSONResponse(content={"image": result_b64})
+        response_data = {"image": result_b64}
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            response_data["enhanced_prompt"] = prompt
+            response_data["original_prompt"] = original_prompt
+        return JSONResponse(content=response_data)
 
     except Exception as e:
         logger.exception("Inpaint error")
@@ -501,6 +572,11 @@ async def api_video_status(job_id: str, request: Request):
         # Clean up completed/failed jobs
         if result.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
             _video_jobs.pop(job_id, None)
+
+        # Auto-send video to user's DM when completed
+        if result.get("status") == "COMPLETED" and result.get("video"):
+            asyncio.create_task(_send_video_to_user(user, result["video"]))
+
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("Video status error")
@@ -587,9 +663,22 @@ async def api_image_edit(request: Request):
         lora_name = body.get("lora_name", "")
         lora_strength = float(body.get("lora_strength", 0.7))
         edit_submode = body.get("edit_submode", "depth")  # "default" or "depth"
+        auto_prompt = body.get("auto_prompt", False)
 
         if not image_b64 or not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing image or prompt"})
+
+        # Auto-prompt enhancement
+        original_prompt = prompt
+        enhanced_info = None
+        if auto_prompt and config.AUTOPROMPT_ENABLED:
+            enhanced_info = await prompt_enhance.enhance_prompt(
+                user_prompt=prompt,
+                image_b64=image_b64,
+                mode="edit",
+                lora_trigger=body.get("lora_trigger", ""),
+            )
+            prompt = enhanced_info["enhanced"]
 
         # Check tokens AFTER validation (premium/admin skip)
         if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
@@ -600,6 +689,7 @@ async def api_image_edit(request: Request):
                         "error": "Not enough tokens",
                         "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
                     })
+                # free_gen consumed — no token refund needed on failure
             else:
                 tokens_deducted = True
 
@@ -650,12 +740,26 @@ async def api_image_edit(request: Request):
             telegram_id=user["id"], prompt=prompt, mode="image-edit",
         ))
 
+        # Build admin caption with both prompts
+        admin_prompt = prompt
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            admin_prompt = f"✨ AUTO-PROMPT ({enhanced_info['time_ms']}ms)\n📝 Original: {original_prompt}\n🔮 Enhanced: {prompt}"
+
         # Notify admin
         asyncio.create_task(notify_admin_generation(
+            user=user, prompt=admin_prompt, image_bytes_list=[result_bytes],
+        ))
+
+        # Send result to user's DM
+        asyncio.create_task(send_result_to_user(
             user=user, prompt=prompt, image_bytes_list=[result_bytes],
         ))
 
-        return JSONResponse(content={"image": result_b64})
+        response_data = {"image": result_b64}
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            response_data["enhanced_prompt"] = prompt
+            response_data["original_prompt"] = original_prompt
+        return JSONResponse(content=response_data)
 
     except Exception as e:
         logger.exception("Image edit error")
@@ -686,11 +790,24 @@ async def api_image_edit_dark(request: Request):
         cfg = float(body.get("cfg", 1.0))
         quality = body.get("quality", "fast")
         dark_mode = body.get("mode", "edit")  # "edit" or "generate"
+        auto_prompt = body.get("auto_prompt", False)
 
         if not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing prompt"})
         if dark_mode == "edit" and not image_b64:
             return JSONResponse(status_code=400, content={"error": "Missing image (required for Edit mode)"})
+
+        # Auto-prompt enhancement
+        original_prompt = prompt
+        enhanced_info = None
+        if auto_prompt and config.AUTOPROMPT_ENABLED:
+            enhanced_info = await prompt_enhance.enhance_prompt(
+                user_prompt=prompt,
+                image_b64=image_b64 if image_b64 else None,
+                mode="dark" if dark_mode == "edit" else "generate",
+                lora_trigger=body.get("lora_trigger", ""),
+            )
+            prompt = enhanced_info["enhanced"]
 
         # Validate faceswap inputs BEFORE spending tokens
         submode = body.get("submode", "default")
@@ -707,6 +824,7 @@ async def api_image_edit_dark(request: Request):
                         "error": "Not enough tokens",
                         "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
                     })
+                # free_gen consumed — no token refund needed on failure
             else:
                 tokens_deducted = True
 
@@ -769,12 +887,26 @@ async def api_image_edit_dark(request: Request):
             telegram_id=user["id"], prompt=prompt, mode="image-edit-dark",
         ))
 
+        # Build admin caption with both prompts
+        admin_prompt = prompt
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            admin_prompt = f"✨ AUTO-PROMPT ({enhanced_info['time_ms']}ms)\n📝 Original: {original_prompt}\n🔮 Enhanced: {prompt}"
+
         # Notify admin
         asyncio.create_task(notify_admin_generation(
+            user=user, prompt=admin_prompt, image_bytes_list=[result_bytes],
+        ))
+
+        # Send result to user's DM
+        asyncio.create_task(send_result_to_user(
             user=user, prompt=prompt, image_bytes_list=[result_bytes],
         ))
 
-        return JSONResponse(content={"image": result_b64})
+        response_data = {"image": result_b64}
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            response_data["enhanced_prompt"] = prompt
+            response_data["original_prompt"] = original_prompt
+        return JSONResponse(content=response_data)
 
     except Exception as e:
         logger.exception("Dark edit error")
@@ -855,6 +987,70 @@ async def notify_admin_generation(
     except Exception:
         logger.warning("Failed to notify admin: %s", traceback.format_exc())
 
+
+async def send_result_to_user(
+    user: dict,
+    prompt: str,
+    image_bytes_list: list[bytes],
+):
+    """Send generation result (image + prompt) to user's Telegram DM."""
+    try:
+        user_id = user.get("id")
+        if not user_id:
+            return
+
+        caption = f"🎨 Your generation\n📝 {prompt[:900]}"
+
+        def _prepare_photo(raw: bytes) -> bytes:
+            """Resize for Telegram (max 1280px side, JPEG)."""
+            from PIL import Image as PILImage
+            img = PILImage.open(io.BytesIO(raw)).convert("RGB")
+            max_side = 1280
+            if max(img.size) > max_side:
+                img.thumbnail((max_side, max_side), PILImage.LANCZOS)
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=88)
+            return buf.getvalue()
+
+        if len(image_bytes_list) == 1:
+            photo = _prepare_photo(image_bytes_list[0])
+            file = BufferedInputFile(photo, filename="generation.jpg")
+            try:
+                await bot.send_photo(user_id, file, caption=caption)
+            except Exception:
+                await bot.send_document(user_id, file, caption=caption)
+        elif len(image_bytes_list) > 1:
+            from aiogram.types import InputMediaPhoto
+            media = []
+            for i, img_bytes in enumerate(image_bytes_list[:10]):
+                photo = _prepare_photo(img_bytes)
+                file = BufferedInputFile(photo, filename=f"generation_{i}.jpg")
+                media.append(InputMediaPhoto(
+                    media=file,
+                    caption=caption if i == 0 else None,
+                ))
+            try:
+                await bot.send_media_group(user_id, media)
+            except Exception:
+                photo = _prepare_photo(image_bytes_list[0])
+                file = BufferedInputFile(photo, filename="generation.jpg")
+                await bot.send_document(user_id, file, caption=caption)
+    except Exception:
+        logger.warning("Failed to send result to user %s: %s", user.get('id'), traceback.format_exc())
+
+
+async def _send_video_to_user(user: dict, video_b64: str):
+    """Send completed video to user's Telegram DM."""
+    try:
+        user_id = user.get("id")
+        if not user_id:
+            return
+
+        video_bytes = base64.b64decode(video_b64)
+        file = BufferedInputFile(video_bytes, filename="generation.mp4")
+        await bot.send_video(user_id, file, caption="🎬 Your video generation")
+    except Exception:
+        logger.warning("Failed to send video to user %s: %s", user.get('id'), traceback.format_exc())
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):

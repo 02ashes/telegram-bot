@@ -139,6 +139,7 @@ let darkMode = 'edit'; // 'edit' or 'generate'
 let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
 let darkGenSubmode = 'default'; // 'default' or 'faceswap'
 let faceImageB64 = null; // base64 face photo for BFS
+let autoPromptEnabled = true; // ✨ Auto-prompt enhancement toggle
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
@@ -288,7 +289,7 @@ async function loadProfile() {
         const isPrem = data.is_premium;
         document.getElementById('profilePremium').textContent = isPrem ? 'Active' : 'None';
         document.getElementById('profileRole').textContent =
-            'DBG:' + JSON.stringify(data).substring(0, 100);
+            data.is_admin ? 'Admin' : (isPrem ? 'Premium' : 'User');
     } catch (e) {
         document.getElementById('profileName').textContent = 'Error: ' + e.message;
     }
@@ -1228,6 +1229,7 @@ async function generateInpaint(prompt) {
                 negative: negative,
                 cfg: cfg,
                 steps: steps,
+                auto_prompt: autoPromptEnabled,
             }),
         });
 
@@ -1258,6 +1260,9 @@ async function generateInpaint(prompt) {
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
+
+        // Show enhanced prompt if auto-prompt was used
+        showEnhancedPrompt(data);
 
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
@@ -1334,7 +1339,7 @@ async function generateImageEdit(prompt) {
         const response = await fetch('/api/image-edit', {
             method: 'POST',
             headers: authHeaders(),
-            body: JSON.stringify(body),
+            body: JSON.stringify({...body, auto_prompt: autoPromptEnabled}),
         });
 
         clearInterval(progressInterval);
@@ -1366,6 +1371,9 @@ async function generateImageEdit(prompt) {
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
+
+        // Show enhanced prompt if auto-prompt was used
+        showEnhancedPrompt(data);
 
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
@@ -1462,7 +1470,7 @@ async function generateDarkEdit(prompt) {
         const response = await fetch('/api/image-edit-dark', {
             method: 'POST',
             headers: authHeaders(),
-            body: JSON.stringify(body),
+            body: JSON.stringify({...body, auto_prompt: autoPromptEnabled}),
             signal: currentVideoController.signal,
         });
 
@@ -1495,6 +1503,9 @@ async function generateDarkEdit(prompt) {
         resultImage.style.display = '';
         resultVideo.style.display = 'none';
         resultSection.style.display = '';
+
+        // Show enhanced prompt if auto-prompt was used
+        showEnhancedPrompt(data);
 
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
@@ -2689,5 +2700,186 @@ async function generateKenpechiVideo() {
         generateBtn.querySelector('.btn-loader').style.display = 'none';
         if (cancelBtn) cancelBtn.style.display = 'none';
     }
+}
+
+// ============================================================
+// ✨ Auto-Prompt Button & Enhanced Prompt Display
+// ============================================================
+(function injectAutoPromptButton() {
+    const promptInput = document.getElementById('promptInput');
+    if (!promptInput) return;
+
+    // Create button row
+    const btnRow = document.createElement('div');
+    btnRow.id = 'autoPromptRow';
+    btnRow.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
+
+    const enhanceBtn = document.createElement('button');
+    enhanceBtn.id = 'autoPromptBtn';
+    enhanceBtn.type = 'button';
+    enhanceBtn.style.cssText = `
+        flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+        padding:9px 14px; background:linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1));
+        border:1px solid rgba(168,85,247,0.25); border-radius:10px; color:#d4d4d8;
+        font-size:0.82rem; font-family:'Outfit',sans-serif; cursor:pointer;
+        transition: all 0.2s ease;
+    `;
+    enhanceBtn.innerHTML = '✨ Enhance Prompt';
+    enhanceBtn.onmouseenter = () => { enhanceBtn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(139,92,246,0.18))'; enhanceBtn.style.borderColor = 'rgba(168,85,247,0.4)'; };
+    enhanceBtn.onmouseleave = () => { enhanceBtn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1))'; enhanceBtn.style.borderColor = 'rgba(168,85,247,0.25)'; };
+
+    btnRow.appendChild(enhanceBtn);
+
+    // Insert before prompt input
+    promptInput.parentNode.insertBefore(btnRow, promptInput.nextSibling);
+
+    // Click handler
+    enhanceBtn.addEventListener('click', async () => {
+        const prompt = promptInput.value.trim();
+        if (!prompt) {
+            alert('Enter a prompt first!');
+            return;
+        }
+
+        // Determine mode & get image if available
+        let mode = 'edit';
+        let imageB64 = '';
+
+        if (currentMode === 'dark') {
+            mode = darkMode === 'generate' ? 'generate' : 'dark';
+        } else if (currentMode === 'inpaint') {
+            mode = 'edit';
+        } else {
+            mode = 'edit';
+        }
+
+        // Get uploaded image for vision analysis
+        if (originalImage) {
+            try {
+                const dataURL = smartImageToDataURL(originalImage);
+                imageB64 = dataURL.split(',')[1];
+            } catch (e) { /* no image = text-only enhancement */ }
+        }
+
+        // Get LoRA trigger if selected
+        const loraInput = document.getElementById('loraNameInput');
+        const loraTrigger = loraInput?.value?.trim() || '';
+
+        // UI: show loading
+        const origHTML = enhanceBtn.innerHTML;
+        enhanceBtn.innerHTML = '<span class="btn-loader" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(168,85,247,0.3);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.6s linear infinite;"></span> Enhancing...';
+        enhanceBtn.disabled = true;
+        enhanceBtn.style.opacity = '0.6';
+
+        try {
+            const resp = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    prompt: prompt,
+                    image: imageB64,
+                    mode: mode,
+                    lora_trigger: loraTrigger,
+                }),
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => null);
+                throw new Error(err?.error || `Error ${resp.status}`);
+            }
+
+            const data = await resp.json();
+
+            if (data.enhanced && data.enhanced !== prompt) {
+                // Replace prompt in input
+                promptInput.value = data.enhanced;
+
+                // Show original prompt as a small badge
+                showOriginalPromptBadge(data.original, data.time_ms);
+
+                // Auto-resize textarea if it has auto-height
+                promptInput.style.height = 'auto';
+                promptInput.style.height = promptInput.scrollHeight + 'px';
+
+                // Flash effect
+                promptInput.style.transition = 'box-shadow 0.3s ease';
+                promptInput.style.boxShadow = '0 0 12px rgba(168,85,247,0.3)';
+                setTimeout(() => { promptInput.style.boxShadow = ''; }, 1500);
+            } else {
+                alert('Prompt is already optimal — no changes made');
+            }
+
+        } catch (err) {
+            alert('Enhance failed: ' + err.message);
+        } finally {
+            enhanceBtn.innerHTML = origHTML;
+            enhanceBtn.disabled = false;
+            enhanceBtn.style.opacity = '1';
+        }
+    });
+})();
+
+function showOriginalPromptBadge(originalPrompt, timeMs) {
+    // Remove existing
+    const existing = document.getElementById('originalPromptBadge');
+    if (existing) existing.remove();
+
+    const badge = document.createElement('div');
+    badge.id = 'originalPromptBadge';
+    badge.style.cssText = 'display:flex; align-items:center; justify-content:space-between; margin-top:6px; padding:6px 10px; background:rgba(113,113,122,0.08); border:1px solid rgba(113,113,122,0.12); border-radius:8px; font-family:"Outfit",sans-serif;';
+    badge.innerHTML = `
+        <div style="flex:1; min-width:0;">
+            <span style="font-size:0.68rem; color:#71717a;">📝 Original (${timeMs}ms):</span>
+            <span style="font-size:0.75rem; color:#a1a1aa; margin-left:4px; word-break:break-word;">${originalPrompt}</span>
+        </div>
+        <button id="restoreOriginalBtn" style="flex-shrink:0; background:rgba(113,113,122,0.15); border:1px solid rgba(113,113,122,0.2); color:#a1a1aa; border-radius:6px; padding:2px 8px; font-size:0.65rem; cursor:pointer; margin-left:8px; font-family:'Outfit',sans-serif;">Undo</button>
+    `;
+
+    const promptInput = document.getElementById('promptInput');
+    if (promptInput && promptInput.parentNode) {
+        promptInput.parentNode.insertBefore(badge, promptInput.nextSibling.nextSibling || null);
+    }
+
+    document.getElementById('restoreOriginalBtn')?.addEventListener('click', () => {
+        if (promptInput) promptInput.value = originalPrompt;
+        badge.remove();
+    });
+}
+
+// Show enhanced prompt after generation (if auto-prompt was used at generate-time)
+function showEnhancedPrompt(data) {
+    // Remove existing
+    const existing = document.getElementById('enhancedPromptBox');
+    if (existing) existing.remove();
+
+    if (!data.enhanced_prompt || !data.original_prompt) return;
+
+    const box = document.createElement('div');
+    box.id = 'enhancedPromptBox';
+    box.style.cssText = 'margin-top:12px; padding:12px 14px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.12); border-radius:10px; font-family:"Outfit",sans-serif;';
+    box.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:0.75rem; color:#a78bfa;">✨ Auto-Enhanced Prompt</span>
+            <button id="copyEnhancedPrompt" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.2); color:#d4d4d8; border-radius:6px; padding:3px 10px; font-size:0.7rem; cursor:pointer; font-family:'Outfit',sans-serif;">Copy</button>
+        </div>
+        <div style="font-size:0.78rem; color:#a1a1aa; margin-bottom:6px; line-height:1.4;">
+            <span style="color:#71717a;">📝</span> ${data.original_prompt}
+        </div>
+        <div style="font-size:0.82rem; color:#e4e4e7; line-height:1.5;">
+            <span style="color:#a78bfa;">🔮</span> ${data.enhanced_prompt}
+        </div>
+    `;
+
+    const resultSection = document.getElementById('resultSection');
+    if (resultSection) {
+        resultSection.appendChild(box);
+    }
+
+    document.getElementById('copyEnhancedPrompt')?.addEventListener('click', () => {
+        navigator.clipboard.writeText(data.enhanced_prompt).then(() => {
+            const btn = document.getElementById('copyEnhancedPrompt');
+            if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => btn.textContent = 'Copy', 1500); }
+        });
+    });
 }
 
