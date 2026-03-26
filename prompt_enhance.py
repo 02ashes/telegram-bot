@@ -19,8 +19,9 @@ import config
 logger = logging.getLogger(__name__)
 
 # ── Models ────────────────────────────────────────────────────
-VISION_MODEL = "Qwen/Qwen2.5-VL-72B-Instruct"
-TEXT_MODEL = "Qwen/Qwen2.5-VL-72B-Instruct"  # same model handles both
+# GLM-4.6V = 106B VLM, recommended by Chinese community for unrestricted NSFW
+VISION_MODEL = "zai-org/GLM-4.6V"                 # vision + text (106B, SOTA)
+TEXT_MODEL = "zai-org/GLM-4.6V"                    # same model for text-only
 
 # ── System Prompt (based on proven Z-Turbo methodology) ───────
 SYSTEM_PROMPT = """You are an expert AI image prompt engineer specialized in photorealistic amateur-style photography, optimized for Flux-based AI image generation. Your mission is to take a simple idea from the user and translate it into a single perfect dense prompt paragraph.
