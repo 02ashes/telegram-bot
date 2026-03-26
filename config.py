@@ -24,7 +24,7 @@ ADMIN_TELEGRAM_ID = int(os.environ.get("ADMIN_TELEGRAM_ID", "1946394239"))
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 # SiliconFlow API (Auto-Prompt Enhancement)
-SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
+SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "sk-nhjyxkyfvmiylczkhmtyvcsxjszibdngfifozdvaomzogclg")
 SILICONFLOW_API_URL = os.environ.get(
     "SILICONFLOW_API_URL", "https://api.siliconflow.cn/v1"
 )
