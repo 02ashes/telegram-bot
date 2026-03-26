@@ -1229,7 +1229,6 @@ async function generateInpaint(prompt) {
                 negative: negative,
                 cfg: cfg,
                 steps: steps,
-                auto_prompt: autoPromptEnabled,
             }),
         });
 
@@ -1339,7 +1338,7 @@ async function generateImageEdit(prompt) {
         const response = await fetch('/api/image-edit', {
             method: 'POST',
             headers: authHeaders(),
-            body: JSON.stringify({...body, auto_prompt: autoPromptEnabled}),
+            body: JSON.stringify(body),
         });
 
         clearInterval(progressInterval);
@@ -1470,7 +1469,7 @@ async function generateDarkEdit(prompt) {
         const response = await fetch('/api/image-edit-dark', {
             method: 'POST',
             headers: authHeaders(),
-            body: JSON.stringify({...body, auto_prompt: autoPromptEnabled}),
+            body: JSON.stringify(body),
             signal: currentVideoController.signal,
         });
 
