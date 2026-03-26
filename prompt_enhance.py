@@ -109,7 +109,7 @@ ABSOLUTE PROHIBITIONS
 
 
 # ── Timeout & Fallback ────────────────────────────────────────
-REQUEST_TIMEOUT = 15  # seconds — if API doesn't respond, return original prompt
+REQUEST_TIMEOUT = 30  # seconds — GLM-4.6V is 106B, needs more time on cold start
 
 
 async def enhance_prompt(
@@ -204,6 +204,7 @@ async def enhance_prompt(
                     "max_tokens": 400,
                     "temperature": 0.7,
                     "stream": False,
+                    "enable_thinking": False,  # disable CoT for speed
                 },
                 timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
             ) as resp:
