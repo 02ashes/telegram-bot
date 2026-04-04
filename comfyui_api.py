@@ -2493,20 +2493,41 @@ def build_v9_workflow(
     for nid in _V9_REMOVE_NODES:
         wf.pop(nid, None)
 
-    # Fix dangling references after removing cache nodes:
-    # node 267 (ImageScaleBy) was: image ← 180 (clearCacheAll, removed)
-    # Correct chain: 8 (VAEDecode) → 267 (scale 1.5x)
+    # Fix dangling references after removing cache nodes.
+    # Full original chain:
+    #   8(VAEDecode) → 179(clean) → 180(clear) → 267(scale1.5x) → 321(clean) → 322(clear)
+    #                 → FaceDetailer chain → "299:396" (detailer output)
+    #                 → 98(clean) → 99(clear) → 377(AdvancedImageDenoiser) → post-processing → SeedVR2 → Save
+    # Removed: 179, 180, 321, 322, 98, 99
+    # Fixes needed:
+    #   1) 267: image ← "8" (was 180)
+    #   2) FaceDetailer chain input: ← "267" (was 322)
+    #   3) 377: image ← "299:396" (was 99, detailer chain output)
+
+    # Fix 1: 267 (ImageScaleBy 1.5x): was ← 180, now ← 8
     if "267" in wf:
         wf["267"]["inputs"]["image"] = ["8", 0]
 
-    # node 377 (AdvancedImageDenoiser) was: image ← 99 (clearCacheAll, removed)
-    # Correct chain: after SeedVR2 (node 94) → 377
-    # But 377 takes the detailer output, not SeedVR2. Let me trace:
-    # Original: 8 → 179(clean) → 180(clear) → 267(scale) → 321(clean) → 322(clear)
-    # 322 is input to FaceDetailer chain node "327:324" via "image" field
-    # With cleanup nodes removed: 267 output → FaceDetailer chain
-    if "327:324" in wf:
-        wf["327:324"]["inputs"]["image"] = ["267", 0]
+    # Fix 2: Find any node that referenced removed 322 or 321 and redirect to 267
+    removed_cache_ids = {"179", "180", "321", "322", "98", "99"}
+    for nid, node in wf.items():
+        inputs = node.get("inputs", {})
+        for key, val in inputs.items():
+            if isinstance(val, list) and len(val) == 2 and isinstance(val[0], str):
+                if val[0] in removed_cache_ids:
+                    # Determine correct redirect
+                    if val[0] in ("321", "322"):
+                        # Was between 267 and FaceDetailer → redirect to 267
+                        wf[nid]["inputs"][key] = ["267", 0]
+                        logger.info("V9 fix: node %s.%s: %s → 267", nid, key, val[0])
+                    elif val[0] in ("179", "180"):
+                        # Was between 8 and 267 → redirect to 8
+                        wf[nid]["inputs"][key] = ["8", 0]
+                        logger.info("V9 fix: node %s.%s: %s → 8", nid, key, val[0])
+                    elif val[0] in ("98", "99"):
+                        # Was between detailer output and 377 → redirect to "299:396"
+                        wf[nid]["inputs"][key] = ["299:396", 0]
+                        logger.info("V9 fix: node %s.%s: %s → 299:396", nid, key, val[0])
 
     # ── Core prompts ──
     wf["175"]["inputs"]["text"] = prompt
