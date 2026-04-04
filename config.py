@@ -9,7 +9,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 RUNPOD_API_KEY = os.environ.get("RUNPOD_API_KEY", "")
 RUNPOD_ENDPOINT_ID = os.environ.get("RUNPOD_ENDPOINT_ID", "6eoat0459ga8g5")
 RUNPOD_KENPECHI_ENDPOINT_ID = os.environ.get("RUNPOD_KENPECHI_ENDPOINT_ID", "xpk6atr8n1ahmc")
-RUNPOD_V9_ENDPOINT_ID = os.environ.get("RUNPOD_V9_ENDPOINT_ID", "")
+RUNPOD_V9_ENDPOINT_ID = os.environ.get("RUNPOD_V9_ENDPOINT_ID", "w5pssttlj6xtlg")
 
 # Server
 SERVER_HOST = "0.0.0.0"
