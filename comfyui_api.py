@@ -2534,9 +2534,9 @@ def build_v9_workflow(
     if negative:
         wf["104"]["inputs"]["text"] = negative
 
-    # ── Seed (random) ──
+    # ── Seed (random) — rgthree Seed max is 2^50 ──
     import random
-    wf["388"]["inputs"]["seed"] = random.randint(0, 2**53)
+    wf["388"]["inputs"]["seed"] = random.randint(0, 2**50)
 
     # ── Resolution ──
     wf["28"]["inputs"]["aspect_ratio"] = aspect_ratio
