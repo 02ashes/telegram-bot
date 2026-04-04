@@ -2038,3 +2038,44 @@ textarea {
 ::-webkit-resizer {
     background: transparent;
 }
+
+/* ============================================================
+   Test Mode (V9) — Aspect Ratio Select
+   ============================================================ */
+.test-select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.test-select:hover,
+.test-select:focus {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-hover);
+    outline: none;
+}
+
+.test-select option,
+.test-select optgroup {
+    background: #16161e;
+    color: var(--text);
+}
+
+.test-select optgroup {
+    font-weight: 500;
+    color: var(--text-dim);
+}

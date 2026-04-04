@@ -2367,3 +2367,347 @@ async def submit_kenpechi_video(
 
     logger.info("Kenpechi video job submitted: %s", job_id)
     return job_id
+
+
+# ============================================================
+# ULTIMATE V9 — Test Mode (Z-Image Turbo + Detailers)
+# ============================================================
+
+_V9_TEMPLATE_PATH = _pathlib.Path(__file__).parent / "ULTIMATE_V9.json"
+_V9_TEMPLATE: dict | None = None
+
+# Nodes to remove from V9 workflow for API use (preview, cache cleanup, comparers)
+_V9_REMOVE_NODES = [
+    "9",     # SaveImage "Save RAW Image" — avoid returning 2 images
+    "58",    # PreviewAny (resolution display)
+    "68",    # Image Comparer (Detailer vs RAW)
+    "98",    # cleanGpuUsed
+    "99",    # clearCacheAll
+    "101",   # Image Comparer (SeedVR2 vs RAW)
+    "109",   # SeedVariance bypasser
+    "179",   # cleanGpuUsed
+    "180",   # clearCacheAll
+    "321",   # cleanGpuUsed
+    "322",   # clearCacheAll
+    "364",   # PreviewImage (SeedVR2 output)
+    "386",   # VAEDecode (Pass 1 preview)
+    "387",   # PreviewImage (Pass 1)
+]
+
+# Detailer zone config: node IDs for LoRA loader, prompt, FastNodeBypasser, and prompt templates
+_V9_DETAILER_ZONES = {
+    "face": {
+        "lora_node": "254",
+        "prompt_node": "255",
+        "bypass_node": "312",
+        "bypass_key": "Enable 🧩  ZIT Face Lora Loader",
+        "strength_model": 1.0,
+        "prompt_template": "{trigger}, ultra-detailed portrait, photorealistic eyes, natural skin texture, realistic pores, smooth skin transitions, sharp focus, subtle lighting, perfectly clean white teeth, enhance original appearance without altering expression",
+        "prompt_no_trigger": "ultra-detailed portrait, photorealistic eyes, natural skin texture, realistic pores, smooth skin transitions, sharp focus, subtle lighting, perfectly clean white teeth, enhance original appearance without altering expression",
+        "always_on": True,  # LoRA always enabled even without character
+    },
+    "eyes": {
+        "lora_node": "260",
+        "prompt_node": "277",
+        "bypass_node": "314",
+        "bypass_key": "Enable 🧩  ZIT Eyes Lora Loader",
+        "strength_model": 0.9,
+        "prompt_template": "{trigger}, highly detailed eyes, glossy pupils, sharp eyelashes, smooth eyelids, realistic texture, fine iris details, preserve original eyes",
+        "prompt_no_trigger": "highly detailed eyes, glossy pupils, sharp eyelashes, smooth eyelids, realistic texture, fine iris details, preserve original eyes",
+        "always_on": True,
+    },
+    "hands": {
+        "lora_node": "261",
+        "prompt_node": "282",
+        "bypass_node": "315",
+        "bypass_key": "Enable 🧩  ZIT Hands Lora Loader",
+        "strength_model": 0.8,
+        "prompt_template": "{trigger}, realistic hands, natural finger proportions, detailed fingernails, soft skin texture, natural lighting, sharp focus, subtle veins, elegant posture",
+        "prompt_no_trigger": "realistic hands, natural finger proportions, detailed fingernails, soft skin texture, natural lighting, sharp focus, subtle veins, elegant posture",
+        "always_on": True,
+    },
+    "foot": {
+        "lora_node": "262",
+        "prompt_node": "295",
+        "bypass_node": "316",
+        "bypass_key": "Enable 🧩  ZIT Foot Lora Loader",
+        "strength_model": 0.8,
+        "prompt_template": "{trigger}, realistic feet, natural toe proportions, detailed toenails, soft skin texture, subtle veins, natural lighting, sharp focus, elegant posture",
+        "prompt_no_trigger": "realistic feet, natural toe proportions, detailed toenails, soft skin texture, subtle veins, natural lighting, sharp focus, elegant posture",
+        "always_on": False,  # Disabled when no character LoRA
+    },
+    "nipples": {
+        "lora_node": "263",
+        "prompt_node": "300",
+        "bypass_node": "318",
+        "bypass_key": "Enable 🧩  ZIT Nipples Lora Loader",
+        "strength_model": 0.85,
+        "prompt_template": "{trigger}, realistic small breasts, small nipples, natural skin texture, detailed nipples, subtle shading, soft transitions, sharp focus, photorealistic, elegant anatomy",
+        "prompt_no_trigger": "realistic small breasts, small nipples, natural skin texture, detailed nipples, subtle shading, soft transitions, sharp focus, photorealistic, elegant anatomy",
+        "always_on": False,
+    },
+    "pussy": {
+        "lora_node": "264",
+        "prompt_node": "302",
+        "bypass_node": "319",
+        "bypass_key": "Enable 🧩  ZIT Pussy Lora Loader",
+        "strength_model": 0.9,
+        "prompt_template": "{trigger}, shaved pussy, realistic small shaved vagina, subtle labia, natural clitoral hood, innie anatomy, soft skin texture, slight gloss, photorealistic, sharp focus, elegant details",
+        "prompt_no_trigger": "shaved pussy, realistic small shaved vagina, subtle labia, natural clitoral hood, innie anatomy, soft skin texture, slight gloss, photorealistic, sharp focus, elegant details",
+        "always_on": False,
+    },
+}
+
+# Fallback LoRA when no character is detected
+_V9_FALLBACK_LORA = "nicegirls_Zimage.safetensors"
+
+
+def _load_v9_template() -> dict:
+    """Load and cache the ULTIMATE_V9 workflow template."""
+    global _V9_TEMPLATE
+    if _V9_TEMPLATE is None:
+        with open(_V9_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+            _V9_TEMPLATE = json.load(f)
+        logger.info("V9 template loaded (%d nodes)", len(_V9_TEMPLATE))
+    return _V9_TEMPLATE
+
+
+def build_v9_workflow(
+    prompt: str,
+    negative: str = "",
+    aspect_ratio: str = "5:7 (Balanced Portrait)",
+    character_loras: list[dict] | None = None,
+) -> dict:
+    """Build ULTIMATE_V9 workflow by deep-copying template and patching.
+
+    Args:
+        prompt: User positive prompt (natural language)
+        negative: Negative prompt (optional)
+        aspect_ratio: FluxResolutionNode aspect ratio string
+        character_loras: List from detect_character_loras() or None
+    """
+    template = _load_v9_template()
+    wf = copy.deepcopy(template)
+
+    # ── Remove preview/cache/comparer nodes ──
+    for nid in _V9_REMOVE_NODES:
+        wf.pop(nid, None)
+
+    # Fix dangling references after removing cache nodes:
+    # node 267 (ImageScaleBy) was: image ← 180 (clearCacheAll, removed)
+    # Correct chain: 8 (VAEDecode) → 267 (scale 1.5x)
+    if "267" in wf:
+        wf["267"]["inputs"]["image"] = ["8", 0]
+
+    # node 377 (AdvancedImageDenoiser) was: image ← 99 (clearCacheAll, removed)
+    # Correct chain: after SeedVR2 (node 94) → 377
+    # But 377 takes the detailer output, not SeedVR2. Let me trace:
+    # Original: 8 → 179(clean) → 180(clear) → 267(scale) → 321(clean) → 322(clear)
+    # 322 is input to FaceDetailer chain node "327:324" via "image" field
+    # With cleanup nodes removed: 267 output → FaceDetailer chain
+    if "327:324" in wf:
+        wf["327:324"]["inputs"]["image"] = ["267", 0]
+
+    # ── Core prompts ──
+    wf["175"]["inputs"]["text"] = prompt
+    if negative:
+        wf["104"]["inputs"]["text"] = negative
+
+    # ── Seed (random) ──
+    import random
+    wf["388"]["inputs"]["seed"] = random.randint(0, 2**53)
+
+    # ── Resolution ──
+    wf["28"]["inputs"]["aspect_ratio"] = aspect_ratio
+
+    # ── Model switch: always ST (Input=1) ──
+    wf["344"]["inputs"]["Input"] = 1
+
+    # ── Character LoRA logic ──
+    has_character = bool(character_loras)
+    if has_character:
+        char = character_loras[0]  # Use first detected character
+        trigger = char["trigger"]
+        lora_name = char["lora_name"]
+        # V9: Always force strength 1.0 for character LoRA in main merger
+        lora_strength = 1.0
+    else:
+        trigger = ""
+        lora_name = _V9_FALLBACK_LORA
+        lora_strength = 1.0
+
+    # ── Node 391 (NSFW LoRA Merger Pass 1): slot lora_2 = character/fallback ──
+    wf["391"]["inputs"]["lora_2"] = lora_name
+    wf["391"]["inputs"]["strength_2"] = lora_strength
+
+    # ── Detailer zones ──
+    for zone_name, zone_cfg in _V9_DETAILER_ZONES.items():
+        lora_node = zone_cfg["lora_node"]
+        prompt_node = zone_cfg["prompt_node"]
+        bypass_node = zone_cfg["bypass_node"]
+        bypass_key = zone_cfg["bypass_key"]
+
+        if has_character:
+            # Character detected: enable all detailers with character LoRA
+            wf[lora_node]["inputs"]["lora_name"] = lora_name
+            wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
+            wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_template"].replace("{trigger}", trigger)
+            wf[bypass_node]["inputs"][bypass_key] = True
+        else:
+            if zone_cfg["always_on"]:
+                # Face/Eyes/Hands: use fallback LoRA, no trigger
+                wf[lora_node]["inputs"]["lora_name"] = _V9_FALLBACK_LORA
+                wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
+                wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
+                wf[bypass_node]["inputs"][bypass_key] = True
+            else:
+                # Foot/Nipples/Pussy: disable LoRA
+                wf[bypass_node]["inputs"][bypass_key] = False
+                wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
+
+    # ── Penis detailer: always static (ZPenisv2, no character LoRA) ──
+    # Node 350 (Penis Lora Loader) + 347 (Penis prompt) + 351 (bypass) stay as-is
+
+    logger.info(
+        "V9 workflow built: aspect=%s, char=%s, lora=%s",
+        aspect_ratio,
+        trigger if has_character else "(none)",
+        lora_name,
+    )
+    return wf
+
+
+async def submit_job_v9(workflow: dict, images: list[dict]) -> str | None:
+    """Submit a job to RunPod V9 Serverless endpoint."""
+    if not config.RUNPOD_V9_ENDPOINT_ID:
+        logger.error("RUNPOD_V9_ENDPOINT_ID not configured!")
+        return None
+
+    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_V9_ENDPOINT_ID}/run"
+    payload = {
+        "input": {
+            "workflow": workflow,
+            "images": images,
+        }
+    }
+
+    session = _get_session()
+    async with session.post(url, json=payload) as resp:
+        if resp.status != 200:
+            text = await resp.text()
+            logger.error("RunPod V9 submit failed (%d): %s", resp.status, text)
+            return None
+        result = await resp.json()
+        job_id = result.get("id")
+        logger.info("RunPod V9 job submitted: %s (status: %s)", job_id, result.get("status"))
+        return job_id
+
+
+async def poll_job_v9(job_id: str, timeout: int = 600) -> dict | None:
+    """Poll RunPod V9 endpoint for job completion."""
+    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_V9_ENDPOINT_ID}/status/{job_id}"
+    session = _get_session()
+
+    for i in range(timeout // 3):
+        await asyncio.sleep(3)
+        try:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                status = data.get("status")
+
+                if status == "COMPLETED":
+                    logger.info("V9 Job %s completed!", job_id)
+                    return data.get("output")
+                elif status == "FAILED":
+                    logger.error("V9 Job %s failed: %s", job_id, data.get("error"))
+                    return None
+                elif status == "CANCELLED":
+                    logger.info("V9 Job %s was cancelled", job_id)
+                    return None
+                elif status in ("IN_QUEUE", "IN_PROGRESS"):
+                    if i % 5 == 0:
+                        logger.info("V9 Job %s status: %s", job_id, status)
+                else:
+                    logger.warning("V9 Job %s unknown status: %s", job_id, status)
+        except Exception as e:
+            logger.warning("V9 poll error: %s", e)
+
+    logger.error("V9 Job %s timed out after %ds", job_id, timeout)
+    return None
+
+
+def _strip_image_metadata(image_bytes: bytes) -> bytes:
+    """Strip EXIF/metadata from image to prevent workflow leakage.
+
+    Returns clean PNG bytes with no embedded metadata.
+    """
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        # Create new image without metadata
+        clean = Image.new(img.mode, img.size)
+        clean.putdata(list(img.getdata()))
+        buf = io.BytesIO()
+        clean.save(buf, format="PNG", optimize=True)
+        logger.info("Stripped metadata: %d → %d bytes", len(image_bytes), buf.tell())
+        return buf.getvalue()
+    except Exception as e:
+        logger.warning("Failed to strip metadata: %s — returning original", e)
+        return image_bytes
+
+
+async def run_v9_generate(
+    prompt: str,
+    negative: str = "",
+    aspect_ratio: str = "5:7 (Balanced Portrait)",
+    lora_strength_override: float | None = None,
+) -> bytes | None:
+    """Generate image via ULTIMATE V9 pipeline on dedicated endpoint.
+
+    Auto-detects character LoRAs from prompt, patches detailers,
+    submits to V9 endpoint, polls for result, strips metadata.
+    """
+    # Auto-detect character LoRAs
+    char_loras = detect_character_loras(prompt)
+
+    # Apply strength override if provided
+    if lora_strength_override is not None and char_loras:
+        for lora in char_loras:
+            lora["strength"] = lora_strength_override
+            logger.info("V9 LoRA %s strength overridden to %.2f", lora["lora_name"], lora_strength_override)
+
+    # Build workflow
+    workflow = build_v9_workflow(
+        prompt=prompt,
+        negative=negative,
+        aspect_ratio=aspect_ratio,
+        character_loras=char_loras,
+    )
+
+    logger.info(
+        "V9 Generate job: aspect=%s, chars=%s",
+        aspect_ratio,
+        [c["trigger"] for c in char_loras] if char_loras else "(none)",
+    )
+
+    # Submit to V9 endpoint
+    job_id = await submit_job_v9(workflow, images=[])
+    if not job_id:
+        return None
+
+    # Poll for result (V9 pipeline is slow: dual-pass + detailers + SeedVR2 + post-process)
+    output = await poll_job_v9(job_id, timeout=900)
+    if not output:
+        return None
+
+    try:
+        result = _extract_file_from_output(output)
+        if not result:
+            logger.error("Could not extract image from V9 output")
+            return None
+        # Strip metadata to prevent workflow leakage
+        result = _strip_image_metadata(result)
+        return result
+    except Exception as e:
+        logger.error("Failed to parse V9 result: %s", e)
+        return None
+

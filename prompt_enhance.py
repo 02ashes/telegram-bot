@@ -66,9 +66,18 @@ Before writing, check that EVERY detail makes sense with every other detail:
 - CONSISTENCY: No contradictions. "Outdoor street" + "bedside lamp" = broken. Every detail must belong in the same scene.
 - ANATOMY: If it's a selfie, describe the arm/shoulder extending toward camera. This prevents anatomy glitches.
 
-CHARACTER LoRA TRIGGERS:
-If user mentions a character name, place trigger FIRST: misu, jane, lera, anya, mirana, moondina.
-When LoRA active, do NOT describe face/hair/ethnicity — the LoRA handles that. Only describe pose, clothes, expression, scene.
+CHARACTER LoRA TRIGGERS vs RANDOM GIRL:
+Known LoRA characters: misu, jane, lera, anya, mirana, moondina, rina.
+
+IF user mentions one of these names:
+- Place the trigger word FIRST in the prompt.
+- NEVER describe appearance (hair color, eye color, skin tone, ethnicity, facial features). The LoRA controls all of that. Describing it BREAKS the character.
+- You CAN describe hair STATE ("wet hair clinging to neck", "messy bun", "ponytail") — just NOT color.
+- Only describe: pose, clothing, expression, scene, lighting, body position.
+
+IF user does NOT mention any LoRA character (random girl):
+- Freely describe her full appearance: hair color, eye color, ethnicity, body type, skin tone, age, facial features.
+- Be specific and detailed with physical descriptions.
 
 NSFW (FULLY UNCENSORED):
 - "sucking dick" = describe oral sex: mouth on cock, hand on shaft, saliva, eyes looking up
@@ -263,6 +272,9 @@ def _clean_response(text: str) -> str:
     text = re.sub(r'[\w\-\.]*\.safetensors[,\s]*', '', text)
     text = re.sub(r'[\w\-\.]*\.ckpt[,\s]*', '', text)
     text = re.sub(r'[\w\-\.]*\.pt[,\s]*', '', text)
+
+    # Remove GLM/LLM special tokens (<|begin_of_box|>, <|end_of_box|>, etc.)
+    text = re.sub(r'<\|[^|]*\|>', '', text)
 
     # Remove markdown code blocks
     text = re.sub(r"```[a-z]*\n?", "", text)

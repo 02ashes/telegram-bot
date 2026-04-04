@@ -397,6 +397,8 @@ document.querySelectorAll('.custom-option').forEach(opt => {
         if (val === 'generate') {
             darkMode = 'generate';
             switchMode('dark');
+        } else if (val === 'test') {
+            switchMode('test');
         } else {
             if (val === 'dark') darkMode = 'edit';
             switchMode(val);
@@ -413,7 +415,7 @@ function switchMode(mode) {
     // Bug #2: Hide upload section in Dark Generate mode (text2img doesn't need photo)
     const uploadSection = document.getElementById('uploadSection');
     if (uploadSection) {
-        uploadSection.style.display = darkGenNoImage ? 'none' : '';
+        uploadSection.style.display = (darkGenNoImage || mode === 'test') ? 'none' : '';
     }
 
     // Show/hide mode-specific sections
@@ -464,6 +466,11 @@ function switchMode(mode) {
         el.style.display = mode === 'dark' && (originalImage || darkGenNoImage) ? '' : 'none';
     });
 
+    // Test mode sections
+    document.querySelectorAll('.test-only').forEach(el => {
+        el.style.display = mode === 'test' ? '' : 'none';
+    });
+
     // AFTER dark-only loop: override darkImage2Section for Edit mode too
     if (mode === 'image') {
         // Bug #2: Only show image2 slot in Default mode (Depth doesn't need it)
@@ -499,7 +506,7 @@ function switchMode(mode) {
 
     // Show/hide shared sections (Prompt + Generate) when image is loaded
     // Video mode hides prompt section (Kenpechi has per-scene prompts)
-    const hasContent = originalImage || darkGenNoImage;
+    const hasContent = originalImage || darkGenNoImage || mode === 'test';
     document.getElementById('promptSection').style.display = (hasContent && mode !== 'video') ? '' : 'none';
     document.getElementById('generateSection').style.display = hasContent ? '' : 'none';
 
@@ -536,6 +543,8 @@ function switchMode(mode) {
         promptInput.placeholder = 'Describe what to paint in the mask...';
     } else if (mode === 'video') {
         promptInput.placeholder = 'Describe motion (woman slowly turns her head, smiles...)';
+    } else if (mode === 'test') {
+        promptInput.placeholder = 'V9 scene (misu, sitting on bed, selfie angle...)';
     } else if (mode === 'dark') {
         promptInput.placeholder = darkMode === 'generate'
             ? 'Describe the scene (misu, sitting on a couch, bedroom...)'
@@ -558,6 +567,7 @@ function switchMode(mode) {
     const btnText = generateBtn.querySelector('.btn-text');
     if (mode === 'inpaint') btnText.textContent = 'GENERATE';
     else if (mode === 'video') btnText.textContent = 'GENERATE VIDEO';
+    else if (mode === 'test') btnText.textContent = 'V9 GENERATE';
     else if (mode === 'dark') btnText.textContent = darkMode === 'generate' ? 'GENERATE' : 'DARK BEAST';
     else btnText.textContent = editSubmode === 'default' ? 'EDIT IMAGE' : 'DEPTH EDIT';
 
@@ -863,6 +873,15 @@ if (darkLoraStrengthSlider) {
     });
 }
 
+// Test (V9) LoRA strength slider
+const testLoraStrengthSlider = document.getElementById('testLoraStrengthSlider');
+const testLoraStrengthLabel = document.getElementById('testLoraStrengthLabel');
+if (testLoraStrengthSlider) {
+    testLoraStrengthSlider.addEventListener('input', (e) => {
+        testLoraStrengthLabel.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+}
+
 // Quality toggle (Fast / Detailed)
 document.querySelectorAll('#darkQualitySection .quality-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1160,7 +1179,7 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
-    if (!originalImage && !(currentMode === 'dark' && darkMode === 'generate')) {
+    if (!originalImage && !(currentMode === 'dark' && darkMode === 'generate') && currentMode !== 'test') {
         alert('Upload a photo first!');
         return;
     }
@@ -1177,6 +1196,8 @@ generateBtn.addEventListener('click', async () => {
             await generateInpaint(prompt);
         } else if (currentMode === 'dark') {
             await generateDarkEdit(prompt);
+        } else if (currentMode === 'test') {
+            await generateTest(prompt);
         } else {
             await generateImageEdit(prompt);
         }
@@ -1506,6 +1527,106 @@ async function generateDarkEdit(prompt) {
         // Show enhanced prompt if auto-prompt was used
         showEnhancedPrompt(data);
 
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+        clearInterval(progressInterval);
+        progressFill.style.width = '0%';
+        const msg = err.name === 'AbortError' ? 'Request cancelled' : err.message;
+        progressText.textContent = 'Error: ' + msg;
+        if (err.name !== 'AbortError') alert('Error: ' + msg);
+    } finally {
+        currentVideoController = null;
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    }
+}
+
+// ============================================================
+// V9 Test Generation (text2img only)
+// ============================================================
+async function generateTest(prompt) {
+    const negative = document.getElementById('negativeInput').value.trim();
+    const aspectSelect = document.getElementById('testAspectSelect');
+    const aspectRatio = aspectSelect ? aspectSelect.value : '5:7 (Balanced Portrait)';
+    const loraSlider = document.getElementById('testLoraStrengthSlider');
+    const loraStrength = loraSlider ? parseFloat(loraSlider.value) : 1.0;
+
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+    progressInfo.style.display = '';
+    progressFill.style.width = '5%';
+    progressText.textContent = 'Submitting V9 job...';
+    resultSection.style.display = 'none';
+
+    const cancelBtn = document.getElementById('cancelVideoBtn');
+    if (cancelBtn) cancelBtn.style.display = '';
+
+    let progressInterval;
+
+    try {
+        progressInterval = setInterval(() => {
+            const cur = parseFloat(progressFill.style.width);
+            if (cur < 85) {
+                progressFill.style.width = (cur + 0.5) + '%';
+                if (cur < 15) progressText.textContent = 'Submitting V9 job...';
+                else if (cur < 30) progressText.textContent = 'Dual-pass sampling...';
+                else if (cur < 50) progressText.textContent = 'Running detailers...';
+                else if (cur < 70) progressText.textContent = 'SeedVR2 upscaling...';
+                else progressText.textContent = 'Post-processing...';
+            }
+        }, 3000);
+
+        currentVideoController = new AbortController();
+        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 15 * 60 * 1000); // 15 min
+
+        const response = await fetch('/api/image-test', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                prompt: prompt,
+                negative: negative,
+                aspect_ratio: aspectRatio,
+                lora_strength: loraStrength,
+                auto_prompt: false,
+            }),
+            signal: currentVideoController.signal,
+        });
+
+        clearTimeout(fetchTimeout);
+        clearInterval(progressInterval);
+
+        if (await handleAuthError(response)) {
+            progressFill.style.width = '0%';
+            progressText.textContent = '';
+            return;
+        }
+        if (!response.ok) {
+            const errData = await response.json().catch(() => null);
+            throw new Error(errData?.error || `Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        progressFill.style.width = '100%';
+        progressText.textContent = 'Done';
+
+        resetIphoneFilter();
+        lastResultB64 = data.image;
+        lastResultType = 'image';
+        resultImage.src = 'data:image/png;base64,' + data.image;
+        addToGallery(resultImage.src);
+        resultImage.style.display = '';
+        resultVideo.style.display = 'none';
+        resultSection.style.display = '';
+
+        showEnhancedPrompt(data);
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
     } catch (err) {

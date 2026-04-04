@@ -917,6 +917,105 @@ async def api_image_edit_dark(request: Request):
             content={"error": str(e)},
         )
 
+# ============================================================
+# V9 Test Mode — ULTIMATE V9 pipeline (text2img only)
+# ============================================================
+@app.post("/api/image-test")
+async def api_image_test(request: Request):
+    """Generate image via ULTIMATE V9 pipeline on dedicated V9 endpoint."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
+    try:
+        body = await request.json()
+        prompt = body.get("prompt", "")
+        negative = body.get("negative", "")
+        aspect_ratio = body.get("aspect_ratio", "5:7 (Balanced Portrait)")
+        lora_strength = float(body.get("lora_strength", 1.0))
+        auto_prompt = body.get("auto_prompt", False)
+
+        if not prompt:
+            return JSONResponse(status_code=400, content={"error": "Missing prompt"})
+
+        # Auto-prompt enhancement
+        original_prompt = prompt
+        enhanced_info = None
+        if auto_prompt and config.AUTOPROMPT_ENABLED:
+            enhanced_info = await prompt_enhance.enhance_prompt(
+                user_prompt=prompt,
+                image_b64=None,
+                mode="generate",
+                lora_trigger=body.get("lora_trigger", ""),
+            )
+            prompt = enhanced_info["enhanced"]
+
+        # Check tokens (premium/admin skip)
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
+
+        logger.info(
+            "V9 Test request: prompt=%s, aspect=%s, lora_str=%.2f",
+            prompt[:60], aspect_ratio, lora_strength,
+        )
+
+        result_bytes = await comfyui_api.run_v9_generate(
+            prompt=prompt,
+            negative=negative,
+            aspect_ratio=aspect_ratio,
+            lora_strength_override=lora_strength,
+        )
+
+        if result_bytes is None:
+            if tokens_deducted and db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
+            return JSONResponse(
+                status_code=500,
+                content={"error": "V9 generation failed. Check RunPod logs."},
+            )
+
+        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Log to history
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=prompt, mode="image-test-v9",
+        ))
+
+        # Build admin caption
+        admin_prompt = prompt
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            admin_prompt = f"✨ AUTO-PROMPT ({enhanced_info['time_ms']}ms)\n📝 Original: {original_prompt}\n🔮 Enhanced: {prompt}"
+
+        asyncio.create_task(notify_admin_generation(
+            user=user, prompt=f"[V9 TEST] {admin_prompt}", image_bytes_list=[result_bytes],
+        ))
+
+        asyncio.create_task(send_result_to_user(
+            user=user, prompt=prompt, image_bytes_list=[result_bytes],
+        ))
+
+        response_data = {"image": result_b64}
+        if enhanced_info and enhanced_info["model"] != "fallback":
+            response_data["enhanced_prompt"] = prompt
+            response_data["original_prompt"] = original_prompt
+        return JSONResponse(content=response_data)
+
+    except Exception as e:
+        logger.exception("V9 Test error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
+
 
 # ============================================================
 # Telegram Bot (aiogram 3)

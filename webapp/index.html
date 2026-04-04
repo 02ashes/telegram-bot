@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=48">
+    <link rel="stylesheet" href="/style.css?v=49">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -185,6 +185,7 @@
                         <div class="custom-option" data-value="image">Edit Easy</div>
                         <div class="custom-option" data-value="dark">Edit Dark</div>
                         <div class="custom-option" data-value="generate">Generate</div>
+                        <div class="custom-option" data-value="test">Test</div>
                     </div>
                 </div>
                 <!-- Hidden select for fallback -->
@@ -194,6 +195,7 @@
                     <option value="image">Edit Easy</option>
                     <option value="dark">Edit Dark</option>
                     <option value="generate">Generate</option>
+                    <option value="test">Test</option>
                 </select>
             </div>
 
@@ -340,6 +342,52 @@
                 </div>
             </div>
 
+            <!-- TEST (V9): Aspect Ratio -->
+            <div class="section test-only" id="testAspectSection" style="display:none;">
+                <div class="section-title">Aspect Ratio</div>
+                <select id="testAspectSelect" class="test-select">
+                    <optgroup label="Portrait">
+                        <option value="2:3 (Classic Portrait)">2:3 Classic Portrait</option>
+                        <option value="3:4 (Golden Ratio)">3:4 Golden Ratio</option>
+                        <option value="3:5 (Elegant Vertical)">3:5 Elegant Vertical</option>
+                        <option value="4:5 (Artistic Frame)">4:5 Artistic Frame</option>
+                        <option value="5:7 (Balanced Portrait)" selected>5:7 Balanced Portrait</option>
+                        <option value="5:8 (Tall Portrait)">5:8 Tall Portrait</option>
+                        <option value="7:9 (Modern Portrait)">7:9 Modern Portrait</option>
+                        <option value="9:16 (Slim Vertical)">9:16 Slim Vertical</option>
+                        <option value="9:19 (Tall Slim)">9:19 Tall Slim</option>
+                        <option value="9:21 (Ultra Tall)">9:21 Ultra Tall</option>
+                    </optgroup>
+                    <optgroup label="Square">
+                        <option value="1:1 (Perfect Square)">1:1 Perfect Square</option>
+                    </optgroup>
+                    <optgroup label="Landscape">
+                        <option value="3:2 (Golden Landscape)">3:2 Golden Landscape</option>
+                        <option value="4:3 (Classic Landscape)">4:3 Classic Landscape</option>
+                        <option value="5:3 (Wide Horizon)">5:3 Wide Horizon</option>
+                        <option value="5:4 (Balanced Frame)">5:4 Balanced Frame</option>
+                        <option value="7:5 (Elegant Landscape)">7:5 Elegant Landscape</option>
+                        <option value="8:5 (Cinematic View)">8:5 Cinematic View</option>
+                        <option value="9:7 (Artful Horizon)">9:7 Artful Horizon</option>
+                        <option value="16:9 (Panorama)">16:9 Panorama</option>
+                        <option value="19:9 (Cinematic Ultrawide)">19:9 Cinematic Ultrawide</option>
+                        <option value="21:9 (Epic Ultrawide)">21:9 Epic Ultrawide</option>
+                        <option value="32:9 (Extreme Ultrawide)">32:9 Extreme Ultrawide</option>
+                    </optgroup>
+                    <optgroup label="Special">
+                        <option value="9:32 (Skyline)">9:32 Skyline</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- TEST (V9): LoRA Strength -->
+            <div class="section test-only" id="testLoraStrengthSection" style="display:none;">
+                <div class="setting">
+                    <label>LoRA Strength: <span id="testLoraStrengthLabel">1.00</span></label>
+                    <input type="range" id="testLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="1.00">
+                </div>
+            </div>
+
             <!-- VIDEO: Kenpechi SVI Scenes -->
             <div class="section video-only" id="kenpechiScenesSection" style="display:none;">
                 <div class="section-title">Scenes <span style="opacity:0.5;font-size:0.7em">(6 max)</span></div>
@@ -465,7 +513,7 @@
         })();
     </script>
 
-    <script src="/app.js?v=49"></script>
+    <script src="/app.js?v=50"></script>
     <script>
         // Override functions — Telegram WebView caches app.js aggressively
         (function () {
