@@ -2568,23 +2568,22 @@ def build_v9_workflow(
         bypass_node = zone_cfg["bypass_node"]
         bypass_key = zone_cfg["bypass_key"]
 
-        if has_character:
-            # Character detected: enable all detailers with character LoRA
+        if has_character and zone_cfg["always_on"]:
+            # Character detected + Face/Eyes/Hands: enable with character LoRA
             wf[lora_node]["inputs"]["lora_name"] = lora_name
             wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
             wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_template"].replace("{trigger}", trigger)
             wf[bypass_node]["inputs"][bypass_key] = True
+        elif zone_cfg["always_on"]:
+            # No character + Face/Eyes/Hands: use fallback LoRA
+            wf[lora_node]["inputs"]["lora_name"] = _V9_FALLBACK_LORA
+            wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
+            wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
+            wf[bypass_node]["inputs"][bypass_key] = True
         else:
-            if zone_cfg["always_on"]:
-                # Face/Eyes/Hands: use fallback LoRA, no trigger
-                wf[lora_node]["inputs"]["lora_name"] = _V9_FALLBACK_LORA
-                wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
-                wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
-                wf[bypass_node]["inputs"][bypass_key] = True
-            else:
-                # Foot/Nipples/Pussy: disable LoRA
-                wf[bypass_node]["inputs"][bypass_key] = False
-                wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
+            # Foot/Nipples/Pussy: ALWAYS disable LoRA (character LoRA hurts anatomy)
+            wf[bypass_node]["inputs"][bypass_key] = False
+            wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
 
     # ── Penis detailer: always static (ZPenisv2, no character LoRA) ──
     # Node 350 (Penis Lora Loader) + 347 (Penis prompt) + 351 (bypass) stay as-is
