@@ -139,13 +139,11 @@ let darkMode = 'edit'; // 'edit' or 'generate'
 let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
 let darkGenSubmode = 'default'; // 'default' or 'faceswap'
 let faceImageB64 = null; // base64 face photo for BFS
-let autoPromptEnabled = true; // ✨ Auto-prompt enhancement toggle
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
 let brushSize = 20;
 let isDrawing = false;
 let originalImage = null;
-let originalImage2 = null;  // reference image for Image mode
 let darkImage2 = null;      // second image for Dark mode (combine two girls)
 let mainCtx = null;
 let maskCtx = null;
@@ -195,22 +193,14 @@ const lightboxCopy = document.getElementById('lightboxCopy');
 const lightboxDelete = document.getElementById('lightboxDelete');
 let activeLightboxIndex = -1;
 
-// Video settings
-const framesSlider = document.getElementById('framesSlider');
-const framesLabel = document.getElementById('framesLabel');
-const fpsSelect = document.getElementById('fpsSelect');
-const resolutionSelect = document.getElementById('resolutionSelect');
-const audioToggle = document.getElementById('audioToggle');
-const audioSettings = document.getElementById('audioSettings');
+
 
 // Image edit settings
 const denoiseSlider = document.getElementById('denoiseSlider');
 const denoiseLabel = document.getElementById('denoiseLabel');
 const editStepsSlider = document.getElementById('editStepsSlider');
 const editStepsLabel = document.getElementById('editStepsLabel');
-const uploadArea2 = document.getElementById('uploadArea2');
-const uploadPlaceholder2 = document.getElementById('uploadPlaceholder2');
-const fileInput2 = document.getElementById('fileInput2');
+
 
 // Dark Beast settings
 const darkDenoiseSlider = document.getElementById('darkDenoiseSlider');
@@ -299,7 +289,7 @@ async function buyTokens(packageId) {
     try {
         const resp = await fetch('/api/buy-tokens', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            headers: authHeaders(),
             body: JSON.stringify({ package: packageId }),
         });
         const data = await resp.json();
@@ -329,7 +319,7 @@ async function buyPremium() {
     try {
         const resp = await fetch('/api/buy-premium', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            headers: authHeaders(),
         });
         const data = await resp.json();
         if (!resp.ok) {
@@ -821,18 +811,7 @@ stepsSlider.addEventListener('input', (e) => {
     stepsLabel.textContent = e.target.value;
 });
 
-if (framesSlider) {
-    framesSlider.addEventListener('input', (e) => {
-        framesLabel.textContent = e.target.value;
-    });
-}
 
-// Audio toggle
-if (audioToggle) {
-    audioToggle.addEventListener('change', () => {
-        audioSettings.style.display = audioToggle.checked ? '' : 'none';
-    });
-}
 
 // Denoise slider
 denoiseSlider.addEventListener('input', (e) => {
@@ -1039,55 +1018,11 @@ document.addEventListener('paste', (e) => {
     }
 });
 
-// ============================================================
-// Upload 2 (Reference Image for Image mode) — optional, elements may not exist
-// ============================================================
-if (uploadArea2 && fileInput2) {
-    uploadArea2.addEventListener('click', () => fileInput2.click());
-
-    fileInput2.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            loadImage2(file);
-        }
-    });
-
-    uploadArea2.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea2.style.borderColor = '#a855f7';
-    });
-
-    uploadArea2.addEventListener('dragleave', () => {
-        uploadArea2.style.borderColor = '';
-    });
-
-    uploadArea2.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea2.style.borderColor = '';
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            loadImage2(file);
-        }
-    });
-}
-
-function loadImage2(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const img = new window.Image();
-        img.onload = () => {
-            originalImage2 = img;
-            uploadPlaceholder2.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:150px;border-radius:8px;">`;
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
+// getImage2DataURL: legacy stub (old reference upload removed, replaced by darkImage2)
 function getImage2DataURL() {
-    if (!originalImage2) return null;
-    return smartImageToDataURL(originalImage2);
+    return null;
 }
+
 
 // ============================================================
 // Get mask as black/white image

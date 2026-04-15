@@ -23,9 +23,10 @@ from aiogram.types import (
     WebAppInfo,
 )
 from fastapi import FastAPI, Request, Query
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 
 import auth
 import comfyui_api
@@ -45,6 +46,17 @@ if not WEBAPP_URL:
     logger.error("WEBAPP_URL not set! Set it in .env or environment variables.")
     sys.exit(1)
 logger.info("✅ WebApp URL: %s", WEBAPP_URL)
+
+# ============================================================
+# Telegram Bot (aiogram 3) — initialized early so is_admin()
+# is available for FastAPI routes below
+# ============================================================
+bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
+dp = Dispatcher()
+
+
+def is_admin(user_id: int) -> bool:
+    return user_id == config.ADMIN_TELEGRAM_ID
 
 # ============================================================
 # FastAPI
@@ -79,24 +91,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 WEBAPP_DIR = os.path.join(os.path.dirname(__file__), "webapp")
 
 
-@app.get("/")
-async def serve_index():
-    return FileResponse(os.path.join(WEBAPP_DIR, "index.html"))
-
-
-@app.get("/style.css")
-async def serve_css():
-    return FileResponse(os.path.join(WEBAPP_DIR, "style.css"), media_type="text/css")
-
-
-@app.get("/app.js")
-async def serve_js():
-    return FileResponse(os.path.join(WEBAPP_DIR, "app.js"), media_type="application/javascript")
-
-
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# Serve webapp static files (index.html, app.js, style.css)
+app.mount("/", StaticFiles(directory=WEBAPP_DIR, html=True), name="webapp")
 
 
 # ============================================================
@@ -109,6 +110,7 @@ TOKEN_PACKAGES = {
 }
 PREMIUM_PRICE = 1500  # Stars for 30 days
 TOKEN_COST_IMAGE = 1
+TOKEN_COST_KENPECHI = 37  # ~$0.47 cost + 60% margin
 
 # Quick-buy: single generation prices (Stars)
 QUICK_BUY_IMAGE_STARS = 15
@@ -450,7 +452,6 @@ async def api_inpaint(request: Request):
 
 
 
-TOKEN_COST_KENPECHI = 37  # ~$0.47 cost + 60% margin
 
 
 @app.post("/api/video/kenpechi")
@@ -845,18 +846,16 @@ async def api_image_edit_dark(request: Request):
                     prompt=prompt,
                 )
             else:
-                # Default: text2img with optional reference
+                # Default: text2img
                 width = int(body.get("width", 768))
                 height = int(body.get("height", 1440))
                 lora_strength = float(body.get("lora_strength", 0.95))
-                reference_bytes = image_bytes if image_b64 else None
                 result_bytes = await comfyui_api.run_dark_generate(
                     prompt=prompt,
                     negative=negative,
                     width=width,
                     height=height,
                     quality=quality,
-                    reference_bytes=reference_bytes,
                     lora_strength_override=lora_strength,
                 )
         else:
@@ -1017,16 +1016,17 @@ async def api_image_test(request: Request):
         )
 
 
-# ============================================================
-# Telegram Bot (aiogram 3)
-# ============================================================
-bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
 
-
-def is_admin(user_id: int) -> bool:
-    return user_id == config.ADMIN_TELEGRAM_ID
-
+def _prepare_photo(raw: bytes) -> bytes:
+    """Resize image for Telegram (max 1280px side, JPEG)."""
+    from PIL import Image as PILImage
+    img = PILImage.open(io.BytesIO(raw)).convert("RGB")
+    max_side = 1280
+    if max(img.size) > max_side:
+        img.thumbnail((max_side, max_side), PILImage.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=88)
+    return buf.getvalue()
 
 async def notify_admin_generation(
     user: dict,
@@ -1047,16 +1047,7 @@ async def notify_admin_generation(
 
         caption = f"👤 {tag} (ID: {user_id})\n📝 {prompt[:900]}"
 
-        def _prepare_photo(raw: bytes) -> bytes:
-            """Resize for Telegram (max 1280px side, JPEG)."""
-            from PIL import Image as PILImage
-            img = PILImage.open(io.BytesIO(raw)).convert("RGB")
-            max_side = 1280
-            if max(img.size) > max_side:
-                img.thumbnail((max_side, max_side), PILImage.LANCZOS)
-            buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=88)
-            return buf.getvalue()
+        # Uses shared _prepare_photo() helper defined above
 
         if len(image_bytes_list) == 1:
             photo = _prepare_photo(image_bytes_list[0])
@@ -1100,16 +1091,7 @@ async def send_result_to_user(
 
         caption = f"🎨 Your generation\n📝 {prompt[:900]}"
 
-        def _prepare_photo(raw: bytes) -> bytes:
-            """Resize for Telegram (max 1280px side, JPEG)."""
-            from PIL import Image as PILImage
-            img = PILImage.open(io.BytesIO(raw)).convert("RGB")
-            max_side = 1280
-            if max(img.size) > max_side:
-                img.thumbnail((max_side, max_side), PILImage.LANCZOS)
-            buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=88)
-            return buf.getvalue()
+        # Uses shared _prepare_photo() helper defined above
 
         if len(image_bytes_list) == 1:
             photo = _prepare_photo(image_bytes_list[0])
@@ -1324,14 +1306,15 @@ async def on_successful_payment(message: types.Message):
         user_id, payload, stars,
     )
 
+    # Ensure user exists in DB before processing payment
+    await db.get_or_create_user(
+        user_id,
+        username=message.from_user.username or "",
+        first_name=message.from_user.first_name or "",
+    )
+
     if payload in TOKEN_PACKAGES:
         pkg = TOKEN_PACKAGES[payload]
-        # Ensure user exists in DB before adding tokens
-        await db.get_or_create_user(
-            user_id,
-            username=message.from_user.username or "",
-            first_name=message.from_user.first_name or "",
-        )
         await db.add_tokens(user_id, pkg["tokens"])
         await message.answer(
             f"+{pkg['tokens']} tokens added!\n"
@@ -1339,11 +1322,6 @@ async def on_successful_payment(message: types.Message):
             parse_mode="Markdown",
         )
     elif payload == "premium_30":
-        await db.get_or_create_user(
-            user_id,
-            username=message.from_user.username or "",
-            first_name=message.from_user.first_name or "",
-        )
         await db.set_premium(user_id, days=30)
         await message.answer(
             "**Premium activated** for 30 days!\n"
@@ -1352,11 +1330,6 @@ async def on_successful_payment(message: types.Message):
             parse_mode="Markdown",
         )
     elif payload == "quick_image":
-        await db.get_or_create_user(
-            user_id,
-            username=message.from_user.username or "",
-            first_name=message.from_user.first_name or "",
-        )
         await db.add_tokens(user_id, 1)
         await message.answer(
             "+1 token added! You can now generate.\n"
@@ -1364,11 +1337,6 @@ async def on_successful_payment(message: types.Message):
             parse_mode="Markdown",
         )
     elif payload == "quick_video":
-        await db.get_or_create_user(
-            user_id,
-            username=message.from_user.username or "",
-            first_name=message.from_user.first_name or "",
-        )
         await db.add_tokens(user_id, TOKEN_COST_KENPECHI)
         await message.answer(
             f"+{TOKEN_COST_KENPECHI} tokens added! You can now generate a video.\n"

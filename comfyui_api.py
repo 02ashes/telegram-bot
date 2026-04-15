@@ -1,94 +1,44 @@
-"""ComfyUI API client — RunPod Serverless version."""
+"""ComfyUI API client — RunPod Serverless version.
 
-import asyncio
+Workflow builders and runtime functions for image/video generation.
+RunPod HTTP client, LoRA config, and post-processing live in generation/ subpackage.
+"""
+
 import base64
 import io
 import json
 import logging
+import os
 import uuid
 
-import aiohttp
 from PIL import Image, ImageOps
 
 import config
 
+# ── Re-export from generation submodules for backward compatibility ──
+from generation.runpod import (
+    submit_job,
+    poll_job,
+    cancel_job,
+    get_job_status,
+    close_session,
+)
+from generation.postprocess import (
+    _image_to_base64,
+    _image_to_png_b64,
+    add_skin_enhance_and_grain as _add_skin_enhance_and_grain,
+    strip_image_metadata as _strip_image_metadata,
+    add_silent_audio as _add_silent_audio,
+    extract_file_from_output as _extract_file_from_output,
+)
+from generation.loras import (
+    CHARACTER_LORAS,
+    detect_character_loras,
+)
+
 logger = logging.getLogger(__name__)
 
 
-def _image_to_base64(image_bytes: bytes) -> str:
-    """Convert image bytes to base64 string."""
-    return base64.b64encode(image_bytes).decode("utf-8")
-
-
-def _add_skin_enhance_and_grain(
-    workflow: dict,
-    image_source_ref: list,
-    save_node_id: str,
-    skin_model: str = "1xSkinContrast-High-SuperUltraCompact.pth",
-    blend_factor: float = 0.45,
-    grain_intensity: float = 0.015,
-    grain_softness: float = 0.4,
-    grain_shadow: float = 0.12,
-) -> None:
-    """Inject Skin Enhance + Film Grain post-processing into a workflow.
-
-    Adds 4 nodes between the image source and SaveImage:
-      UpscaleModelLoader(1x skin model)
-      → ImageUpscaleWithModel (enhances skin detail)
-      → ImageBlend (blends enhanced with original)
-      → FilmGrain (adds film grain for realism)
-      → SaveImage
-
-    Args:
-        workflow: The workflow dict to modify in-place.
-        image_source_ref: Reference to the image source node, e.g. ["77", 0].
-        save_node_id: The SaveImage node ID to re-target.
-        skin_model: Filename of the 1x upscale model for skin detail.
-        blend_factor: ImageBlend factor (0=original, 1=fully enhanced).
-        grain_intensity: Film grain intensity (0.01-0.05 range).
-        grain_softness: Film grain softness.
-        grain_shadow: Film grain shadow amount.
-    """
-    # Node IDs 500-503 reserved for skin enhance + grain pipeline
-    workflow["500"] = {
-        "class_type": "UpscaleModelLoader",
-        "inputs": {"model_name": skin_model},
-    }
-    workflow["501"] = {
-        "class_type": "ImageUpscaleWithModel",
-        "inputs": {
-            "upscale_model": ["500", 0],
-            "image": image_source_ref,
-        },
-    }
-    workflow["502"] = {
-        "class_type": "ImageBlend",
-        "inputs": {
-            "image1": image_source_ref,
-            "image2": ["501", 0],
-            "blend_factor": blend_factor,
-            "blend_mode": "normal",
-        },
-    }
-    workflow["503"] = {
-        "class_type": "FilmGrain",
-        "inputs": {
-            "image": ["502", 0],
-            "intensity": grain_intensity,
-            "softness": grain_softness,
-            "shadow": grain_shadow,
-            "mid": 0.5,
-            "scale": 1,
-            "grain_type": "Color",
-            "mode": "Color",
-            "grain_saturation": 1.0,
-            "brightness_impact": 0.0,
-            "image_saturation": 1.0,
-            "grain_size": 1.0,
-        },
-    }
-    # Re-target SaveImage to use FilmGrain output
-    workflow[save_node_id]["inputs"]["images"] = ["503", 0]
 
 
 def build_flux_fill_workflow(
@@ -1132,17 +1082,9 @@ def build_dark_bfs_workflow(
             "class_type": "VAEDecode",
             "inputs": {"samples": ["14", 0], "vae": ["6", 0]},
         },
-        "40": {  # ImageScaleBy (scale=1 in workflow)
-            "class_type": "ImageScaleBy",
-            "inputs": {
-                "image": ["3", 0],
-                "upscale_method": "lanczos",
-                "scale_by": 1.0,
-            },
-        },
         "61": {
             "class_type": "SaveImage",
-            "inputs": {"images": ["40", 0], "filename_prefix": "TGBot_DarkBFS"},
+            "inputs": {"images": ["3", 0], "filename_prefix": "TGBot_DarkBFS"},
         },
     }
 
@@ -1166,146 +1108,10 @@ def build_dark_bfs_workflow(
         workflow["2"]["inputs"]["model"] = last_model_ref
 
     # Skin Enhance + Film Grain post-processing
-    _add_skin_enhance_and_grain(workflow, ["40", 0], "61")
+    _add_skin_enhance_and_grain(workflow, ["3", 0], "61")
+
 
     return workflow
-# RunPod Serverless API
-# ============================================================
-
-RUNPOD_API_BASE = "https://api.runpod.ai/v2"
-
-# Global aiohttp session — reused across all RunPod API calls
-_session: aiohttp.ClientSession | None = None
-
-
-def _get_session() -> aiohttp.ClientSession:
-    """Get or create a global aiohttp session for connection reuse."""
-    global _session
-    if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(
-            headers={"Authorization": f"Bearer {config.RUNPOD_API_KEY}"},
-            timeout=aiohttp.ClientTimeout(total=30),
-        )
-    return _session
-
-
-async def close_session():
-    """Close the global aiohttp session (call at shutdown)."""
-    global _session
-    if _session and not _session.closed:
-        await _session.close()
-        _session = None
-
-
-async def submit_job(workflow: dict, images: list[dict]) -> str | None:
-    """Submit a job to RunPod Serverless endpoint.
-    
-    Args:
-        workflow: ComfyUI workflow dict
-        images: List of {"name": "filename.png", "image": "base64data"}
-    
-    Returns:
-        Job ID or None on failure.
-    """
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/run"
-    payload = {
-        "input": {
-            "workflow": workflow,
-            "images": images,
-        }
-    }
-    
-    session = _get_session()
-    async with session.post(url, json=payload) as resp:
-        if resp.status != 200:
-            text = await resp.text()
-            logger.error("RunPod submit failed (%d): %s", resp.status, text)
-            return None
-        result = await resp.json()
-        job_id = result.get("id")
-        logger.info("RunPod job submitted: %s (status: %s)", job_id, result.get("status"))
-        return job_id
-
-
-async def poll_job(job_id: str, timeout: int = 1200) -> dict | None:
-    """Poll RunPod Serverless for job completion.
-    
-    Returns the output dict or None on timeout/failure.
-    Default timeout: 1200s (20 minutes) to handle long NSFW video generation.
-    """
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_ENDPOINT_ID}/status/{job_id}"
-    session = _get_session()
-    
-    for i in range(timeout // 3):
-        await asyncio.sleep(3)
-        try:
-            async with session.get(url) as resp:
-                data = await resp.json()
-                status = data.get("status")
-                
-                if status == "COMPLETED":
-                    logger.info("Job %s completed!", job_id)
-                    return data.get("output")
-                elif status == "FAILED":
-                    logger.error("Job %s failed: %s", job_id, data.get("error"))
-                    return None
-                elif status == "CANCELLED":
-                    logger.info("Job %s was cancelled", job_id)
-                    return None
-                elif status in ("IN_QUEUE", "IN_PROGRESS"):
-                    if i % 5 == 0:
-                        logger.info("Job %s status: %s", job_id, status)
-                else:
-                    logger.warning("Job %s unknown status: %s", job_id, status)
-        except Exception as e:
-            logger.warning("Poll error: %s", e)
-
-    logger.error("Job %s timed out after %d seconds", job_id, timeout)
-    return None
-
-
-async def cancel_job(job_id: str, endpoint_id: str | None = None) -> bool:
-    """Cancel a running or queued RunPod job.
-    
-    Returns True if cancel request was sent successfully.
-    """
-    ep = endpoint_id or config.RUNPOD_ENDPOINT_ID
-    url = f"{RUNPOD_API_BASE}/{ep}/cancel/{job_id}"
-    
-    try:
-        session = _get_session()
-        async with session.post(url) as resp:
-            if resp.status == 200:
-                logger.info("Job %s cancel requested", job_id)
-                return True
-            else:
-                logger.warning("Failed to cancel job %s: %s", job_id, resp.status)
-                return False
-    except Exception as e:
-        logger.error("Cancel error: %s", e)
-        return False
-
-
-async def get_job_status(job_id: str, endpoint_id: str | None = None) -> dict:
-    """Get current status of a RunPod job.
-    
-    Returns dict with {status, output?}.
-    """
-    ep = endpoint_id or config.RUNPOD_ENDPOINT_ID
-    url = f"{RUNPOD_API_BASE}/{ep}/status/{job_id}"
-    
-    try:
-        session = _get_session()
-        async with session.get(url) as resp:
-            data = await resp.json()
-            return {
-                "status": data.get("status", "UNKNOWN"),
-                "output": data.get("output"),
-                "error": data.get("error"),
-            }
-    except Exception as e:
-        logger.error("Status check error: %s", e)
-        return {"status": "ERROR", "error": str(e)}
 
 
 async def run_inpaint(
@@ -1376,25 +1182,7 @@ async def run_inpaint(
         return None
 
     # Extract result image from output
-    # Log the full output structure for debugging
-    logger.info("RunPod output type: %s", type(output).__name__)
-    if isinstance(output, dict):
-        logger.info("RunPod output keys: %s", list(output.keys()))
-        for key, val in output.items():
-            if isinstance(val, list):
-                logger.info("  output[%s]: list of %d items", key, len(val))
-                if val:
-                    first = val[0]
-                    if isinstance(first, dict):
-                        logger.info("    first item keys: %s", list(first.keys()))
-                    elif isinstance(first, str):
-                        logger.info("    first item: str of %d chars", len(first))
-            elif isinstance(val, str):
-                logger.info("  output[%s]: str of %d chars", key, len(val))
-            else:
-                logger.info("  output[%s]: %s", key, type(val).__name__)
-    elif isinstance(output, str):
-        logger.info("RunPod output is a raw string of %d chars", len(output))
+    logger.debug("RunPod output: type=%s", type(output).__name__)
     
     try:
         image_bytes = _extract_file_from_output(output)
@@ -1508,19 +1296,12 @@ async def run_image_edit_default(
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
     # Save image1 as PNG
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    edit_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    edit_b64 = _image_to_png_b64(image_bytes)
 
     has_image2 = image2_bytes is not None
 
     # Save image2 as PNG if provided
-    img2_b64 = None
-    if has_image2:
-        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
-        buf2 = io.BytesIO()
-        img2.save(buf2, format="PNG")
-        img2_b64 = base64.b64encode(buf2.getvalue()).decode("utf-8")
+    img2_b64 = _image_to_png_b64(image2_bytes) if has_image2 else None
 
     workflow = build_flux_klein_default_edit_workflow(
         prompt=prompt,
@@ -1554,31 +1335,6 @@ async def run_image_edit_default(
         logger.error("Failed to parse default edit result: %s", e)
         return None
 
-
-# -------------------------------------------------------------------------
-# Character LoRAs — trigger word → LoRA filename + strength
-# Add new characters here after training. Trigger word must be lowercase.
-# -------------------------------------------------------------------------
-CHARACTER_LORAS = {
-    "misu": {"lora_name": "misu_z6_step1000.safetensors", "strength": 0.95},
-    "anya":  {"lora_name": "anya_lora.safetensors", "strength": 0.9},
-    "jane":  {"lora_name": "janelora.safetensors", "strength": 0.9},
-    "lera":  {"lora_name": "leralora.safetensors", "strength": 0.9},
-    "mirana": {"lora_name": "miranalora.safetensors", "strength": 0.9},
-    "moondina": {"lora_name": "moonlora.safetensors", "strength": 0.9},
-    "rina":  {"lora_name": "rinalora.safetensors", "strength": 0.9},
-}
-
-
-def detect_character_loras(prompt: str) -> list[dict]:
-    """Detect character trigger words in prompt, return list of LoRA configs."""
-    prompt_lower = prompt.lower()
-    found = []
-    for trigger, cfg in CHARACTER_LORAS.items():
-        if trigger in prompt_lower:
-            found.append({"trigger": trigger, **cfg})
-            logger.info("Detected character LoRA: %s → %s", trigger, cfg["lora_name"])
-    return found
 
 
 # Dark Beast model config
@@ -1620,23 +1376,10 @@ async def run_image_edit_dark(
     # Auto-detect character LoRAs from prompt
     char_loras = detect_character_loras(prompt)
 
-    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    orig_w, orig_h = img.size
-
     has_image2 = image2_bytes is not None
 
-    # Save image1 as PNG
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    edit_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-
-    # Save image2 as PNG if provided
-    img2_b64 = None
-    if has_image2:
-        img2 = Image.open(io.BytesIO(image2_bytes)).convert("RGB")
-        buf2 = io.BytesIO()
-        img2.save(buf2, format="PNG")
-        img2_b64 = base64.b64encode(buf2.getvalue()).decode("utf-8")
+    edit_b64 = _image_to_png_b64(image_bytes)
+    img2_b64 = _image_to_png_b64(image2_bytes) if has_image2 else None
 
     workflow = build_flux_klein_edit_workflow(
         prompt=prompt,
@@ -1704,10 +1447,7 @@ async def run_dark_generate_bfs(
     char_loras = detect_character_loras(prompt)
 
     # Prepare face image
-    face_img = Image.open(io.BytesIO(face_image_bytes)).convert("RGB")
-    buf = io.BytesIO()
-    face_img.save(buf, format="PNG")
-    face_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    face_b64 = _image_to_png_b64(face_image_bytes)
 
     kwargs = {
         "prompt": prompt,
@@ -1930,13 +1670,11 @@ async def run_dark_generate(
     width: int = 768,
     height: int = 1440,
     quality: str = "fast",
-    reference_bytes: bytes | None = None,
     lora_strength_override: float | None = None,
 ) -> bytes | None:
     """Two-pass text2img via Dark Beast Klein V2.
 
-    Uses the original Dark Beast workflow: text2img → upscale ×1.5 → refine.
-    Optionally accepts a reference image for ReferenceLatent conditioning.
+    Uses the original Dark Beast workflow: text2img → upscale ×1.25 → refine.
     Character LoRAs are auto-detected from the prompt.
     lora_strength_override: if set, overrides the default strength for all character LoRAs.
     """
@@ -1993,61 +1731,6 @@ async def run_dark_generate(
         logger.error("Failed to parse dark generate result: %s", e)
         return None
 
-def _add_silent_audio(video_bytes: bytes) -> bytes:
-    """Add a silent audio track to MP4 so Telegram treats it as video, not GIF.
-    
-    Uses ffmpeg subprocess. Returns original bytes if ffmpeg is unavailable.
-    """
-    import subprocess
-    import tempfile
-    import shutil
-
-    if not shutil.which("ffmpeg"):
-        logger.warning("ffmpeg not found — skipping silent audio injection")
-        return video_bytes
-
-    tmp_in_path = None
-    tmp_out_path = None
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_in:
-            tmp_in.write(video_bytes)
-            tmp_in_path = tmp_in.name
-
-        tmp_out_path = tmp_in_path.replace(".mp4", "_audio.mp4")
-
-        result = subprocess.run(
-            [
-                "ffmpeg", "-y",
-                "-i", tmp_in_path,
-                "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono",
-                "-c:v", "copy",
-                "-c:a", "aac",
-                "-shortest",
-                tmp_out_path,
-            ],
-            capture_output=True,
-            timeout=30,
-        )
-
-        if result.returncode == 0 and os.path.exists(tmp_out_path):
-            with open(tmp_out_path, "rb") as f:
-                out_bytes = f.read()
-            logger.info("Silent audio added: %d -> %d bytes", len(video_bytes), len(out_bytes))
-            return out_bytes
-        else:
-            logger.warning("ffmpeg silent audio failed: %s", result.stderr[:200])
-            return video_bytes
-
-    except Exception as e:
-        logger.warning("Silent audio injection error: %s", e)
-        return video_bytes
-    finally:
-        for p in [tmp_in_path, tmp_out_path]:
-            if p:
-                try:
-                    os.unlink(p)
-                except Exception:
-                    pass
 
 
 async def check_video_status(job_id: str, endpoint_id: str | None = None) -> dict:
@@ -2095,60 +1778,7 @@ async def check_video_status(job_id: str, endpoint_id: str | None = None) -> dic
         return {"status": status}
 
 
-def _extract_file_from_output(output, prefer_video: bool = False) -> bytes | None:
-    """Extract file bytes from RunPod worker 5.0+ output.
 
-    Worker output format:
-        {"images": [{"filename": "...", "type": "base64", "data": "..."}]}
-
-    When prefer_video=True, tries to find a video file (.mp4, .webm) first.
-    Falls back to first available file.
-    """
-    if not isinstance(output, dict):
-        # Raw base64 string fallback
-        if isinstance(output, str):
-            if "," in output and output.startswith("data:"):
-                output = output.split(",", 1)[1]
-            return base64.b64decode(output)
-        logger.error("Unexpected output type: %s", type(output).__name__)
-        return None
-
-    items = output.get("images", [])
-    if not items:
-        # Legacy format: {"message": "base64..."}
-        if "message" in output and isinstance(output["message"], str):
-            return base64.b64decode(output["message"])
-        logger.error("No 'images' in output. Keys: %s", list(output.keys()))
-        return None
-
-    VIDEO_EXTS = {".mp4", ".webm", ".mkv", ".avi", ".mov"}
-
-    target_item = None
-    if prefer_video:
-        # Find a video file first
-        for item in items:
-            fn = item.get("filename", "")
-            ext = fn[fn.rfind("."):].lower() if "." in fn else ""
-            if ext in VIDEO_EXTS:
-                target_item = item
-                logger.info("Found video file: %s", fn)
-                break
-
-    if target_item is None:
-        target_item = items[0]
-        logger.info("Using first output file: %s", target_item.get("filename", "unknown"))
-
-    # Extract base64 data
-    b64_str = target_item.get("data") or target_item.get("image") or target_item.get("base64")
-    if not b64_str:
-        logger.error("No data field in output item: %s", list(target_item.keys()))
-        return None
-
-    # Strip data URI prefix if present
-    if isinstance(b64_str, str) and b64_str.startswith("data:") and "," in b64_str:
-        b64_str = b64_str.split(",", 1)[1]
-
-    return base64.b64decode(b64_str)
 
 
 # ============================================================
@@ -2292,27 +1922,6 @@ def build_kenpechi_svi_workflow(
     return wf
 
 
-async def submit_job_kenpechi(workflow: dict, images: list[dict]) -> str | None:
-    """Submit a job to RunPod Kenpechi Serverless endpoint."""
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_KENPECHI_ENDPOINT_ID}/run"
-    payload = {
-        "input": {
-            "workflow": workflow,
-            "images": images,
-        }
-    }
-
-    session = _get_session()
-    async with session.post(url, json=payload) as resp:
-        if resp.status != 200:
-            text = await resp.text()
-            logger.error("RunPod Kenpechi submit failed (%d): %s", resp.status, text)
-            return None
-        result = await resp.json()
-        job_id = result.get("id")
-        logger.info("RunPod Kenpechi job submitted: %s (status: %s)", job_id, result.get("status"))
-        return job_id
-
 
 async def submit_kenpechi_video(
     image_bytes: bytes,
@@ -2359,7 +1968,7 @@ async def submit_kenpechi_video(
     images = [{"name": "video_input.png", "image": image_b64}]
 
     logger.info("Submitting Kenpechi video job to RunPod (endpoint: %s)...", config.RUNPOD_KENPECHI_ENDPOINT_ID)
-    job_id = await submit_job_kenpechi(workflow, images)
+    job_id = await submit_job(workflow, images, endpoint_id=config.RUNPOD_KENPECHI_ENDPOINT_ID)
 
     if not job_id:
         logger.error("Failed to submit Kenpechi video job")
@@ -2597,82 +2206,7 @@ def build_v9_workflow(
     return wf
 
 
-async def submit_job_v9(workflow: dict, images: list[dict]) -> str | None:
-    """Submit a job to RunPod V9 Serverless endpoint."""
-    if not config.RUNPOD_V9_ENDPOINT_ID:
-        logger.error("RUNPOD_V9_ENDPOINT_ID not configured!")
-        return None
 
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_V9_ENDPOINT_ID}/run"
-    payload = {
-        "input": {
-            "workflow": workflow,
-            "images": images,
-        }
-    }
-
-    session = _get_session()
-    async with session.post(url, json=payload) as resp:
-        if resp.status != 200:
-            text = await resp.text()
-            logger.error("RunPod V9 submit failed (%d): %s", resp.status, text)
-            return None
-        result = await resp.json()
-        job_id = result.get("id")
-        logger.info("RunPod V9 job submitted: %s (status: %s)", job_id, result.get("status"))
-        return job_id
-
-
-async def poll_job_v9(job_id: str, timeout: int = 600) -> dict | None:
-    """Poll RunPod V9 endpoint for job completion."""
-    url = f"{RUNPOD_API_BASE}/{config.RUNPOD_V9_ENDPOINT_ID}/status/{job_id}"
-    session = _get_session()
-
-    for i in range(timeout // 3):
-        await asyncio.sleep(3)
-        try:
-            async with session.get(url) as resp:
-                data = await resp.json()
-                status = data.get("status")
-
-                if status == "COMPLETED":
-                    logger.info("V9 Job %s completed!", job_id)
-                    return data.get("output")
-                elif status == "FAILED":
-                    logger.error("V9 Job %s failed: %s", job_id, data.get("error"))
-                    return None
-                elif status == "CANCELLED":
-                    logger.info("V9 Job %s was cancelled", job_id)
-                    return None
-                elif status in ("IN_QUEUE", "IN_PROGRESS"):
-                    if i % 5 == 0:
-                        logger.info("V9 Job %s status: %s", job_id, status)
-                else:
-                    logger.warning("V9 Job %s unknown status: %s", job_id, status)
-        except Exception as e:
-            logger.warning("V9 poll error: %s", e)
-
-    logger.error("V9 Job %s timed out after %ds", job_id, timeout)
-    return None
-
-
-def _strip_image_metadata(image_bytes: bytes) -> bytes:
-    """Strip EXIF/metadata from image to prevent workflow leakage.
-
-    Returns clean PNG bytes with no embedded metadata.
-    """
-    try:
-        img = Image.open(io.BytesIO(image_bytes))
-        # Create new image without metadata
-        clean = Image.new(img.mode, img.size)
-        clean.putdata(list(img.getdata()))
-        buf = io.BytesIO()
-        clean.save(buf, format="PNG", optimize=True)
-        logger.info("Stripped metadata: %d → %d bytes", len(image_bytes), buf.tell())
-        return buf.getvalue()
-    except Exception as e:
-        logger.warning("Failed to strip metadata: %s — returning original", e)
-        return image_bytes
 
 
 async def run_v9_generate(
@@ -2710,12 +2244,12 @@ async def run_v9_generate(
     )
 
     # Submit to V9 endpoint
-    job_id = await submit_job_v9(workflow, images=[])
+    job_id = await submit_job(workflow, images=[], endpoint_id=config.RUNPOD_V9_ENDPOINT_ID)
     if not job_id:
         return None
 
     # Poll for result (V9 pipeline is slow: dual-pass + detailers + SeedVR2 + post-process)
-    output = await poll_job_v9(job_id, timeout=900)
+    output = await poll_job(job_id, timeout=900, endpoint_id=config.RUNPOD_V9_ENDPOINT_ID)
     if not output:
         return None
 
