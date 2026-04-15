@@ -1,36 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Angel Arena</title>
-    <link rel="stylesheet" href="/style.css?v=49">
+    <link rel="stylesheet" href="/style.css?v=60">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-
 <body>
+    <!-- Aurora Background -->
+    <div class="aurora-bg"></div>
+
     <div class="app">
+        <!-- ═══════════════════════════════════════════ -->
         <!-- Header -->
+        <!-- ═══════════════════════════════════════════ -->
         <div class="header">
-            <h1>ANGEL ARENA</h1>
+            <div class="header-left">
+                <h1>Angel <span class="heart">❤️</span></h1>
+                <span class="header-sub">Neural Synthesis // Elite</span>
+            </div>
+            <div class="header-star glass" id="tokenCount">⭐</div>
         </div>
 
-        <!-- ============================================ -->
-        <!-- Top Navigation Tabs -->
-        <!-- ============================================ -->
-        <div class="top-tabs">
-            <button class="top-tab" id="tabFaq" data-tab="faq">FAQ</button>
-            <button class="top-tab active" id="tabGenerate" data-tab="generate">Generate</button>
-            <button class="top-tab" id="tabProfile" data-tab="profile">Profile</button>
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Tab Navigation -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="top-tabs glass">
+            <button class="top-tab" id="tabFaq" data-tab="faq">
+                <span class="tab-icon">❓</span> FAQ
+            </button>
+            <button class="top-tab active" id="tabGenerate" data-tab="generate">
+                <span class="tab-icon">✨</span> Generate
+            </button>
+            <button class="top-tab" id="tabProfile" data-tab="profile">
+                <span class="tab-icon">👤</span> Profile
+            </button>
         </div>
 
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <!-- TAB: FAQ -->
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="contentFaq" style="display:none;">
             <div class="faq-container">
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">What is Angel Arena?</summary>
                     <div class="faq-answer">
                         Angel Arena is an AI-powered creative studio inside Telegram. Upload a photo, describe what you
@@ -38,7 +51,7 @@
                         for maximum quality and speed.
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">How do tokens work?</summary>
                     <div class="faq-answer">
                         Each generation costs tokens:<br>
@@ -51,7 +64,7 @@
                         <b>Premium</b> users get unlimited generations.
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">What modes are available?</summary>
                     <div class="faq-answer">
                         <b>Inpaint</b> — Mask &amp; replace parts of an image. Draw over the area you want to change,
@@ -64,7 +77,7 @@
                         <b>Generate</b> — Create images from text only. No photo needed.
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">How to generate a video?</summary>
                     <div class="faq-answer">
                         1. Switch to <b>Video</b> mode<br>
@@ -72,11 +85,10 @@
                         3. Pick a <b>preset</b> (Missionary, Blowjob, etc.) or write your own prompt for each scene<br>
                         4. Adjust <b>LoRAs</b> per scene for action style (⚙️ button)<br>
                         5. Hit <b>Generate</b><br><br>
-                        Generation takes ~5 minutes. The result is a multi-scene video (6 scenes, ~15 seconds at 32
-                        FPS).
+                        Generation takes ~5 minutes. The result is a multi-scene video (6 scenes, ~15 seconds at 32 FPS).
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">What are LoRAs?</summary>
                     <div class="faq-answer">
                         LoRAs are small AI models trained to produce specific actions or styles. Each scene has 4 HIGH
@@ -86,7 +98,7 @@
                         missionary prompt for best results.
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">What is Premium?</summary>
                     <div class="faq-answer">
                         Premium gives you:<br>
@@ -96,7 +108,7 @@
                         Price: <b>1500 ⭐</b> for 30 days. Purchase via Telegram Stars in the Profile tab.
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">Tips for best results</summary>
                     <div class="faq-answer">
                         • Use <b>high-quality photos</b> with good lighting<br>
@@ -107,7 +119,7 @@
                         • The first 2 scenes set the motion direction, later scenes follow
                     </div>
                 </details>
-                <details class="faq-item">
+                <details class="faq-item glass">
                     <summary class="faq-question">Need help?</summary>
                     <div class="faq-answer">
                         Contact <b>@vowofquiet</b> on Telegram for bugs, feature requests, or account issues.
@@ -116,88 +128,127 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <!-- TAB: Profile -->
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="contentProfile" style="display:none;">
             <div class="profile-container">
-                <!-- User Info Card -->
-                <div class="profile-card">
+                <div class="profile-card glass">
+                    <div class="profile-avatar">👤</div>
                     <div class="profile-name" id="profileName">—</div>
                     <div class="profile-role" id="profileRole">User</div>
+                    <div id="profileBadge"></div>
+                    <div id="profileId" style="font-size:10px;color:rgba(255,255,255,0.15);margin-top:8px;"></div>
                 </div>
 
-                <!-- Stats -->
                 <div class="profile-stats">
-                    <div class="stat-item">
+                    <div class="stat-item glass">
                         <div class="stat-value" id="profileTokens">0</div>
                         <div class="stat-label">Tokens</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item glass">
                         <div class="stat-value" id="profileGens">0</div>
                         <div class="stat-label">Generations</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item glass">
                         <div class="stat-value" id="profilePremium">—</div>
                         <div class="stat-label">Premium</div>
                     </div>
                 </div>
 
-                <!-- Buy Tokens -->
                 <div class="profile-section">
                     <div class="profile-section-title">Buy Tokens</div>
                     <div class="buy-grid" id="buyTokensGrid">
-                        <button class="buy-btn" data-package="tokens_10">10 Tokens<span class="buy-price">100
-                                Stars</span></button>
-                        <button class="buy-btn" data-package="tokens_30">30 Tokens<span class="buy-price">250
-                                Stars</span></button>
-                        <button class="buy-btn" data-package="tokens_100">100 Tokens<span class="buy-price">700
-                                Stars</span></button>
+                        <button class="buy-btn" data-package="tokens_10">10 Tokens<span class="buy-price">100 Stars</span></button>
+                        <button class="buy-btn" data-package="tokens_30">30 Tokens<span class="buy-price">250 Stars</span></button>
+                        <button class="buy-btn" data-package="tokens_100">100 Tokens<span class="buy-price">700 Stars</span></button>
                     </div>
                 </div>
 
-                <!-- Buy Premium -->
-                <div class="profile-section">
+                <div class="profile-section" id="premiumCard">
                     <div class="profile-section-title">Premium</div>
-                    <p class="profile-desc">Unlimited generations + priority queue for 30 days</p>
-                    <button class="buy-btn premium-btn" id="buyPremiumBtn">Premium 30 Days<span class="buy-price">1500
-                            Stars</span></button>
+                    <p class="profile-desc" id="premiumDesc">Unlimited generations + priority queue for 30 days</p>
+                    <button class="buy-btn premium-btn" id="buyPremiumBtn">Premium 30 Days<span class="buy-price">1500 Stars</span></button>
                 </div>
+
+                <div id="historyList"></div>
             </div>
         </div>
 
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <!-- TAB: Generate -->
-        <!-- ============================================ -->
+        <!-- ═══════════════════════════════════════════ -->
         <div class="tab-content" id="contentGenerate">
 
-            <!-- Mode Dropdown (Custom) -->
-            <div class="section mode-section">
-                <div class="section-title">Mode</div>
-                <div class="custom-select" id="customSelect">
-                    <div class="custom-select-trigger" id="selectTrigger">
-                        <span id="selectText">Inpaint</span>
-                        <span class="select-arrow">▾</span>
+            <!-- Mode Cards (5 visible) -->
+            <div class="mode-grid" id="modeGrid">
+                <div class="mode-card active" data-mode="inpaint">
+                    <div class="mode-card-head">
+                        <span class="mode-icon">🎯</span>
+                        <span class="mode-dot"></span>
                     </div>
-                    <div class="custom-select-options" id="selectOptions">
-                        <div class="custom-option active" data-value="inpaint">Inpaint</div>
-                        <div class="custom-option" data-value="video">Video</div>
-                        <div class="custom-option" data-value="image">Edit Easy</div>
-                        <div class="custom-option" data-value="dark">Edit Dark</div>
-                        <div class="custom-option" data-value="generate">Generate</div>
-                        <div class="custom-option" data-value="test">Test</div>
-                    </div>
+                    <div class="mode-label">Surgical</div>
+                    <div class="mode-desc">Area edit</div>
                 </div>
-                <!-- Hidden select for fallback -->
-                <select id="modeSelect" style="display:none;">
-                    <option value="inpaint">Inpaint</option>
-                    <option value="video">Video</option>
-                    <option value="image">Edit Easy</option>
-                    <option value="dark">Edit Dark</option>
-                    <option value="generate">Generate</option>
-                    <option value="test">Test</option>
-                </select>
+                <div class="mode-card" data-mode="image">
+                    <div class="mode-card-head">
+                        <span class="mode-icon">✏️</span>
+                        <span class="mode-dot"></span>
+                    </div>
+                    <div class="mode-label">Refine</div>
+                    <div class="mode-desc">Image to image</div>
+                </div>
+                <div class="mode-card" data-mode="dark">
+                    <div class="mode-card-head">
+                        <span class="mode-icon">🔮</span>
+                        <span class="mode-dot"></span>
+                    </div>
+                    <div class="mode-label">Dark Beast</div>
+                    <div class="mode-desc">Advanced edit</div>
+                </div>
+                <div class="mode-card" data-mode="generate">
+                    <div class="mode-card-head">
+                        <span class="mode-icon">✨</span>
+                        <span class="mode-dot"></span>
+                    </div>
+                    <div class="mode-label">Create</div>
+                    <div class="mode-desc">Text to image</div>
+                </div>
+                <div class="mode-card" data-mode="video">
+                    <div class="mode-card-head">
+                        <span class="mode-icon">🎬</span>
+                        <span class="mode-dot"></span>
+                    </div>
+                    <div class="mode-label">Motion</div>
+                    <div class="mode-desc">Animate scene</div>
+                </div>
             </div>
+
+            <!-- Hidden selects for app.js compat -->
+            <div class="custom-select" id="customSelect">
+                <div class="custom-select-trigger" id="selectTrigger">
+                    <span id="selectText">Inpaint</span>
+                    <span class="select-arrow">▾</span>
+                </div>
+                <div class="custom-select-options" id="selectOptions">
+                    <div class="custom-option active" data-value="inpaint">Inpaint</div>
+                    <div class="custom-option" data-value="video">Video</div>
+                    <div class="custom-option" data-value="image">Edit Easy</div>
+                    <div class="custom-option" data-value="dark">Edit Dark</div>
+                    <div class="custom-option" data-value="generate">Generate</div>
+                    <div class="custom-option" data-value="test">Test</div>
+                </div>
+            </div>
+            <select id="modeSelect" style="display:none;">
+                <option value="inpaint">Inpaint</option>
+                <option value="video">Video</option>
+                <option value="image">Edit Easy</option>
+                <option value="dark">Edit Dark</option>
+                <option value="generate">Generate</option>
+                <option value="test">Test</option>
+            </select>
+            <!-- Hidden mode section kept for app.js compat -->
+            <div class="section mode-section" style="display:none;"></div>
 
             <!-- Upload Photo -->
             <div class="section" id="uploadSection">
@@ -212,10 +263,9 @@
                 </div>
             </div>
 
-            <!-- DARK MODE: Second Image Slot (Edit Easy only) -->
+            <!-- DARK: 2nd Image -->
             <div class="section dark-only" id="darkImage2Section" style="display:none;">
-                <div class="section-title">Reference <span class="dark-img2-hint" id="darkImg2Hint">(combine two
-                        girls)</span></div>
+                <div class="section-title">Reference <span class="dark-img2-hint" id="darkImg2Hint">(combine two girls)</span></div>
                 <div class="dark-img2-container" id="darkImg2Container">
                     <div class="dark-img2-add" id="darkImg2Add">
                         <span class="dark-img2-plus">+</span>
@@ -250,50 +300,78 @@
             <!-- Prompt (shared) -->
             <div class="section" id="promptSection" style="display:none;">
                 <div class="section-title">Prompt</div>
-                <div class="preset-row" id="presetRow">
-                    <!-- Populated by JS based on currentMode -->
+                <div class="preset-row" id="presetRow"></div>
+                <div class="prompt-card glass">
+                    <textarea id="promptInput" placeholder="Whisper your desires to the machine..." rows="3"></textarea>
                 </div>
-                <textarea id="promptInput" placeholder="Describe what to generate..." rows="3"></textarea>
+                <div class="prompt-actions">
+                    <button class="enhance-btn" id="aioTriggerRow">
+                        <span class="icon">✨</span>
+                        <span>Enhance Prompt</span>
+                    </button>
+                    <span class="prompt-counter" id="promptCounter">0/500</span>
+                </div>
+                <!-- Enhanced prompt display -->
+                <div id="enhancedPromptBox">
+                    <div id="enhancedPromptText"></div>
+                    <button id="copyEnhancedPrompt">Copy</button>
+                    <button id="restoreOriginalBtn">Restore</button>
+                    <span id="originalPromptBadge"></span>
+                </div>
 
                 <div class="section-title sub">Negative</div>
                 <textarea id="negativeInput" rows="2"></textarea>
             </div>
 
             <!-- INPAINT: Settings -->
-            <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
-                <div class="setting">
-                    <label>CFG: <span id="cfgLabel">3.5</span></label>
-                    <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
-                </div>
-                <div class="setting">
-                    <label>Steps: <span id="stepsLabel">25</span></label>
-                    <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
+            <div class="section inpaint-only" id="settingsSection" style="display:none;">
+                <div class="settings-card glass">
+                    <div class="settings-row">
+                        <div class="setting">
+                            <label>Sampling Precision <span id="cfgLabel">3.5</span></label>
+                            <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5">
+                        </div>
+                        <div class="setting">
+                            <label>Neural Steps <span id="stepsLabel">25</span></label>
+                            <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25">
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- IMAGE (Edit Easy): Settings -->
-            <div class="section settings-row image-only" id="imageSettingsSection" style="display:none;">
-                <div class="setting">
-                    <label>Denoise: <span id="denoiseLabel">0.80</span></label>
-                    <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="0.80">
-                </div>
-                <div class="setting">
-                    <label>Steps: <span id="editStepsLabel">8</span></label>
-                    <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
+            <div class="section image-only" id="imageSettingsSection" style="display:none;">
+                <!-- Submode toggle (Default / Depth) -->
+                <div id="editSubmodeSection" style="margin-bottom:12px;"></div>
+                <div class="settings-card glass">
+                    <div class="settings-row">
+                        <div class="setting">
+                            <label>Denoise Strength <span id="denoiseLabel">0.80</span></label>
+                            <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="0.80">
+                        </div>
+                        <div class="setting">
+                            <label>Neural Steps <span id="editStepsLabel">8</span></label>
+                            <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8">
+                        </div>
+                    </div>
                 </div>
                 <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
                 <input type="hidden" id="loraStrengthSlider" value="0.7">
             </div>
 
             <!-- DARK: Settings -->
-            <div class="section settings-row dark-only" id="darkSettingsSection" style="display:none;">
-                <div class="setting">
-                    <label>Denoise: <span id="darkDenoiseLabel">0.85</span></label>
-                    <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85">
-                </div>
-                <div class="setting">
-                    <label>Steps: <span id="darkStepsLabel">5</span></label>
-                    <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
+            <div class="section dark-only" id="darkSettingsSection" style="display:none;">
+                <div class="settings-card glass">
+                    <div class="settings-row">
+                        <div class="setting">
+                            <label>Denoise Strength <span id="darkDenoiseLabel">0.85</span></label>
+                            <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85">
+                        </div>
+                        <div class="setting">
+                            <label>Neural Steps <span id="darkStepsLabel">5</span></label>
+                            <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -337,7 +415,7 @@
             <!-- DARK: LoRA Strength -->
             <div class="section dark-only" id="darkLoraStrengthSection" style="display:none;">
                 <div class="setting">
-                    <label>LoRA Strength: <span id="darkLoraStrengthLabel">0.95</span></label>
+                    <label>LoRA Strength <span id="darkLoraStrengthLabel">0.95</span></label>
                     <input type="range" id="darkLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="0.95">
                 </div>
             </div>
@@ -383,7 +461,7 @@
             <!-- TEST (V9): LoRA Strength -->
             <div class="section test-only" id="testLoraStrengthSection" style="display:none;">
                 <div class="setting">
-                    <label>LoRA Strength: <span id="testLoraStrengthLabel">1.00</span></label>
+                    <label>LoRA Strength <span id="testLoraStrengthLabel">1.00</span></label>
                     <input type="range" id="testLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="1.00">
                 </div>
             </div>
@@ -410,14 +488,12 @@
                         <span id="loraModalTitle">Scene 1 — LoRAs</span>
                         <button class="lora-modal-close" id="loraModalClose">✕</button>
                     </div>
-                    <div class="lora-modal-body" id="loraModalBody">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="lora-modal-body" id="loraModalBody"></div>
                     <button class="lora-modal-save" id="loraModalSave">✅ Save & Close</button>
                 </div>
             </div>
 
-            <!-- Batch Count + Generate Button -->
+            <!-- Batch Count + Generate -->
             <div class="section" id="generateSection" style="display:none;">
                 <div class="batch-row">
                     <label class="batch-label">Count:</label>
@@ -429,9 +505,9 @@
                     </div>
                 </div>
                 <button class="generate-btn" id="generateBtn">
-                    <span class="btn-text">GENERATE</span>
+                    <span class="btn-text">⚡ EXECUTE SYNTHESIS</span>
                     <span class="btn-loader" style="display:none;">
-                        <span class="spinner"></span> Generating...
+                        <span class="spinner"></span> Manifesting...
                     </span>
                 </button>
                 <div class="progress-info" id="progressInfo" style="display:none;">
@@ -440,7 +516,7 @@
                     </div>
                     <span id="progressText">Starting...</span>
                     <button id="cancelVideoBtn" onclick="cancelVideoGeneration()"
-                        style="display:none; margin-top: 8px; padding: 8px 20px; background: rgba(180,50,50,0.3); color: #aaa; border: 1px solid rgba(180,50,50,0.2); border-radius: 999px; cursor: pointer; font-family: var(--font); font-size: 0.72rem; letter-spacing: 1px; width: 100%;">Cancel</button>
+                        style="display:none; margin-top:8px; padding:8px 20px; background:rgba(180,50,50,0.15); color:rgba(255,100,100,0.6); border:1px solid rgba(180,50,50,0.15); border-radius:999px; cursor:pointer; font-family:var(--font-body); font-size:11px; letter-spacing:1px; width:100%;">Cancel</button>
                 </div>
                 <div class="model-loading-info" id="modelLoadingInfo" style="display:none;">
                     <span>Loading model...</span>
@@ -485,19 +561,40 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Custom alert modal (replaces native alert) -->
-    <div id="customAlert"
-        style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
-        <div
-            style="background:#16161e; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px 20px 18px; max-width:300px; width:85%; text-align:center;">
-            <div id="customAlertText"
-                style="color:#d4d4d8; font-family:'Outfit',sans-serif; font-size:0.9rem; line-height:1.5; margin-bottom:18px;">
+
+        <!-- Quick Buy Modal -->
+        <div id="quickBuyOverlay" style="display:none;">
+            <div>
+                <div style="text-align:center; margin-bottom:12px;">
+                    <div style="font-size:14px; font-weight:700; color:#fff;">Insufficient Tokens</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">Purchase tokens to continue</div>
+                </div>
+                <div id="quickBuyPackages"></div>
+                <button id="quickBuyBtn" style="display:none;"></button>
+                <button id="quickBuyClose"
+                    style="width:100%; margin-top:8px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.3); font-size:11px; cursor:pointer; font-family:var(--font-body);">Close</button>
             </div>
-            <button id="customAlertOk"
-                style="background:rgba(255,255,255,0.06); color:#e4e4e7; border:1px solid rgba(255,255,255,0.1); border-radius:999px; padding:10px 40px; font-family:'Outfit',sans-serif; font-size:0.85rem; letter-spacing:1px; cursor:pointer;">OK</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-icons">
+                <span style="color:var(--accent-pink);">❤️</span>
+                <span style="color:var(--accent-cyan);">⭐</span>
+                <span style="color:var(--accent-pink);">❤️</span>
+            </div>
+            <p>Angel Arena // Neural Synthesis</p>
+        </footer>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlert" style="display:none;">
+        <div>
+            <div id="customAlertText"></div>
+            <button id="customAlertOk">OK</button>
         </div>
     </div>
+
     <script>
         // Replace native alert with custom modal
         (function () {
@@ -513,7 +610,44 @@
         })();
     </script>
 
-    <script src="/app.js?v=50"></script>
+    <script src="/app.js?v=60"></script>
+
+    <!-- Mode card switching (bridge to app.js switchMode) -->
+    <script>
+        (function() {
+            const grid = document.getElementById('modeGrid');
+            if (!grid) return;
+
+            grid.addEventListener('click', function(e) {
+                const card = e.target.closest('.mode-card');
+                if (!card) return;
+                const mode = card.dataset.mode;
+
+                // Update card active state
+                grid.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Sync hidden select
+                const sel = document.getElementById('modeSelect');
+                if (sel) sel.value = mode;
+
+                // Match the dropdown logic from app.js:
+                // "generate" card → darkMode='generate', switchMode('dark')
+                // "dark" card → darkMode='edit', switchMode('dark')
+                // everything else → switchMode(mode)
+                if (mode === 'generate') {
+                    darkMode = 'generate';
+                    switchMode('dark');
+                } else if (mode === 'dark') {
+                    darkMode = 'edit';
+                    switchMode('dark');
+                } else {
+                    switchMode(mode);
+                }
+            });
+        })();
+    </script>
+
     <script>
         // Override functions — Telegram WebView caches app.js aggressively
         (function () {
@@ -575,7 +709,6 @@
             setTimeout(() => {
                 window.loadProfile = prodLoadProfile;
                 window.buyPremium = prodBuyPremium;
-                // Re-bind premium button
                 const btn = document.getElementById('buyPremiumBtn');
                 if (btn) {
                     const newBtn = btn.cloneNode(true);
@@ -586,5 +719,4 @@
         })();
     </script>
 </body>
-
 </html>

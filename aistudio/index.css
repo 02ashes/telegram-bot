@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Comfortaa:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Comfortaa", cursive;
+}
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --accent-pink: #ff4d94;
+  --accent-purple: #9d4dff;
+  --accent-cyan: #4dffff;
+  --aurora-1: #ff2d95;
+  --aurora-2: #9d4dff;
+  --aurora-3: #00d2ff;
+}
+
+body {
+  background: #020205;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Aurora Mesh Background */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: 
+    radial-gradient(circle at 20% 20%, var(--aurora-1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 30%, var(--aurora-2) 0%, transparent 40%),
+    radial-gradient(circle at 40% 80%, var(--aurora-3) 0%, transparent 40%);
+  filter: blur(100px);
+  opacity: 0.3;
+  animation: aurora-shift 30s infinite alternate ease-in-out;
+}
+
+@keyframes aurora-shift {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.2) rotate(10deg); }
+}
+
+/* Iridescent Glass Card */
+.aurora-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 77, 148, 0.1), transparent, rgba(77, 255, 255, 0.1));
+  pointer-events: none;
+}
+
+/* Mode Selection Cards */
+.mode-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 16px;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.mode-card.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-pink);
+  box-shadow: 0 0 20px rgba(255, 77, 148, 0.2);
+  transform: translateY(-4px);
+}
+
+.mode-card.active .mode-icon {
+  color: var(--accent-pink);
+  filter: drop-shadow(0 0 8px var(--accent-pink));
+}
+
+/* Floating Animation */
+.floating {
+  animation: floating 4s infinite ease-in-out;
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Liquid Slider */
+.liquid-slider-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+}
+
+.liquid-slider-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2));
+  border-radius: 20px;
+  position: relative;
+}
+
+.liquid-slider-thumb {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--accent-pink);
+  border: 3px solid var(--aurora-1);
+}
+
+/* Primary Button */
+.aurora-btn {
+  background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2));
+  color: white;
+  font-weight: 800;
+  border-radius: 20px;
+  padding: 18px;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 14px;
+  box-shadow: 0 10px 30px rgba(255, 45, 149, 0.3);
+}
+
+.aurora-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(255, 45, 149, 0.5);
+}
+
+/* Tap highlight removal */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
