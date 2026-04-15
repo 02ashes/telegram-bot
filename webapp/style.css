@@ -66,10 +66,10 @@ body {
 }
 
 .mode-card.active {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #ff4d94;
-  box-shadow: 0 0 20px rgba(255, 77, 148, 0.2);
-  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 77, 148, 0.45);
+  box-shadow: 0 0 15px rgba(255, 77, 148, 0.12);
+  transform: translateY(-2px);
 }
 
 .mode-card .mode-dot { display: none; }
@@ -115,8 +115,8 @@ body {
   height: 20px;
   background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 0 15px #ff4d94;
-  border: 3px solid #ff2d95;
+  box-shadow: 0 0 10px rgba(255, 77, 148, 0.5);
+  border: 2px solid rgba(255, 45, 149, 0.7);
 }
 
 /* ── Native range inputs (fallback for non-inpaint sliders) */
@@ -137,8 +137,8 @@ input[type="range"].slider-input::-webkit-slider-thumb {
   height: 20px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid #ff2d95;
-  box-shadow: 0 0 15px #ff4d94;
+  border: 2px solid rgba(255, 45, 149, 0.7);
+  box-shadow: 0 0 10px rgba(255, 77, 148, 0.5);
   cursor: pointer;
   margin-top: -5px;
 }
@@ -150,7 +150,7 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
 
 /* ── Aurora Button ──────────────────────────────────────── */
 .aurora-btn {
-  background: linear-gradient(135deg, #ff2d95, #9d4dff);
+  background: linear-gradient(135deg, rgba(255, 45, 149, 0.85), rgba(157, 77, 255, 0.85));
   font-family: 'Outfit', sans-serif;
 }
 
@@ -171,15 +171,15 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
 /* ── Quality Toggle Buttons ─────────────────────────────── */
 .quality-btn.active {
   background: rgba(255, 255, 255, 0.08) !important;
-  border-color: #ff4d94 !important;
+  border-color: rgba(255, 77, 148, 0.4) !important;
   color: #fff !important;
-  box-shadow: 0 0 12px rgba(255, 77, 148, 0.15);
+  box-shadow: 0 0 8px rgba(255, 77, 148, 0.1);
 }
 
 /* ── Batch Buttons ──────────────────────────────────────── */
 .batch-btn.active {
   background: rgba(255, 255, 255, 0.1) !important;
-  border-color: #ff4d94 !important;
+  border-color: rgba(255, 77, 148, 0.4) !important;
   color: #fff !important;
 }
 
@@ -515,7 +515,7 @@ select option, select optgroup {
   height: 8px;
   border-radius: 50%;
   background: #ff2d95;
-  box-shadow: 0 0 8px #ff2d95, 0 0 20px rgba(255, 45, 149, 0.4);
+  box-shadow: 0 0 8px rgba(255, 45, 149, 0.6);
   z-index: 10;
   pointer-events: none;
   transition: top 0.4s cubic-bezier(0.23, 1, 0.32, 1),

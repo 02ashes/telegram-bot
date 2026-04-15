@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=71">
+    <link rel="stylesheet" href="/style.css?v=72">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -447,13 +447,15 @@
 
                 <!-- LoRA Modal -->
                 <div class="lora-modal-overlay fixed inset-0 z-[2000] bg-black/85 flex items-center justify-center backdrop-blur-sm" id="loraModalOverlay" style="display:none;">
-                    <div class="bg-[#16161e] border border-white/10 rounded-[32px] w-[92%] max-w-[400px] max-h-[85vh] overflow-y-auto">
-                        <div class="flex justify-between items-center px-6 py-5 border-b border-white/[0.06] text-sm font-bold">
-                            <span id="loraModalTitle">Scene 1 — LoRAs</span>
-                            <button class="text-white/40 text-lg cursor-pointer bg-transparent border-none" id="loraModalClose">✕</button>
+                    <div class="bg-[#16161e] border border-white/10 rounded-[28px] w-[88%] max-w-[380px] max-h-[80vh] flex flex-col overflow-hidden">
+                        <div class="flex justify-between items-center px-5 py-4 border-b border-white/[0.06] shrink-0">
+                            <span class="text-sm font-bold" id="loraModalTitle">Scene 1 — LoRAs</span>
+                            <button class="text-white/40 text-base cursor-pointer bg-transparent border-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 hover:text-white transition-all" id="loraModalClose">✕</button>
                         </div>
-                        <div class="px-6 py-4" id="loraModalBody"></div>
-                        <button class="w-[calc(100%-48px)] mx-6 mb-6 py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer" id="loraModalSave">✅ Save & Close</button>
+                        <div class="px-5 py-4 overflow-y-auto flex-1" id="loraModalBody"></div>
+                        <div class="px-5 pb-5 pt-2 shrink-0">
+                            <button class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer hover:bg-white/10 transition-all" id="loraModalSave">✅ Save & Close</button>
+                        </div>
                     </div>
                 </div>
 
@@ -579,11 +581,15 @@
                 dot.style.left=(phRect.left-gridRect.left+phRect.width/2-4)+'px';
             }
 
-            // Position dot on initial active card
-            requestAnimationFrame(()=>{
+            function repositionDot(){
                 const active=grid.querySelector('.mode-card.active');
                 if(active)moveDotTo(active);
-            });
+            }
+
+            // Position dot on initial active card
+            requestAnimationFrame(repositionDot);
+            // Reposition on resize
+            window.addEventListener('resize', repositionDot);
 
             grid.addEventListener('click',function(e){
                 const card=e.target.closest('.mode-card');
@@ -597,6 +603,28 @@
                 if(mode==='generate'){darkMode='generate';switchMode('dark');}
                 else if(mode==='dark'){darkMode='edit';switchMode('dark');}
                 else{switchMode(mode);}
+            });
+        })();
+    </script>
+
+    <!-- Tab switching pill animation -->
+    <script>
+        (function(){
+            const tabs=document.querySelectorAll('.top-tab');
+            tabs.forEach(tab=>{
+                tab.addEventListener('click',()=>{
+                    // Update tab-bg active state
+                    tabs.forEach(t=>{
+                        const bg=t.querySelector('.tab-bg');
+                        if(bg){
+                            if(t===tab){
+                                bg.classList.add('active');
+                            } else {
+                                bg.classList.remove('active');
+                            }
+                        }
+                    });
+                });
             });
         })();
     </script>
