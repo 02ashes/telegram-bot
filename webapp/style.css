@@ -129,22 +129,20 @@ body {
 .top-tab:not(.active):hover { color: rgba(255,255,255,0.45); }
 .tab-icon { font-size: 13px; }
 
-/* ── Tab Content ─────────────────────────────────────────── */
-.tab-content { display: none; }
-.tab-content.active-tab { display: block; }
+/* Tab content visibility is managed by app.js via inline styles */
 
-/* ── Mode Cards (2+3 grid) ───────────────────────────────── */
+/* ── Mode Cards (2-col grid, matching AI Studio layout) ──── */
 .mode-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin-bottom: 20px;
 }
 .mode-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.05);
-  border-radius: var(--radius-md);
-  padding: 14px 12px;
+  border-radius: 20px;
+  padding: 16px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
   position: relative;
@@ -155,21 +153,20 @@ body {
   box-shadow: 0 0 20px rgba(255,45,149,0.15);
   transform: translateY(-3px);
 }
-.mode-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.mode-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
 .mode-icon {
-  font-size: 18px; transition: all 0.4s;
-  filter: grayscale(0.5);
+  font-size: 20px; transition: all 0.4s;
 }
-.mode-card.active .mode-icon { color: var(--accent-pink); filter: drop-shadow(0 0 8px var(--accent-pink)) grayscale(0); }
+.mode-card.active .mode-icon { filter: drop-shadow(0 0 8px var(--accent-pink)); }
 .mode-dot {
-  width: 6px; height: 6px; border-radius: 50%;
+  width: 7px; height: 7px; border-radius: 50%;
   background: var(--accent-pink);
   box-shadow: 0 0 8px var(--accent-pink);
   display: none;
 }
 .mode-card.active .mode-dot { display: block; }
-.mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-.mode-desc { font-size: 8px; color: rgba(255,255,255,0.25); font-weight: 500; margin-top: 2px; }
+.mode-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+.mode-desc { font-size: 9px; color: rgba(255,255,255,0.25); font-weight: 500; margin-top: 3px; }
 
 /* ── Sections ────────────────────────────────────────────── */
 .section {
@@ -375,17 +372,20 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px; height: 20px;
+  width: 22px; height: 22px;
   border-radius: 50%;
   background: #fff;
   border: 3px solid var(--aurora-1);
-  box-shadow: 0 0 15px var(--accent-pink);
+  box-shadow: 0 0 15px var(--accent-pink), 0 0 40px rgba(255,45,149,0.2);
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 input[type="range"]::-webkit-slider-runnable-track {
   height: 10px;
   border-radius: 20px;
-  background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2));
+  background: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 50%, rgba(255,255,255,0.05) 50%);
+  background-size: 200% 100%;
 }
 
 /* ── Quality / Submode Toggles ───────────────────────────── */
