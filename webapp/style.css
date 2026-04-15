@@ -298,3 +298,86 @@ select option, select optgroup {
   background: #16161e;
   color: #fff;
 }
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Animations (replicate Framer Motion from AI Studio)       */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* Fade-in on load */
+.anim-fade-in {
+  animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.anim-delay-1 { animation-delay: 0.1s; }
+.anim-delay-2 { animation-delay: 0.2s; }
+.anim-delay-3 { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Hover rotate (star icon) */
+.hover-rotate {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.hover-rotate:hover {
+  transform: rotate(180deg);
+}
+
+/* ── Tab Background Pill (AI Studio's layoutId animation) ── */
+.tab-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: transparent;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+.tab-bg.active {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.04);
+}
+
+/* Tab active state — move the pill */
+.top-tab.active .tab-bg { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.04); }
+.top-tab:not(.active) .tab-bg { background: transparent; box-shadow: none; }
+
+/* ── Mode card transitions ─────────────────────────────── */
+.mode-card {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.mode-card:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+.mode-card:active {
+  transform: scale(0.97);
+}
+
+/* Active mode card icon gets pink glow */
+.mode-card.active .mode-icon {
+  color: #ff4d94;
+  filter: drop-shadow(0 0 8px #ff2d95);
+}
+
+/* ── Content transitions ───────────────────────────────── */
+.tab-content {
+  animation: contentFadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
