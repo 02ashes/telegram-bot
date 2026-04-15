@@ -370,8 +370,8 @@ select option, select optgroup {
   box-shadow: 0 0 8px #ff2d95, 0 0 20px rgba(255, 45, 149, 0.4);
   z-index: 10;
   pointer-events: none;
-  transition: top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-              left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: top 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              left 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Placeholder keeps layout space for the dot */
