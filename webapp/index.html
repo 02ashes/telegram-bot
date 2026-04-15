@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=73">
+    <link rel="stylesheet" href="/style.css?v=74">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -444,20 +444,6 @@
                     <textarea id="kenpechiNegativeInput" rows="2" placeholder="Optional negative prompt..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-white/50 text-xs outline-none resize-none"></textarea>
                 </div>
 
-                <!-- LoRA Modal -->
-                <div class="fixed inset-0 z-[2000] flex items-center justify-center" id="loraModalOverlay" style="display:none;">
-                    <div class="absolute inset-0 backdrop-blur-md bg-black/60" onclick="closeLoraModal()"></div>
-                    <div class="relative z-10 bg-[#16161e] border border-white/10 rounded-[24px] w-[88%] max-w-[380px] max-h-[75vh] flex flex-col overflow-hidden">
-                        <div class="flex justify-between items-center px-5 py-4 border-b border-white/[0.06] shrink-0">
-                            <span class="text-sm font-bold" id="loraModalTitle">Scene 1 — LoRAs</span>
-                            <button class="text-white/40 text-base cursor-pointer bg-transparent border-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 hover:text-white transition-all" id="loraModalClose">✕</button>
-                        </div>
-                        <div class="px-5 py-4 overflow-y-auto flex-1" id="loraModalBody"></div>
-                        <div class="px-5 pb-5 pt-2 shrink-0">
-                            <button class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer hover:bg-white/10 transition-all" id="loraModalSave">✅ Save & Close</button>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Batch + Generate -->
                 <div class="section" id="generateSection" style="display:none;">
@@ -509,21 +495,6 @@
                 </div>
             </div>
 
-            <!-- Lightbox -->
-            <div class="gallery-lightbox fixed inset-0 z-[1000] flex items-center justify-center" id="galleryLightbox" style="display:none;">
-                <div class="absolute inset-0 backdrop-blur-lg bg-black/60" id="lightboxOverlay"></div>
-                <div class="relative z-10 w-[92%] max-w-[420px] flex flex-col gap-3">
-                    <img id="lightboxImage" src="" alt="Preview" class="w-full max-h-[65vh] object-contain rounded-3xl">
-                    <div class="flex flex-wrap gap-2">
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxDownload">Save</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxCopy">Copy</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="lightboxSend">Send</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#00d2ff]/20 text-[#00d2ff] text-[11px] font-semibold transition-all text-center bg-transparent" id="lightboxIphoneToggle">iPhone</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-red-500/15 text-red-400/70 text-[11px] font-semibold transition-all text-center bg-transparent" id="lightboxDelete">Delete</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="lightboxClose">Close</button>
-                    </div>
-                </div>
-            </div>
 
             <!-- Quick Buy Modal -->
             <div id="quickBuyOverlay" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center" style="display:none;">
@@ -549,6 +520,41 @@
             </div>
             <p class="text-[9px] uppercase tracking-[0.6em] font-black">Angel Arena // Neural Synthesis</p>
         </footer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- Overlays at BODY level (outside .app transforms)   -->
+    <!-- ═══════════════════════════════════════════════════ -->
+
+    <!-- LoRA Modal -->
+    <div class="fixed inset-0 z-[2000] flex items-center justify-center" id="loraModalOverlay" style="display:none;">
+        <div class="absolute inset-0 backdrop-blur-md bg-black/50" onclick="closeLoraModal()"></div>
+        <div class="relative z-10 bg-[#16161e] border border-white/10 rounded-[24px] w-[88%] max-w-[380px] max-h-[75vh] flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-white/[0.06] shrink-0">
+                <span class="text-sm font-bold" id="loraModalTitle">Scene 1 — LoRAs</span>
+                <button class="text-white/40 text-base cursor-pointer bg-transparent border-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 hover:text-white transition-all" id="loraModalClose">✕</button>
+            </div>
+            <div class="px-5 py-4 overflow-y-auto overflow-x-hidden flex-1" id="loraModalBody"></div>
+            <div class="px-5 pb-5 pt-2 shrink-0">
+                <button class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer hover:bg-white/10 transition-all" id="loraModalSave">✅ Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="gallery-lightbox fixed inset-0 z-[1000] flex items-center justify-center" id="galleryLightbox" style="display:none;">
+        <div class="absolute inset-0 backdrop-blur-lg bg-black/50" id="lightboxOverlay"></div>
+        <div class="relative z-10 w-[92%] max-w-[420px] flex flex-col gap-3">
+            <img id="lightboxImage" src="" alt="Preview" class="w-full max-h-[65vh] object-contain rounded-3xl">
+            <div class="flex flex-wrap gap-2">
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxDownload">Save</button>
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxCopy">Copy</button>
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="lightboxSend">Send</button>
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#00d2ff]/20 text-[#00d2ff] text-[11px] font-semibold transition-all text-center bg-transparent" id="lightboxIphoneToggle">iPhone</button>
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-red-500/15 text-red-400/70 text-[11px] font-semibold transition-all text-center bg-transparent" id="lightboxDelete">Delete</button>
+                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="lightboxClose">Close</button>
+            </div>
+        </div>
     </div>
 
     <!-- Custom Alert -->

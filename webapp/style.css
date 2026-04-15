@@ -100,7 +100,7 @@ body {
 
 .liquid-slider-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ff2d95, #9d4dff);
+  background: linear-gradient(90deg, rgba(255,45,149,0.6), rgba(157,77,255,0.6));
   border-radius: 20px;
   position: relative;
   transition: width 0.05s ease;
@@ -354,6 +354,7 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
+  overflow-x: hidden;
 }
 
 .lora-slot select {
