@@ -2761,31 +2761,8 @@ async function generateKenpechiVideo() {
 // ============================================================
 (function injectAutoPromptButton() {
     const promptInput = document.getElementById('promptInput');
-    if (!promptInput) return;
-
-    // Create button row
-    const btnRow = document.createElement('div');
-    btnRow.id = 'autoPromptRow';
-    btnRow.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
-
-    const enhanceBtn = document.createElement('button');
-    enhanceBtn.id = 'autoPromptBtn';
-    enhanceBtn.type = 'button';
-    enhanceBtn.style.cssText = `
-        flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-        padding:9px 14px; background:linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1));
-        border:1px solid rgba(168,85,247,0.25); border-radius:10px; color:#d4d4d8;
-        font-size:0.82rem; font-family:'Outfit',sans-serif; cursor:pointer;
-        transition: all 0.2s ease;
-    `;
-    enhanceBtn.innerHTML = '✨ Enhance Prompt';
-    enhanceBtn.onmouseenter = () => { enhanceBtn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(139,92,246,0.18))'; enhanceBtn.style.borderColor = 'rgba(168,85,247,0.4)'; };
-    enhanceBtn.onmouseleave = () => { enhanceBtn.style.background = 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1))'; enhanceBtn.style.borderColor = 'rgba(168,85,247,0.25)'; };
-
-    btnRow.appendChild(enhanceBtn);
-
-    // Insert before prompt input
-    promptInput.parentNode.insertBefore(btnRow, promptInput.nextSibling);
+    const enhanceBtn = document.getElementById('aioTriggerRow');
+    if (!promptInput || !enhanceBtn) return;
 
     // Click handler
     enhanceBtn.addEventListener('click', async () => {
@@ -2820,10 +2797,12 @@ async function generateKenpechiVideo() {
         const loraTrigger = loraInput?.value?.trim() || '';
 
         // UI: show loading
-        const origHTML = enhanceBtn.innerHTML;
-        enhanceBtn.innerHTML = '<span class="btn-loader" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(168,85,247,0.3);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.6s linear infinite;"></span> Enhancing...';
+        const labelSpan = enhanceBtn.querySelector('span:last-child');
+        const origText = labelSpan ? labelSpan.textContent : '';
+        if (labelSpan) labelSpan.textContent = 'Enhancing...';
         enhanceBtn.disabled = true;
-        enhanceBtn.style.opacity = '0.6';
+        enhanceBtn.style.opacity = '0.5';
+        enhanceBtn.style.pointerEvents = 'none';
 
         try {
             const resp = await fetch('/api/enhance-prompt', {
@@ -2866,9 +2845,10 @@ async function generateKenpechiVideo() {
         } catch (err) {
             alert('Enhance failed: ' + err.message);
         } finally {
-            enhanceBtn.innerHTML = origHTML;
+            if (labelSpan) labelSpan.textContent = origText;
             enhanceBtn.disabled = false;
             enhanceBtn.style.opacity = '1';
+            enhanceBtn.style.pointerEvents = '';
         }
     });
 })();

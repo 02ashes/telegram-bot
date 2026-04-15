@@ -200,7 +200,9 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
 }
 
 /* ── Upload area images ─────────────────────────────────── */
-.upload-area img {
+.upload-area img,
+#darkImg2Preview img,
+#faceUploadArea img {
   max-width: 100%;
   max-height: 320px;
   border-radius: 16px;
@@ -434,6 +436,22 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
 }
 
 /* ── Preset buttons ─────────────────────────────────────── */
+.preset-btn {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.preset-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
 .preset-btn.active {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #fff !important;

@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=75">
+    <link rel="stylesheet" href="/style.css?v=76">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -255,8 +255,8 @@
                             <span class="text-xl text-white/20 block">+</span>
                             <span class="text-[11px] text-white/15">Tap to add 2nd photo</span>
                         </div>
-                        <div id="darkImg2Preview" style="display:none;" class="relative text-center">
-                            <img id="darkImg2Img" src="" alt="Image 2" class="max-w-full max-h-[200px] rounded-2xl">
+                        <div id="darkImg2Preview" style="display:none;" class="relative flex items-center justify-center">
+                            <img id="darkImg2Img" src="" alt="Image 2" class="max-w-full max-h-[200px] rounded-2xl object-contain">
                             <button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center" id="darkImg2Remove">✕</button>
                         </div>
                         <input type="file" id="darkFileInput2" accept="image/*" hidden>
@@ -288,12 +288,11 @@
                     <div class="aurora-card p-1">
                         <textarea id="promptInput" class="w-full h-32 bg-transparent p-5 text-sm leading-relaxed outline-none resize-none placeholder:text-white/20" placeholder="Whisper your desires to the machine..." rows="3"></textarea>
                     </div>
-                    <div class="flex items-center justify-between px-2 mt-2">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group" id="aioTriggerRow">
+                    <div class="flex items-center justify-start px-2 mt-2">
+                        <button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] transition-all group" id="aioTriggerRow">
                             <span class="text-[#ff2d95] group-hover:rotate-12 transition-transform">✨</span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-white/70 group-hover:text-white">Улучшить промт</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white/80">Enhance Prompt</span>
                         </button>
-                        <span class="text-[10px] font-black text-white/20 tracking-widest" id="promptCounter">0/500</span>
                     </div>
                     <div id="enhancedPromptBox" class="mt-2 p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-[11px] text-white/40" style="display:none;">
                         <div id="enhancedPromptText"></div>
@@ -377,8 +376,11 @@
                 <!-- DARK GENERATE: Face Upload -->
                 <div class="section dark-only" id="darkFaceUploadSection" style="display:none;">
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Face Photo</p>
-                    <div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-5 text-center cursor-pointer" id="faceUploadArea">
-                        <div id="faceUploadPlaceholder" class="text-white/20 text-sm">Tap to upload face photo</div>
+                    <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-5 flex items-center justify-center cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all relative" id="faceUploadArea">
+                        <div id="faceUploadPlaceholder" class="flex flex-col items-center gap-2 text-white/20 text-sm">
+                            <span class="text-2xl">+</span>
+                            <span>Tap to upload face</span>
+                        </div>
                         <input type="file" accept="image/*" id="faceFileInput" style="display:none;">
                     </div>
                 </div>
