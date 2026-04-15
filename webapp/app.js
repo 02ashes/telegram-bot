@@ -2761,7 +2761,7 @@ async function generateKenpechiVideo() {
 // ============================================================
 (function injectAutoPromptButton() {
     const promptInput = document.getElementById('promptInput');
-    const enhanceBtn = document.getElementById('aioTriggerRow');
+    const enhanceBtn = document.getElementById('enhancePromptBtn');
     if (!promptInput || !enhanceBtn) return;
 
     // Click handler
