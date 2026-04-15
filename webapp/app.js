@@ -1100,7 +1100,12 @@ function getImageDataURL() {
 // ============================================================
 // Generate
 // ============================================================
+let isGenerating = false; // Guard against double-click/double-submit
+
 generateBtn.addEventListener('click', async () => {
+    // Prevent concurrent generation
+    if (isGenerating) return;
+
     const prompt = document.getElementById('promptInput').value.trim();
 
     // Video mode uses per-scene prompts, not the shared prompt field
@@ -1119,23 +1124,37 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
+    // Lock UI for entire batch
+    isGenerating = true;
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-text').style.display = 'none';
+    generateBtn.querySelector('.btn-loader').style.display = '';
+
     const count = batchCount;
 
-    for (let i = 0; i < count; i++) {
-        if (count > 1) {
-            progressInfo.style.display = '';
-            progressText.textContent = `🔄 Generating ${i + 1}/${count}...`;
-        }
+    try {
+        for (let i = 0; i < count; i++) {
+            if (count > 1) {
+                progressInfo.style.display = '';
+                progressText.textContent = `🔄 Generating ${i + 1}/${count}...`;
+            }
 
-        if (currentMode === 'inpaint') {
-            await generateInpaint(prompt);
-        } else if (currentMode === 'dark') {
-            await generateDarkEdit(prompt);
-        } else if (currentMode === 'test') {
-            await generateTest(prompt);
-        } else {
-            await generateImageEdit(prompt);
+            if (currentMode === 'inpaint') {
+                await generateInpaint(prompt);
+            } else if (currentMode === 'dark') {
+                await generateDarkEdit(prompt);
+            } else if (currentMode === 'test') {
+                await generateTest(prompt);
+            } else {
+                await generateImageEdit(prompt);
+            }
         }
+    } finally {
+        // Unlock UI after entire batch completes
+        isGenerating = false;
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').style.display = '';
+        generateBtn.querySelector('.btn-loader').style.display = 'none';
     }
 });
 
@@ -1148,9 +1167,6 @@ async function generateInpaint(prompt) {
     const steps = parseInt(stepsSlider.value);
 
     // UI state
-    generateBtn.disabled = true;
-    generateBtn.querySelector('.btn-text').style.display = 'none';
-    generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     resultSection.style.display = 'none';
 
@@ -1227,9 +1243,7 @@ async function generateInpaint(prompt) {
         progressText.textContent = 'Error: ' + err.message;
         alert('Error: ' + err.message);
     } finally {
-        generateBtn.disabled = false;
-        generateBtn.querySelector('.btn-text').style.display = '';
-        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        // Button state managed by batch loop
     }
 }
 
@@ -1246,9 +1260,6 @@ async function generateImageEdit(prompt) {
     const imageDataURL = getImageDataURL();
     const image2DataURL = getImage2DataURL();
 
-    generateBtn.disabled = true;
-    generateBtn.querySelector('.btn-text').style.display = 'none';
-    generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
     progressText.textContent = 'Sending...';
@@ -1338,9 +1349,7 @@ async function generateImageEdit(prompt) {
         progressText.textContent = 'Error: ' + err.message;
         alert('Error: ' + err.message);
     } finally {
-        generateBtn.disabled = false;
-        generateBtn.querySelector('.btn-text').style.display = '';
-        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        // Button state managed by batch loop
     }
 }
 
@@ -1352,9 +1361,6 @@ async function generateDarkEdit(prompt) {
     const denoise = parseFloat(darkDenoiseSlider.value);
     const steps = parseInt(darkStepsSlider.value);
 
-    generateBtn.disabled = true;
-    generateBtn.querySelector('.btn-text').style.display = 'none';
-    generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '10%';
     progressText.textContent = 'Processing...';
@@ -1472,9 +1478,7 @@ async function generateDarkEdit(prompt) {
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
-        generateBtn.disabled = false;
-        generateBtn.querySelector('.btn-text').style.display = '';
-        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        // Button state managed by batch loop
         if (cancelBtn) cancelBtn.style.display = 'none';
     }
 }
@@ -1489,9 +1493,6 @@ async function generateTest(prompt) {
     const loraSlider = document.getElementById('testLoraStrengthSlider');
     const loraStrength = loraSlider ? parseFloat(loraSlider.value) : 1.0;
 
-    generateBtn.disabled = true;
-    generateBtn.querySelector('.btn-text').style.display = 'none';
-    generateBtn.querySelector('.btn-loader').style.display = '';
     progressInfo.style.display = '';
     progressFill.style.width = '5%';
     progressText.textContent = 'Submitting V9 job...';
@@ -1572,9 +1573,7 @@ async function generateTest(prompt) {
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
-        generateBtn.disabled = false;
-        generateBtn.querySelector('.btn-text').style.display = '';
-        generateBtn.querySelector('.btn-loader').style.display = 'none';
+        // Button state managed by batch loop
         if (cancelBtn) cancelBtn.style.display = 'none';
     }
 }
