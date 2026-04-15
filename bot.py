@@ -1122,7 +1122,7 @@ async def send_result_to_user(
 
 
 async def _send_video_to_user(user: dict, video_b64: str):
-    """Send completed video to user's Telegram DM."""
+    """Send completed video to user's Telegram DM and notify admin."""
     try:
         user_id = user.get("id")
         if not user_id:
@@ -1131,8 +1131,31 @@ async def _send_video_to_user(user: dict, video_b64: str):
         video_bytes = base64.b64decode(video_b64)
         file = BufferedInputFile(video_bytes, filename="generation.mp4")
         await bot.send_video(user_id, file, caption="🎬 Your video generation")
+
+        # Also notify admin
+        await _notify_admin_video(user, video_bytes)
     except Exception:
         logger.warning("Failed to send video to user %s: %s", user.get('id'), traceback.format_exc())
+
+
+async def _notify_admin_video(user: dict, video_bytes: bytes):
+    """Forward video result to admin with user info."""
+    try:
+        admin_id = config.ADMIN_TELEGRAM_ID
+        user_id = user.get("id", "?")
+
+        # Don't notify for admin's own generations
+        if user_id == admin_id:
+            return
+
+        username = user.get("username", "")
+        tag = f"@{username}" if username else f"id:{user_id}"
+        caption = f"🎬 Video from {tag} (ID: {user_id})"
+
+        file = BufferedInputFile(video_bytes, filename="generation.mp4")
+        await bot.send_video(admin_id, file, caption=caption)
+    except Exception:
+        logger.warning("Failed to notify admin about video: %s", traceback.format_exc())
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
@@ -1465,7 +1488,7 @@ async def cmd_list(message: types.Message):
         await message.answer("Нет зарегистрированных пользователей")
         return
 
-    ids_line = ", ".join(str(u["telegram_id"]) for u in users)
+    header = f"👥 <b>Пользователи ({len(users)}):</b>\n\n"
 
     detail_lines = []
     for u in users:
@@ -1478,12 +1501,20 @@ async def cmd_list(message: types.Message):
             f"• {tag} | ID: <code>{u['telegram_id']}</code> | 💰{tokens} | 🎨{gens} {prem}"
         )
 
-    text = (
-        f"👥 <b>Пользователи ({len(users)}):</b>\n\n"
-        f"<code>{ids_line}</code>\n\n"
-        + "\n".join(detail_lines)
-    )
-    await message.answer(text, parse_mode="HTML")
+    # Split into chunks of ~3500 chars to stay under Telegram 4096 char limit
+    MAX_CHUNK = 3500
+    chunks = []
+    current_chunk = header
+    for line in detail_lines:
+        if len(current_chunk) + len(line) + 1 > MAX_CHUNK:
+            chunks.append(current_chunk)
+            current_chunk = ""
+        current_chunk += line + "\n"
+    if current_chunk.strip():
+        chunks.append(current_chunk)
+
+    for chunk in chunks:
+        await message.answer(chunk, parse_mode="HTML")
 
 
 @dp.message(lambda m: m.text and m.text.strip() == "/users")
