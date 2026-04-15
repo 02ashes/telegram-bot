@@ -165,11 +165,14 @@
             <div class="tab-content space-y-6" id="contentGenerate">
 
                 <!-- Mode Grid (exact AI Studio 2x2 + 1) -->
-                <div class="grid grid-cols-2 gap-3 anim-fade-in anim-delay-2" id="modeGrid">
+                <div class="grid grid-cols-2 gap-3 anim-fade-in anim-delay-2 relative" id="modeGrid">
+                    <!-- Floating dot indicator (Framer Motion layoutId simulation) -->
+                    <div class="mode-dot-float" id="modeDotFloat"></div>
+                    
                     <div class="mode-card active" data-mode="inpaint">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>
-                            <div class="mode-dot w-2 h-2 rounded-full bg-[#ff2d95] shadow-[0_0_8px_#ff2d95]"></div>
+                            <div class="mode-dot-placeholder"></div>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Surgical</p>
@@ -179,7 +182,7 @@
                     <div class="mode-card" data-mode="image">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                            <div class="mode-dot w-2 h-2 rounded-full bg-[#ff2d95] shadow-[0_0_8px_#ff2d95]"></div>
+                            <div class="mode-dot-placeholder"></div>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Refine</p>
@@ -189,7 +192,7 @@
                     <div class="mode-card" data-mode="dark">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 9 9 9"/><path d="M7 3v2"/><path d="M3 7h2"/><path d="m21 15-3-3"/><path d="M15 21v-2"/><path d="M21 17h-2"/></svg>
-                            <div class="mode-dot w-2 h-2 rounded-full bg-[#ff2d95] shadow-[0_0_8px_#ff2d95]"></div>
+                            <div class="mode-dot-placeholder"></div>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Dark Beast</p>
@@ -199,7 +202,7 @@
                     <div class="mode-card" data-mode="generate">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                            <div class="mode-dot w-2 h-2 rounded-full bg-[#ff2d95] shadow-[0_0_8px_#ff2d95]"></div>
+                            <div class="mode-dot-placeholder"></div>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Create</p>
@@ -209,7 +212,7 @@
                     <div class="mode-card col-span-2" data-mode="video">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
-                            <div class="mode-dot w-2 h-2 rounded-full bg-[#ff2d95] shadow-[0_0_8px_#ff2d95]"></div>
+                            <div class="mode-dot-placeholder"></div>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Motion</p>
@@ -560,17 +563,35 @@
 
     <script src="/app.js?v=70"></script>
 
-    <!-- Mode card → app.js bridge -->
+    <!-- Mode card → app.js bridge + floating dot -->
     <script>
         (function(){
             const grid=document.getElementById('modeGrid');
-            if(!grid)return;
+            const dot=document.getElementById('modeDotFloat');
+            if(!grid||!dot)return;
+
+            function moveDotTo(card){
+                const placeholder=card.querySelector('.mode-dot-placeholder');
+                if(!placeholder)return;
+                const gridRect=grid.getBoundingClientRect();
+                const phRect=placeholder.getBoundingClientRect();
+                dot.style.top=(phRect.top-gridRect.top+phRect.height/2-4)+'px';
+                dot.style.left=(phRect.left-gridRect.left+phRect.width/2-4)+'px';
+            }
+
+            // Position dot on initial active card
+            requestAnimationFrame(()=>{
+                const active=grid.querySelector('.mode-card.active');
+                if(active)moveDotTo(active);
+            });
+
             grid.addEventListener('click',function(e){
                 const card=e.target.closest('.mode-card');
                 if(!card)return;
                 const mode=card.dataset.mode;
                 grid.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active'));
                 card.classList.add('active');
+                moveDotTo(card);
                 const sel=document.getElementById('modeSelect');
                 if(sel)sel.value=mode;
                 if(mode==='generate'){darkMode='generate';switchMode('dark');}
