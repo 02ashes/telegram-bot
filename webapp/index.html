@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=74">
+    <link rel="stylesheet" href="/style.css?v=75">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -313,24 +313,14 @@
                                 <span>Sampling Precision</span>
                                 <span class="text-[#ff2d95]" id="cfgLabel">3.5</span>
                             </div>
-                            <div class="liquid-slider-track" data-slider="cfg">
-                                <div class="liquid-slider-fill" id="cfgFill" style="width:35%">
-                                    <div class="liquid-slider-thumb"></div>
-                                </div>
-                            </div>
-                            <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5" class="hidden">
+                            <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5" class="slider-input">
                         </div>
                         <div class="space-y-3">
                             <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
                                 <span>Neural Steps</span>
                                 <span class="text-[#ff2d95]" id="stepsLabel">25</span>
                             </div>
-                            <div class="liquid-slider-track" data-slider="steps">
-                                <div class="liquid-slider-fill" id="stepsFill" style="width:50%">
-                                    <div class="liquid-slider-thumb"></div>
-                                </div>
-                            </div>
-                            <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25" class="hidden">
+                            <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25" class="slider-input">
                         </div>
                     </div>
                 </div>
@@ -656,47 +646,20 @@
         })();
     </script>
 
-    <!-- Liquid slider sync -->
+    <!-- Inpaint slider label sync -->
     <script>
         (function(){
-            // Sync native sliders to liquid visual sliders for inpaint
             const cfgSlider=document.getElementById('cfgSlider');
             const stepsSlider=document.getElementById('stepsSlider');
-            const cfgFill=document.getElementById('cfgFill');
-            const stepsFill=document.getElementById('stepsFill');
             const cfgLabel=document.getElementById('cfgLabel');
             const stepsLabel=document.getElementById('stepsLabel');
             
-            function syncLiquid(slider,fill,label){
-                if(!slider||!fill)return;
-                const pct=((slider.value-slider.min)/(slider.max-slider.min))*100;
-                fill.style.width=pct+'%';
-                if(label)label.textContent=slider.value;
-            }
-            
-            // Click on liquid tracks
-            document.querySelectorAll('.liquid-slider-track').forEach(track=>{
-                track.addEventListener('click',function(e){
-                    const rect=track.getBoundingClientRect();
-                    const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
-                    const key=track.dataset.slider;
-                    if(key==='cfg'&&cfgSlider){
-                        const val=(1+pct*9).toFixed(1);
-                        cfgSlider.value=val;
-                        cfgSlider.dispatchEvent(new Event('input'));
-                        syncLiquid(cfgSlider,cfgFill,cfgLabel);
-                    }
-                    if(key==='steps'&&stepsSlider){
-                        const val=Math.round(10+pct*40);
-                        stepsSlider.value=val;
-                        stepsSlider.dispatchEvent(new Event('input'));
-                        syncLiquid(stepsSlider,stepsFill,stepsLabel);
-                    }
-                });
+            if(cfgSlider)cfgSlider.addEventListener('input',()=>{
+                if(cfgLabel)cfgLabel.textContent=cfgSlider.value;
             });
-            
-            if(cfgSlider)cfgSlider.addEventListener('input',()=>syncLiquid(cfgSlider,cfgFill,cfgLabel));
-            if(stepsSlider)stepsSlider.addEventListener('input',()=>syncLiquid(stepsSlider,stepsFill,stepsLabel));
+            if(stepsSlider)stepsSlider.addEventListener('input',()=>{
+                if(stepsLabel)stepsLabel.textContent=stepsSlider.value;
+            });
         })();
     </script>
 
