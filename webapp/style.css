@@ -103,7 +103,7 @@ body {
   background: linear-gradient(90deg, #ff2d95, #9d4dff);
   border-radius: 20px;
   position: relative;
-  transition: width 0.15s ease;
+  transition: width 0.05s ease;
 }
 
 .liquid-slider-thumb {
@@ -111,12 +111,12 @@ body {
   right: -6px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background: #ffffff;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(255, 77, 148, 0.5);
-  border: 2px solid rgba(255, 45, 149, 0.7);
+  box-shadow: 0 0 6px rgba(255, 77, 148, 0.3);
+  border: 2px solid rgba(255, 77, 148, 0.4);
 }
 
 /* ── Native range inputs (fallback for non-inpaint sliders) */
@@ -133,14 +133,14 @@ input[type="range"].slider-input {
 
 input[type="range"].slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid rgba(255, 45, 149, 0.7);
-  box-shadow: 0 0 10px rgba(255, 77, 148, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 77, 148, 0.4);
+  box-shadow: 0 0 6px rgba(255, 77, 148, 0.3);
   cursor: pointer;
-  margin-top: -5px;
+  margin-top: -4px;
 }
 
 input[type="range"].slider-input::-webkit-slider-runnable-track {
@@ -205,6 +205,8 @@ input[type="range"].slider-input::-webkit-slider-runnable-track {
   max-height: 320px;
   border-radius: 16px;
   object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 
 /* ── Scene blocks (video mode) ──────────────────────────── */
@@ -478,23 +480,19 @@ select option, select optgroup {
   transform: rotate(180deg);
 }
 
-/* ── Tab Background Pill (AI Studio's layoutId animation) ── */
-.tab-bg {
+/* ── Sliding Tab Pill (AI Studio's layoutId animation) ──── */
+.tab-pill {
   position: absolute;
-  inset: 0;
+  top: 8px;
+  bottom: 8px;
   border-radius: 16px;
-  background: transparent;
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.03);
+  transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   pointer-events: none;
+  z-index: 0;
 }
-.tab-bg.active {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.04);
-}
-
-/* Tab active state — move the pill */
-.top-tab.active .tab-bg { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.04); }
-.top-tab:not(.active) .tab-bg { background: transparent; box-shadow: none; }
 
 /* ── Mode card transitions ─────────────────────────────── */
 .mode-card {
