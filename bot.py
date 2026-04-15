@@ -96,8 +96,6 @@ async def health():
     return {"status": "ok"}
 
 
-# Serve webapp static files (index.html, app.js, style.css)
-app.mount("/", StaticFiles(directory=WEBAPP_DIR, html=True), name="webapp")
 
 
 # ============================================================
@@ -1015,6 +1013,9 @@ async def api_image_test(request: Request):
             content={"error": str(e)},
         )
 
+# ── Serve webapp static files ────────────────────────────────
+# MUST be after all @app routes — catch-all mount at "/" intercepts everything
+app.mount("/", StaticFiles(directory=WEBAPP_DIR, html=True), name="webapp")
 
 
 def _prepare_photo(raw: bytes) -> bytes:
