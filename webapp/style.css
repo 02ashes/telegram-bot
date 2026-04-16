@@ -567,3 +567,81 @@ select option, select optgroup {
     transform: scale(1);
   }
 }
+
+/* ── Tip Trigger & Tooltip ─────────────────────────────── */
+.tip-trigger {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+.tip-trigger:hover {
+  background: rgba(255, 45, 149, 0.15);
+  border-color: rgba(255, 45, 149, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tip-tooltip {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: rgba(16, 16, 24, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 45, 149, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  pointer-events: none;
+}
+.tip-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.tip-tooltip video {
+  width: 100%;
+  border-radius: 14px;
+  display: block;
+}
+.tip-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tip-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+}

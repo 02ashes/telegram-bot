@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=77">
+    <link rel="stylesheet" href="/style.css?v=78">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -168,30 +168,33 @@
                     <!-- Floating dot indicator (Framer Motion layoutId simulation) -->
                     <div class="mode-dot-float" id="modeDotFloat"></div>
                     
-                    <div class="mode-card active" data-mode="inpaint">
+                    <div class="mode-card active" data-mode="inpaint" data-tip="/tips/inpaint.mp4">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>
                             <div class="mode-dot-placeholder"></div>
+                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Surgical</p>
                             <p class="text-[9px] text-white/30 font-medium">Area edit</p>
                         </div>
                     </div>
-                    <div class="mode-card" data-mode="image">
+                    <div class="mode-card" data-mode="image" data-tip="/tips/Refine.mp4">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                             <div class="mode-dot-placeholder"></div>
+                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Refine</p>
                             <p class="text-[9px] text-white/30 font-medium">Image to image</p>
                         </div>
                     </div>
-                    <div class="mode-card" data-mode="dark">
+                    <div class="mode-card" data-mode="dark" data-tip="/tips/NSFW Refine.mp4">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 9 9 9"/><path d="M7 3v2"/><path d="M3 7h2"/><path d="m21 15-3-3"/><path d="M15 21v-2"/><path d="M21 17h-2"/></svg>
                             <div class="mode-dot-placeholder"></div>
+                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Dark Beast</p>
@@ -208,10 +211,11 @@
                             <p class="text-[9px] text-white/30 font-medium">Text to image</p>
                         </div>
                     </div>
-                    <div class="mode-card col-span-2" data-mode="video">
+                    <div class="mode-card col-span-2" data-mode="video" data-tip="/tips/Motion.mp4">
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
                             <div class="mode-dot-placeholder"></div>
+                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Motion</p>
@@ -555,8 +559,102 @@
         </div>
     </div>
 
+    <!-- Video Tip Tooltip -->
+    <div id="tipTooltip" class="tip-tooltip">
+        <video id="tipVideo" autoplay loop muted playsinline></video>
+        <button id="tipClose" class="tip-close">&times;</button>
+    </div>
+
     <script>
         (function(){const o=document.getElementById('customAlert'),t=document.getElementById('customAlertText'),b=document.getElementById('customAlertOk');b.addEventListener('click',()=>{o.style.display='none';});o.addEventListener('click',(e)=>{if(e.target===o)o.style.display='none';});window.alert=function(m){t.textContent=m;o.style.display='flex';};})();
+    </script>
+
+    <!-- Tip tooltip logic -->
+    <script>
+        (function(){
+            const tooltip = document.getElementById('tipTooltip');
+            const tipVideo = document.getElementById('tipVideo');
+            const tipClose = document.getElementById('tipClose');
+            let activeCard = null;
+
+            function showTip(card, triggerBtn) {
+                const src = card.dataset.tip;
+                if (!src) return;
+
+                tipVideo.src = src;
+                tipVideo.load();
+
+                // Position tooltip near the card
+                const cardRect = card.getBoundingClientRect();
+                const tooltipW = 280;
+                const tooltipH = 200;
+
+                // Try to position below the card, centered
+                let left = cardRect.left + (cardRect.width / 2) - (tooltipW / 2);
+                let top = cardRect.bottom + 8;
+
+                // Keep within viewport
+                if (left < 8) left = 8;
+                if (left + tooltipW > window.innerWidth - 8) left = window.innerWidth - tooltipW - 8;
+                if (top + tooltipH > window.innerHeight - 8) {
+                    // Show above the card instead
+                    top = cardRect.top - tooltipH - 8;
+                }
+
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+                tooltip.classList.add('visible');
+                activeCard = card;
+            }
+
+            function hideTip() {
+                tooltip.classList.remove('visible');
+                tipVideo.pause();
+                tipVideo.removeAttribute('src');
+                activeCard = null;
+            }
+
+            // Attach events to tip triggers
+            document.querySelectorAll('.tip-trigger').forEach(btn => {
+                const card = btn.closest('.mode-card');
+
+                // Mobile: tap to toggle
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (activeCard === card) {
+                        hideTip();
+                    } else {
+                        showTip(card, btn);
+                    }
+                });
+
+                // Desktop: hover
+                btn.addEventListener('mouseenter', () => showTip(card, btn));
+                btn.addEventListener('mouseleave', () => {
+                    // Delay hide so user can move to tooltip
+                    setTimeout(() => {
+                        if (!tooltip.matches(':hover')) hideTip();
+                    }, 200);
+                });
+            });
+
+            // Keep tooltip open while hovering over it
+            tooltip.addEventListener('mouseleave', () => hideTip());
+
+            // Close button
+            tipClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hideTip();
+            });
+
+            // Close on outside tap
+            document.addEventListener('click', (e) => {
+                if (activeCard && !tooltip.contains(e.target) && !e.target.closest('.tip-trigger')) {
+                    hideTip();
+                }
+            });
+        })();
     </script>
 
     <script src="/app.js?v=70"></script>
