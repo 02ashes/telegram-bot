@@ -535,7 +535,7 @@ select option, select optgroup {
   background: #ff2d95;
   box-shadow: 0 0 8px rgba(255, 45, 149, 0.6);
   z-index: 10;
-  pointer-events: none;
+  cursor: pointer;
   transition: top 0.4s cubic-bezier(0.23, 1, 0.32, 1),
               left 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }

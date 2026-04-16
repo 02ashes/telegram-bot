@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=78">
+    <link rel="stylesheet" href="/style.css?v=79">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -172,7 +172,6 @@
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>
                             <div class="mode-dot-placeholder"></div>
-                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Surgical</p>
@@ -183,7 +182,6 @@
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                             <div class="mode-dot-placeholder"></div>
-                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Refine</p>
@@ -194,7 +192,6 @@
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 9 9 9"/><path d="M7 3v2"/><path d="M3 7h2"/><path d="m21 15-3-3"/><path d="M15 21v-2"/><path d="M21 17h-2"/></svg>
                             <div class="mode-dot-placeholder"></div>
-                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Dark Beast</p>
@@ -215,7 +212,6 @@
                         <div class="flex justify-between items-start mb-2">
                             <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
                             <div class="mode-dot-placeholder"></div>
-                            <button class="tip-trigger" aria-label="How to use">?</button>
                         </div>
                         <div class="space-y-0.5">
                             <p class="text-xs font-bold uppercase tracking-wider">Motion</p>
@@ -569,77 +565,78 @@
         (function(){const o=document.getElementById('customAlert'),t=document.getElementById('customAlertText'),b=document.getElementById('customAlertOk');b.addEventListener('click',()=>{o.style.display='none';});o.addEventListener('click',(e)=>{if(e.target===o)o.style.display='none';});window.alert=function(m){t.textContent=m;o.style.display='flex';};})();
     </script>
 
-    <!-- Tip tooltip logic -->
+    <!-- Tip tooltip logic (triggered by pink floating dot) -->
     <script>
         (function(){
             const tooltip = document.getElementById('tipTooltip');
             const tipVideo = document.getElementById('tipVideo');
             const tipClose = document.getElementById('tipClose');
-            let activeCard = null;
+            const dot = document.getElementById('modeDotFloat');
+            let isOpen = false;
 
-            function showTip(card, triggerBtn) {
+            function getActiveCard() {
+                return document.querySelector('.mode-card.active[data-tip]');
+            }
+
+            function showTip() {
+                const card = getActiveCard();
+                if (!card) return;
                 const src = card.dataset.tip;
                 if (!src) return;
 
                 tipVideo.src = src;
                 tipVideo.load();
 
-                // Position tooltip near the card
-                const cardRect = card.getBoundingClientRect();
+                // Position tooltip near the dot
+                const dotRect = dot.getBoundingClientRect();
                 const tooltipW = 280;
                 const tooltipH = 200;
 
-                // Try to position below the card, centered
-                let left = cardRect.left + (cardRect.width / 2) - (tooltipW / 2);
-                let top = cardRect.bottom + 8;
+                // Below the dot, centered
+                let left = dotRect.left + (dotRect.width / 2) - (tooltipW / 2);
+                let top = dotRect.bottom + 12;
 
                 // Keep within viewport
                 if (left < 8) left = 8;
                 if (left + tooltipW > window.innerWidth - 8) left = window.innerWidth - tooltipW - 8;
                 if (top + tooltipH > window.innerHeight - 8) {
-                    // Show above the card instead
-                    top = cardRect.top - tooltipH - 8;
+                    top = dotRect.top - tooltipH - 12;
                 }
 
                 tooltip.style.left = left + 'px';
                 tooltip.style.top = top + 'px';
                 tooltip.classList.add('visible');
-                activeCard = card;
+                isOpen = true;
             }
 
             function hideTip() {
                 tooltip.classList.remove('visible');
                 tipVideo.pause();
                 tipVideo.removeAttribute('src');
-                activeCard = null;
+                isOpen = false;
             }
 
-            // Attach events to tip triggers
-            document.querySelectorAll('.tip-trigger').forEach(btn => {
-                const card = btn.closest('.mode-card');
-
+            if (dot) {
                 // Mobile: tap to toggle
-                btn.addEventListener('click', (e) => {
+                dot.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    e.preventDefault();
-                    if (activeCard === card) {
+                    if (isOpen) {
                         hideTip();
                     } else {
-                        showTip(card, btn);
+                        showTip();
                     }
                 });
 
                 // Desktop: hover
-                btn.addEventListener('mouseenter', () => showTip(card, btn));
-                btn.addEventListener('mouseleave', () => {
-                    // Delay hide so user can move to tooltip
+                dot.addEventListener('mouseenter', () => showTip());
+                dot.addEventListener('mouseleave', () => {
                     setTimeout(() => {
                         if (!tooltip.matches(':hover')) hideTip();
-                    }, 200);
+                    }, 300);
                 });
-            });
+            }
 
-            // Keep tooltip open while hovering over it
+            // Keep open while hovering tooltip
             tooltip.addEventListener('mouseleave', () => hideTip());
 
             // Close button
@@ -650,7 +647,7 @@
 
             // Close on outside tap
             document.addEventListener('click', (e) => {
-                if (activeCard && !tooltip.contains(e.target) && !e.target.closest('.tip-trigger')) {
+                if (isOpen && !tooltip.contains(e.target) && e.target !== dot && !dot.contains(e.target)) {
                     hideTip();
                 }
             });
@@ -696,6 +693,8 @@
             window.addEventListener('resize', repositionDot);
 
             grid.addEventListener('click',function(e){
+                // Ignore clicks on the floating dot (used for tip tooltip)
+                if(e.target===dot||e.target.closest('.mode-dot-float'))return;
                 const card=e.target.closest('.mode-card');
                 if(!card)return;
                 const mode=card.dataset.mode;
