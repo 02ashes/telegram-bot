@@ -5,7 +5,15 @@
 /* Copied exactly from AI Studio's index.css                  */
 /* ═══════════════════════════════════════════════════════════ */
 
-* { -webkit-tap-highlight-color: transparent; }
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+textarea, input, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
 ::-webkit-scrollbar { width: 0; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
