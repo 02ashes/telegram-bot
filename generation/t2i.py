@@ -46,7 +46,6 @@ _UPSCALE_NODES = [
     "92",    # SeedVR2LoadDiTModel
     "93",    # SeedVR2LoadVAEModel
     "94",    # SeedVR2VideoUpscaler
-    "373",   # CameraForensicRealismEngine
 ]
 
 # ── SDXL Pre-Definer nodes (removed when redefine=False) ──
@@ -209,9 +208,11 @@ def build_t2i_workflow(
     if "267" in wf:
         wf["267"]["inputs"]["image"] = ["8", 0]
 
-    # 91 (Downscale 0.5x for SeedVR2): was ← 99 (clearCache), now ← 370 (denoiser)
-    if "91" in wf:
-        wf["91"]["inputs"]["image"] = ["370", 0]
+    # Post-processing chain: Denoiser → CameraForensic → CRT → (then upscale or save)
+    # CameraForensic (373) reads from denoiser output (370)
+    if "373" in wf:
+        wf["373"]["inputs"]["image"] = ["370", 0]
+    # CRT (374) reads from CameraForensic (373) — this is the original connection
 
     # ── Checkpoint (SFW / NSFW) ──
     checkpoint_name = _CHECKPOINTS["nsfw"] if nsfw else _CHECKPOINTS["sfw"]
@@ -319,15 +320,20 @@ def build_t2i_workflow(
         wf["370"]["inputs"]["image"] = [prev_output, 0]
 
     # ── Upscale toggle ──
-    if not upscale:
-        # Remove SeedVR2 nodes; save node reads from CRT → 374
-        # When no upscale: save reads from 374 (CRT) which reads from denoiser output
+    # Post-processing (CameraForensic → CRT) always runs on base resolution.
+    # Upscale (SeedVR2) runs AFTER post-processing.
+    if upscale:
+        # Chain: Denoiser(370) → CameraForensic(373) → CRT(374) → Downscale(91) → SeedVR2(94) → Save(100)
+        if "91" in wf:
+            wf["91"]["inputs"]["image"] = ["374", 0]  # Downscale reads from CRT
+        if "100" in wf:
+            wf["100"]["inputs"]["images"] = ["94", 0]  # Save reads from SeedVR2
+    else:
+        # No upscale: Chain: Denoiser(370) → CameraForensic(373) → CRT(374) → Save(100)
         for nid in _UPSCALE_NODES:
             wf.pop(nid, None)
-        # CRT (374) was reading from CameraForensic (373) which read from SeedVR2 (94)
-        # → Now CRT reads directly from denoiser (370)
-        if "374" in wf:
-            wf["374"]["inputs"]["image"] = ["370", 0]
+        # CRT(374) already reads from CameraForensic(373) which reads from Denoiser(370)
+        # Save(100) already reads from CRT(374) — no rewire needed
 
     # ── Check if SDXL model is needed at all ──
     # Only Pre-Definer + nipples/pussy/penis use SDXL (176).
