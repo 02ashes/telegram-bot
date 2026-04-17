@@ -1,0 +1,199 @@
+2026-04-17T20:42:32.823875484Z ==========
+2026-04-17T20:42:32.823885100Z == CUDA ==
+2026-04-17T20:42:32.823896448Z ==========
+2026-04-17T20:42:32.828033349Z CUDA Version 13.0.1
+2026-04-17T20:42:32.829614932Z Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+2026-04-17T20:42:32.831179172Z This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+2026-04-17T20:42:32.831181812Z By pulling and using the container, you accept the terms and conditions of this license:
+2026-04-17T20:42:32.831184407Z https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+2026-04-17T20:42:32.831189138Z A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+2026-04-17T20:42:32.849439673Z worker-v9: Starting ComfyUI (Final T2I — baked models)
+2026-04-17T20:42:32.849499062Z worker-v9: Starting RunPod Handler
+2026-04-17T20:42:33.483052025Z Prestartup times for custom nodes:
+2026-04-17T20:42:33.483057346Z    0.0 seconds: /comfyui/custom_nodes/rgthree-comfy
+2026-04-17T20:42:33.483061306Z    0.0 seconds: /comfyui/custom_nodes/ComfyUI-Easy-Use
+2026-04-17T20:42:36.657161728Z WARNING: You need pytorch with cu130 or higher to use optimized CUDA operations.
+2026-04-17T20:42:36.657181996Z Found comfy_kitchen backend cuda: {'available': True, 'disabled': True, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_nvfp4']}
+2026-04-17T20:42:36.657184724Z Found comfy_kitchen backend triton: {'available': True, 'disabled': True, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8']}
+2026-04-17T20:42:36.657186438Z Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_mxfp8', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_mxfp8', 'scaled_mm_nvfp4']}
+2026-04-17T20:42:36.665674448Z Checkpoint files will always be loaded safely.
+2026-04-17T20:42:36.933956883Z Total VRAM 81089 MB, total RAM 2063841 MB
+2026-04-17T20:42:36.933992759Z pytorch version: 2.11.0+cu128
+2026-04-17T20:42:37.512395023Z xformers version: 0.0.35
+2026-04-17T20:42:37.512443638Z Enabled fp16 accumulation.
+2026-04-17T20:42:37.512449250Z Set vram state to: HIGH_VRAM
+2026-04-17T20:42:37.512674932Z Device: cuda:0 NVIDIA H100 80GB HBM3 : native
+2026-04-17T20:42:37.512690169Z Using async weight offloading with 2 streams
+2026-04-17T20:42:37.512949984Z Enabled pinned memory 1857456.0
+2026-04-17T20:42:37.733994545Z Using sage attention
+2026-04-17T20:42:40.884244533Z Python version: 3.12.13 (main, Mar  4 2026, 09:23:07) [GCC 11.4.0]
+2026-04-17T20:42:40.884282756Z ComfyUI version: 0.19.1
+2026-04-17T20:42:40.884733841Z comfy-aimdo version: 0.2.12
+2026-04-17T20:42:40.885280266Z comfy-kitchen version: 0.2.8
+2026-04-17T20:42:40.886113725Z ComfyUI frontend version: 1.42.11
+2026-04-17T20:42:40.886784703Z [Prompt Server] web root: /opt/venv/lib/python3.12/site-packages/comfyui_frontend_package/static
+2026-04-17T20:42:40.887787903Z Asset seeder disabled
+2026-04-17T20:42:45.690997151Z Using sage attention
+2026-04-17T20:42:45.977943881Z /comfyui/custom_nodes/RES4LYF/helper_sigma_preview_image_preproc.py:850: SyntaxWarning: invalid escape sequence '\h'
+2026-04-17T20:42:45.977962177Z   labels.append("$Δ \hat{t}$")
+2026-04-17T20:42:45.977964418Z generated new fontManager
+2026-04-17T20:42:46.359245898Z ### Loading: ComfyUI-Impact-Subpack (V1.3.5)
+2026-04-17T20:42:46.366386855Z [Impact Pack/Subpack] Using folder_paths to determine whitelist path: /comfyui/user/default/ComfyUI-Impact-Subpack/model-whitelist.txt
+2026-04-17T20:42:46.366420911Z [Impact Pack/Subpack] Ensured whitelist directory exists: /comfyui/user/default/ComfyUI-Impact-Subpack
+2026-04-17T20:42:46.366549347Z [Impact Pack/Subpack] Model whitelist file not found at: /comfyui/user/default/ComfyUI-Impact-Subpack/model-whitelist.txt.
+2026-04-17T20:42:46.366572174Z  >> An empty whitelist file will be created.
+2026-04-17T20:42:46.366577706Z  >> To allow unsafe loading for specific trusted legacy models (e.g., older .pt),
+2026-04-17T20:42:46.366581642Z  >> add their base filenames (one per line) to this file.
+2026-04-17T20:42:46.366585606Z [Impact Pack/Subpack] Created empty whitelist file: /comfyui/user/default/ComfyUI-Impact-Subpack/model-whitelist.txt
+2026-04-17T20:42:46.410653340Z [34m[ComfyUI-Easy-Use] server: [0mv1.3.7 [92mLoaded[0m
+2026-04-17T20:42:46.410689813Z [34m[ComfyUI-Easy-Use] web root: [0m/comfyui/custom_nodes/ComfyUI-Easy-Use/web_version/v2 [92mLoaded[0m
+2026-04-17T20:42:46.410702833Z [92m[rgthree-comfy] Loaded 48 fantastic nodes. 🎉[0m
+2026-04-17T20:42:46.410714866Z [33m[rgthree-comfy] ComfyUI's new Node 2.0 rendering may be incompatible with some rgthree-comfy nodes and features, breaking some rendering as well as losing the ability to access a node's properties (a vital part of many nodes). It also appears to run MUCH more slowly spiking CPU usage and causing jankiness and unresponsiveness, especially with large workflows. Personally I am not planning to use the new Nodes 2.0 and, unfortunately, am not able to invest the time to investigate and overhaul rgthree-comfy where needed. If you have issues when Nodes 2.0 is enabled, I'd urge you to switch it off as well and join me in hoping ComfyUI is not planning to deprecate the existing, stable canvas rendering all together.
+2026-04-17T20:42:46.410721632Z [0m
+2026-04-17T20:42:46.410728098Z [CRT-Nodes __init__] Importing node classes...
+2026-04-17T20:42:46.410734492Z Loading crt-nodes module
+2026-04-17T20:42:46.410745946Z ================================================================================
+2026-04-17T20:42:46.410754025Z 🚨 IMPORTANT: **comfyui_controlnet_aux** is not installed or not detectable!
+2026-04-17T20:42:46.410759516Z    Install it via ComfyUI Manager for full preprocessor support.
+2026-04-17T20:42:46.410764851Z    Fallback: Only 'none' and 'canny' preprocessors available.
+2026-04-17T20:42:46.410770997Z    GitHub: https://github.com/Fannovel16/comfyui_controlnet_aux
+2026-04-17T20:42:46.410776765Z ================================================================================
+2026-04-17T20:42:46.410787310Z [CRT-Nodes] Warning: Audio Transcript node unavailable: No module named 'whisper'
+2026-04-17T20:42:46.410793231Z [CRT-Nodes __init__] Registering custom model paths...
+2026-04-17T20:42:46.410798606Z ... 'ultralytics_bbox' path registered.
+2026-04-17T20:42:46.410803742Z [crt-pll] presets + automix routes registered
+2026-04-17T20:42:46.410809510Z [CRT-Nodes __init__] INITIALIZATION COMPLETE.
+2026-04-17T20:42:46.410815006Z [CRT-Nodes] LTX23 AutoDownload API routes registered.
+2026-04-17T20:42:46.410820169Z ### MoonPack Custom Nodes registered (Modular):
+2026-04-17T20:42:46.410825916Z ###   - DynamicLoraStack
+2026-04-17T20:42:46.410831470Z ###   - DynamicStringConcat
+2026-04-17T20:42:46.410837129Z ###   - ProportionalDimension
+2026-04-17T20:42:46.410842875Z ###   - SimpleStringReplace
+2026-04-17T20:42:46.410848463Z ###   - RegexStringReplace
+2026-04-17T20:42:46.410853959Z ###   - VACELooperFrameMaskCreator
+2026-04-17T20:42:46.410859309Z ###   - FastNodeBypasser
+2026-04-17T20:42:46.410871813Z [32mInitializing ControlAltAI Nodes[0m
+2026-04-17T20:42:46.410877689Z ⚡ SeedVR2 optimizations check: SageAttention ✅ | Flash Attention ❌ | Triton ✅
+2026-04-17T20:42:46.410882992Z 💡 Optional: pip install flash-attn
+2026-04-17T20:42:46.410888188Z 🔧 Conv3d workaround active: PyTorch 2.11.0, cuDNN 91900 (fixing VAE 3x memory bug)
+2026-04-17T20:42:46.410895616Z 📊 Initial CUDA memory: 78.57GB free / 79.19GB total
+2026-04-17T20:42:46.410900774Z (RES4LYF) Init
+2026-04-17T20:42:46.410906007Z (RES4LYF) Importing beta samplers.
+2026-04-17T20:42:46.410911935Z (RES4LYF) Importing legacy samplers.
+2026-04-17T20:42:46.410939626Z Creating new Ultralytics Settings v0.0.6 file ✅
+2026-04-17T20:42:46.410945730Z View Ultralytics Settings with 'yolo settings' or at '/root/.config/Ultralytics/settings.json'
+2026-04-17T20:42:46.410951214Z Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings.
+2026-04-17T20:42:46.449612702Z [Impact Subpack] ultralytics_bbox: /comfyui/models/ultralytics/bbox
+2026-04-17T20:42:46.449652759Z [Impact Subpack] ultralytics_segm: /comfyui/models/ultralytics/segm
+2026-04-17T20:42:46.454897297Z ### Loading: ComfyUI-Impact-Pack (V8.28.2)
+2026-04-17T20:42:46.710416349Z [Impact Pack] Wildcard total size (0.00 MB) is within cache limit (50.00 MB). Using full cache mode.
+2026-04-17T20:42:46.710849096Z [Impact Pack] Wildcards loading done.
+2026-04-17T20:42:46.711401943Z Import times for custom nodes:
+2026-04-17T20:42:46.711403885Z    0.0 seconds: /comfyui/custom_nodes/websocket_image_save.py
+2026-04-17T20:42:46.711405809Z    0.0 seconds: /comfyui/custom_nodes/comfyui-advanced-denoiser
+2026-04-17T20:42:46.711407555Z    0.0 seconds: /comfyui/custom_nodes/comfyui-moonpack
+2026-04-17T20:42:46.711409251Z    0.0 seconds: /comfyui/custom_nodes/ComfyUI-CameraForensicRealism
+2026-04-17T20:42:46.711411068Z    0.0 seconds: /comfyui/custom_nodes/ComfyUI-Flux-Continuum
+2026-04-17T20:42:46.711412689Z    0.0 seconds: /comfyui/custom_nodes/ControlAltAI-Nodes
+2026-04-17T20:42:46.711417575Z    0.1 seconds: /comfyui/custom_nodes/rgthree-comfy
+2026-04-17T20:42:46.711432232Z    0.1 seconds: /comfyui/custom_nodes/ComfyUI-Impact-Subpack
+2026-04-17T20:42:46.711487347Z    0.3 seconds: /comfyui/custom_nodes/ComfyUI-Impact-Pack
+2026-04-17T20:42:46.711491815Z    0.4 seconds: /comfyui/custom_nodes/CRT-Nodes
+2026-04-17T20:42:46.711508128Z    0.6 seconds: /comfyui/custom_nodes/ComfyUI-SeedVR2_VideoUpscaler
+2026-04-17T20:42:46.711518767Z    1.0 seconds: /comfyui/custom_nodes/RES4LYF
+2026-04-17T20:42:46.711959170Z    1.4 seconds: /comfyui/custom_nodes/ComfyUI-Easy-Use
+2026-04-17T20:42:46.715986187Z Context impl SQLiteImpl.
+2026-04-17T20:42:46.716017513Z Will assume non-transactional DDL.
+2026-04-17T20:42:46.724246100Z Context impl SQLiteImpl.
+2026-04-17T20:42:46.724280981Z Will assume non-transactional DDL.
+2026-04-17T20:42:46.729426099Z Running upgrade  -> 0001_assets, Initial assets schema
+2026-04-17T20:42:46.729461725Z Revision ID: 0001_assets
+2026-04-17T20:42:46.729466814Z Revises: None
+2026-04-17T20:42:46.729470930Z Create Date: 2025-12-10 00:00:00
+2026-04-17T20:42:46.777905698Z Running upgrade 0001_assets -> 0002_merge_to_asset_references, Merge AssetInfo and AssetCacheState into unified asset_references table.
+2026-04-17T20:42:47.230568738Z Running upgrade 0002_merge_to_asset_references -> 0003_add_metadata_job_id, Add system_metadata and job_id columns to asset_references.
+2026-04-17T20:42:47.230612545Z Change preview_id FK from assets.id to asset_references.id.
+2026-04-17T20:42:47.267459062Z Database upgraded from None to 0003_add_metadata_job_id
+2026-04-17T20:42:47.322656570Z Starting server
+2026-04-17T20:42:47.322764328Z To see the GUI go to: http://0.0.0.0:8188
+2026-04-17T20:42:47.675288680Z worker-v9 - ComfyUI API is ready
+2026-04-17T20:42:49.365905727Z worker-comfyui - Starting patched handler (with VHS video support)...
+2026-04-17T20:42:49.365925970Z --- Starting Serverless Worker |  Version 1.9.0 ---
+2026-04-17T20:42:49.588634654Z {"requestId": null, "message": "Running 7 fitness check(s)...", "level": "INFO"}
+2026-04-17T20:42:49.910722394Z {"requestId": null, "message": "GPU binary test passed: 1 GPU(s) healthy (CUDA 13.0)", "level": "INFO"}
+2026-04-17T20:42:49.942004485Z {"requestId": null, "message": "Memory check passed: 1938.83GB available (of 2015.47GB total)", "level": "INFO"}
+2026-04-17T20:42:49.942045624Z {"requestId": null, "message": "Disk space check passed: 4.97GB free (99.4% available)", "level": "INFO"}
+2026-04-17T20:42:49.981716433Z {"requestId": null, "message": "Network connectivity passed: Connected to 8.8.8.8 (39ms)", "level": "INFO"}
+2026-04-17T20:42:50.090007061Z {"requestId": null, "message": "CUDA version check passed: 13.0 (minimum: 11.8)", "level": "INFO"}
+2026-04-17T20:42:51.977386275Z {"requestId": null, "message": "CUDA initialization passed: 1 device(s) initialized successfully", "level": "INFO"}
+2026-04-17T20:42:52.212957162Z {"requestId": null, "message": "GPU compute benchmark passed: Matrix multiply completed in 124ms", "level": "INFO"}
+2026-04-17T20:42:52.213003321Z {"requestId": null, "message": "All fitness checks passed. (2624.41ms)", "level": "INFO"}
+2026-04-17T20:42:52.544860997Z {"requestId": null, "message": "Jobs in queue: 1", "level": "INFO"}
+2026-04-17T20:42:52.545024767Z {"requestId": null, "message": "Jobs in progress: 1", "level": "INFO"}
+2026-04-17T20:42:52.545140287Z {"requestId": "57a70e9d-b4d3-4147-9573-fefe33e78188-e1", "message": "Started.", "level": "INFO"}
+2026-04-17T20:42:52.545214927Z worker-comfyui - Checking API server at http://127.0.0.1:8188/...
+2026-04-17T20:42:52.550859977Z worker-comfyui - API is reachable
+2026-04-17T20:42:52.550900244Z worker-comfyui - Connecting to websocket: ws://127.0.0.1:8188/ws?clientId=e33ad6f0-5383-48f7-90ce-6703175052fe
+2026-04-17T20:42:52.552632081Z worker-comfyui - Websocket connected
+2026-04-17T20:42:52.554829044Z got prompt
+2026-04-17T20:42:52.566963159Z worker-comfyui - Queued workflow with ID: d83f3d42-12cb-46e8-a790-bf4790c8ba04
+2026-04-17T20:42:52.567003107Z worker-comfyui - Waiting for workflow execution (d83f3d42-12cb-46e8-a790-bf4790c8ba04)...
+2026-04-17T20:42:52.567105712Z worker-comfyui - Queue remaining: 0
+2026-04-17T20:42:52.568172690Z worker-comfyui - Queue remaining: 1
+2026-04-17T20:42:52.568211050Z worker-comfyui - Queue remaining: 1
+2026-04-17T20:42:54.355984987Z model weight dtype torch.float16, manual cast: None
+2026-04-17T20:42:54.377124951Z model_type EPS
+2026-04-17T20:42:56.152570412Z Using xformers attention in VAE
+2026-04-17T20:42:56.153410318Z Using xformers attention in VAE
+2026-04-17T20:42:57.037920160Z VAE load device: cuda:0, offload device: cuda:0, dtype: torch.bfloat16
+2026-04-17T20:42:57.900757082Z Requested to load SDXLClipModel
+2026-04-17T20:42:57.926333152Z loaded completely;  1560.80 MB loaded, full load: True
+2026-04-17T20:42:57.928731522Z CLIP/text encoder model load device: cuda:0, offload device: cuda:0, current: cuda:0, dtype: torch.float16
+2026-04-17T20:42:57.928793464Z loaded diffusion model directly to GPU
+2026-04-17T20:42:57.928961861Z Requested to load SDXL
+2026-04-17T20:42:57.991589573Z loaded completely;  4897.05 MB loaded, full load: True
+2026-04-17T20:42:58.968651516Z Loads SAM model: /comfyui/models/sams/sam_vit_b_01ec64.pth (device:Prefer GPU)
+2026-04-17T20:42:58.971178345Z Requested to load SDXLClipModel
+2026-04-17T20:42:59.211336263Z Requested to load SDXLClipModel
+2026-04-17T20:42:59.233956831Z loaded completely;  1560.80 MB loaded, full load: True
+2026-04-17T20:42:59.271576429Z Requested to load SDXLClipModel
+2026-04-17T20:42:59.294640677Z loaded completely;  1560.80 MB loaded, full load: True
+2026-04-17T20:42:59.320549226Z Requested to load SDXLClipModel
+2026-04-17T20:42:59.342450969Z loaded completely;  1560.80 MB loaded, full load: True
+2026-04-17T20:42:59.369926799Z Requested to load SDXLClipModel
+2026-04-17T20:42:59.392594558Z loaded completely;  1560.80 MB loaded, full load: True
+2026-04-17T20:42:59.515108321Z Using xformers attention in VAE
+2026-04-17T20:42:59.515938263Z Using xformers attention in VAE
+2026-04-17T20:43:00.196832125Z VAE load device: cuda:0, offload device: cuda:0, dtype: torch.bfloat16
+2026-04-17T20:43:00.833021346Z model weight dtype torch.float16, manual cast: None
+2026-04-17T20:43:00.834866949Z model_type FLOW
+2026-04-17T20:43:14.917155953Z Requested to load ZImageTEModel_
+2026-04-17T20:43:14.937921374Z loaded completely;  7672.25 MB loaded, full load: True
+2026-04-17T20:43:14.939769940Z CLIP/text encoder model load device: cuda:0, offload device: cuda:0, current: cuda:0, dtype: torch.float16
+2026-04-17T20:43:15.275759866Z Requested to load ZImageTEModel_
+2026-04-17T20:43:15.294421818Z loaded completely;  7672.25 MB loaded, full load: True
+2026-04-17T20:43:15.565893811Z Requested to load ZImageTEModel_
+2026-04-17T20:43:15.586130385Z loaded completely;  7672.25 MB loaded, full load: True
+2026-04-17T20:43:15.681156696Z Requested to load ZImageTEModel_
+2026-04-17T20:43:15.699925723Z loaded completely;  7672.25 MB loaded, full load: True
+2026-04-17T20:43:15.799171010Z Requested to load Lumina2
+2026-04-17T20:43:16.130405928Z loaded completely;  11739.54 MB loaded, full load: True
+2026-04-17T20:43:16.205925293Z (RES4LYF) rk_type: ralston_4s
+2026-04-17T20:43:30.930960400Z   0%|          | 0/8 [00:00<?, ?it/s] 12%|█▎        | 1/8 [00:04<00:30,  4.33s/it] 25%|██▌       | 2/8 [00:05<00:15,  2.56s/it] 38%|███▊      | 3/8 [00:06<00:09,  1.99s/it] 50%|█████     | 4/8 [00:08<00:06,  1.73s/it] 62%|██████▎   | 5/8 [00:09<00:04,  1.59s/it] 75%|███████▌  | 6/8 [00:10<00:03,  1.50s/it] 88%|████████▊ | 7/8 [00:12<00:01,  1.44s/it]100%|██████████| 8/8 [00:13<00:00,  1.40s/it]100%|██████████| 8/8 [00:13<00:00,  1.71s/it]
+2026-04-17T20:43:30.931026488Z Requested to load Lumina2
+2026-04-17T20:43:31.191968251Z loaded completely;  11739.54 MB loaded, full load: True
+2026-04-17T20:43:33.593254038Z   0%|          | 0/8 [00:00<?, ?it/s] 12%|█▎        | 1/8 [00:00<00:00,  7.85it/s] 25%|██▌       | 2/8 [00:00<00:01,  4.47it/s] 38%|███▊      | 3/8 [00:00<00:01,  3.90it/s] 50%|█████     | 4/8 [00:01<00:01,  3.66it/s] 62%|██████▎   | 5/8 [00:01<00:00,  3.54it/s] 75%|███████▌  | 6/8 [00:01<00:00,  3.48it/s] 88%|████████▊ | 7/8 [00:01<00:00,  3.45it/s]100%|██████████| 8/8 [00:02<00:00,  3.41it/s]100%|██████████| 8/8 [00:02<00:00,  3.63it/s]
+2026-04-17T20:43:33.593308380Z Requested to load AutoencodingEngine
+2026-04-17T20:43:33.792485139Z loaded completely;  159.87 MB loaded, full load: True
+2026-04-17T20:44:33.588541085Z 0: 640x480 1 face, 28029.4ms
+2026-04-17T20:44:33.588592058Z Speed: 9.8ms preprocess, 28029.4ms inference, 1.6ms postprocess per image at shape (1, 3, 640, 480)
+2026-04-17T20:44:35.645883407Z Detailer: force inpaint
+2026-04-17T20:44:35.645924230Z Detailer: segment upscale for ((np.float32(1080.1274), np.float32(1587.1266))) | crop region (2432, 3328) x 1.0 -> (2432, 3328)
+2026-04-17T20:44:39.640710144Z [Impact Pack] vae encoded in 3.8s
+2026-04-17T20:44:39.654117265Z Requested to load Lumina2
+2026-04-17T20:45:45.776546722Z   0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:05<00:46,  5.19s/it] 20%|██        | 2/10 [00:11<00:45,  5.63s/it] 30%|███       | 3/10 [00:17<00:40,  5.76s/it] 40%|████      | 4/10 [00:22<00:34,  5.83s/it] 50%|█████     | 5/10 [00:28<00:29,  5.86s/it] 60%|██████    | 6/10 [00:34<00:23,  5.88s/it] 70%|███████   | 7/10 [00:40<00:17,  5.90s/it] 80%|████████  | 8/10 [00:46<00:11,  5.90s/it] 90%|█████████ | 9/10 [00:52<00:05,  5.91s/it]100%|██████████| 10/10 [00:58<00:00,  5.91s/it]100%|██████████| 10/10 [00:58<00:00,  5.85s/it]
+2026-04-17T20:45:45.776602739Z [Impact Pack] vae decoded in 6.4s
+2026-04-17T20:46:17.953203999Z 0: 640x480 1 eyes, 13841.9ms
+2026-04-17T20:46:17.953248450Z Speed: 2.2ms preprocess, 13841.9ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 480)
+2026-04-17T20:46:18.353731250Z Detailer: force inpaint
+2026-04-17T20:46:18.353753705Z Detailer: segment upscale for ((np.float32(858.9879), np.float32(336.5935))) | crop region (2432, 1009) x 1.0 -> (2432, 1009)

@@ -251,24 +251,23 @@ def build_t2i_workflow(
 
     # ── SDXL Pre-Definer toggle ──
     if not redefine:
-        # Remove Pre-Definer nodes and rewire FaceDetailer to read from 267 (upscale2x)
+        # Remove Pre-Definer nodes AND the 2x upscale (only needed for Pre-Definer)
         for nid in _PREDEFINER_NODES:
             wf.pop(nid, None)
-        # FaceDetailer (240:239) was reading from 323 (FacePreservation Switch)
-        # → now reads from 267 (upscaled image)
-        if "240:239" in wf:
-            wf["240:239"]["inputs"]["image"] = ["267", 0]
+        wf.pop("267", None)  # Upscale 2x — not needed without Pre-Definer
 
     # ── Detailer toggles ──
     # Build the sequential detailer chain, skipping disabled ones
     # Full order: face → eyes → hands → foot → nipples → pussy → penis
     zone_order = ["face", "eyes", "hands", "foot", "nipples", "pussy", "penis"]
 
-    # Determine chain source: 323 (pre-definer output) or 267 (upscale2x)
+    # Determine chain source:
+    #   redefine=True  → 323 (Face Preservation Switch, after Pre-Definer)
+    #   redefine=False → 8   (VAEDecode, base resolution — no 2x upscale)
     if redefine:
         chain_source = "323"
     else:
-        chain_source = "267"
+        chain_source = "8"
 
     prev_output = chain_source
     active_zones = []
@@ -331,7 +330,9 @@ def build_t2i_workflow(
             wf["374"]["inputs"]["image"] = ["370", 0]
 
     # ── Check if SDXL model is needed at all ──
-    sdxl_needed = redefine or detailers.get("nipples", False) or detailers.get("pussy", False)
+    # Only Pre-Definer + nipples/pussy/penis use SDXL (176).
+    # Face/eyes/hands/foot use ZIT model (16) with LoRAs.
+    sdxl_needed = redefine or detailers.get("nipples", False) or detailers.get("pussy", False) or detailers.get("penis", False)
     if not sdxl_needed:
         # Remove SDXL model nodes to save VRAM
         for nid in _SDXL_NODES:
