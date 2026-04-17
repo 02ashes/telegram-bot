@@ -490,7 +490,7 @@
         0
       ]
     },
-    "class_type": "Lora Loader",
+    "class_type": "LoraLoader",
     "_meta": {
       "title": "🧩  SDXL Face Lora Loader"
     }
@@ -551,7 +551,7 @@
         0
       ]
     },
-    "class_type": "Lora Loader",
+    "class_type": "LoraLoader",
     "_meta": {
       "title": "🧩  SDXL Eyes Lora Loader"
     }
@@ -570,7 +570,7 @@
         0
       ]
     },
-    "class_type": "Lora Loader",
+    "class_type": "LoraLoader",
     "_meta": {
       "title": "🧩  SDXL Hands Lora Loader"
     }
