@@ -1,0 +1,1768 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "394",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "🧬  VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "Z-Image",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾  Save RAW  Image"
+    }
+  },
+  "16": {
+    "inputs": {
+      "unet_name": "zImageTurbo_turbo.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "🗂️  Load Diffusion Model  (*.st)"
+    }
+  },
+  "17": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "🧬  Load VAE"
+    }
+  },
+  "18": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "🔤  Load CLIP"
+    }
+  },
+  "28": {
+    "inputs": {
+      "megapixel": "2.0",
+      "aspect_ratio": "5:7 (Balanced Portrait)",
+      "divisible_by": "64",
+      "custom_ratio": false,
+      "custom_aspect_ratio": "1:1"
+    },
+    "class_type": "FluxResolutionNode",
+    "_meta": {
+      "title": "🔳  Base Resolution"
+    }
+  },
+  "29": {
+    "inputs": {
+      "width": [
+        "28",
+        0
+      ],
+      "height": [
+        "28",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "🔢  Latent Image"
+    }
+  },
+  "51": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_yidds_00001_.png&type=temp&subfolder=&rand=0.053107414981205414"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_yidds_00002_.png&type=temp&subfolder=&rand=0.8878043454568779"
+          }
+        ]
+      },
+      "image_a": [
+        "8",
+        0
+      ],
+      "image_b": [
+        "395",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "🆚  Compare (Color Graded Image vs. RAW Image)"
+    }
+  },
+  "58": {
+    "inputs": {
+      "preview_markdown": "",
+      "preview_text": "",
+      "previewMode": null,
+      "source": [
+        "28",
+        2
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "↕️  Calculated Resolution"
+    }
+  },
+  "68": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_ivtup_00001_.png&type=temp&subfolder=&rand=0.761993259102881"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_ivtup_00002_.png&type=temp&subfolder=&rand=0.95416780902678"
+          }
+        ]
+      },
+      "image_a": [
+        "299:379",
+        0
+      ],
+      "image_b": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "🆚  Compare (Detailer Image vs. RAW Image)"
+    }
+  },
+  "84": {
+    "inputs": {
+      "model_name": "sam_vit_b_01ec64.pth",
+      "device_mode": "Prefer GPU"
+    },
+    "class_type": "SAMLoader",
+    "_meta": {
+      "title": "🔍  SAM Loader (Impact)"
+    }
+  },
+  "91": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "scale_by": 0.5,
+      "image": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy",
+    "_meta": {
+      "title": "⬇️  Downscale 4 better Upscale"
+    }
+  },
+  "92": {
+    "inputs": {
+      "model": "seedvr2_ema_7b-Q4_K_M.gguf",
+      "device": "cuda:0",
+      "blocks_to_swap": 0,
+      "swap_io_components": false,
+      "offload_device": "cuda:0",
+      "cache_model": false,
+      "attention_mode": "sdpa"
+    },
+    "class_type": "SeedVR2LoadDiTModel",
+    "_meta": {
+      "title": "🗂️  SeedVR2 Load DiT Model"
+    }
+  },
+  "93": {
+    "inputs": {
+      "model": "ema_vae_fp16.safetensors",
+      "device": "cuda:0",
+      "encode_tiled": true,
+      "encode_tile_size": 1024,
+      "encode_tile_overlap": 128,
+      "decode_tiled": true,
+      "decode_tile_size": 1024,
+      "decode_tile_overlap": 128,
+      "tile_debug": "false",
+      "offload_device": "cuda:0",
+      "cache_model": false
+    },
+    "class_type": "SeedVR2LoadVAEModel",
+    "_meta": {
+      "title": "🧬  SeedVR2 Load VAE Model"
+    }
+  },
+  "94": {
+    "inputs": {
+      "seed": 600025060,
+      "resolution": 2560,
+      "max_resolution": 4096,
+      "batch_size": 1,
+      "uniform_batch_size": false,
+      "color_correction": "lab",
+      "temporal_overlap": 0,
+      "prepend_frames": 0,
+      "input_noise_scale": 0,
+      "latent_noise_scale": 0,
+      "offload_device": "cuda:0",
+      "enable_debug": false,
+      "image": [
+        "91",
+        0
+      ],
+      "dit": [
+        "92",
+        0
+      ],
+      "vae": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "SeedVR2VideoUpscaler",
+    "_meta": {
+      "title": "⬆️  SeedVR2 Upscaler"
+    }
+  },
+  "98": {
+    "inputs": {
+      "anything": [
+        "370",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "🧹  Clean VRAM"
+    }
+  },
+  "99": {
+    "inputs": {
+      "anything": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "easy clearCacheAll",
+    "_meta": {
+      "title": "🧹  Clear Cache"
+    }
+  },
+  "100": {
+    "inputs": {
+      "filename_prefix": "Z-Image",
+      "images": [
+        "374",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾  Save Final Image"
+    }
+  },
+  "101": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_tsmxt_00001_.png&type=temp&subfolder=&rand=0.7965578326040934"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_tsmxt_00002_.png&type=temp&subfolder=&rand=0.5945077269045935"
+          }
+        ]
+      },
+      "image_a": [
+        "374",
+        0
+      ],
+      "image_b": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "🆚  Compare (SeedVR2 Upscale vs. RAW Image)"
+    }
+  },
+  "104": {
+    "inputs": {
+      "text": "blurry image",
+      "clip": [
+        "388",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Negative Prompt   (not used for ZIT / only for Base Model)"
+    }
+  },
+  "175": {
+    "inputs": {
+      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n光影, 氛围感, 构图, 细腻, amateur photo, film grain\n\n\n\n\n\n\n\n\n\n",
+      "clip": [
+        "388",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Positive Prompt   (Use natural language / 100-300 words)"
+    }
+  },
+  "176": {
+    "inputs": {
+      "ckpt_name": "lustifySDXLNSFW_ggwpV7.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "🗂️  Load SDXL / Pony / Illustrious Model"
+    }
+  },
+  "177": {
+    "inputs": {
+      "text": "child, teen, loli, ugly, bad quality, low quality, anime, hentai, manga, digital art, semirealistic, cartoon, painting, drawing, illustration, glitch, fake, unreal, watermark, censored, poorly drawn hands, missing limb, floating limbs, disconnected limbs, disconnected head, malformed hands, long neck, mutated hands and fingers, bad hands, missing fingers, fused fingers, abnormal eye proportion, cross-eyed, abnormal hands, abnormal legs, abnormal feet, abnormal fingers, mutation, large breasts, large nipples, huge breasts,  tanlines, bikini stripes, big clit, big labia",
+      "clip": [
+        "185",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Negative Prompt  (SDXL / PONY)"
+    }
+  },
+  "178": {
+    "inputs": {
+      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n光影, 氛围感, 构图, 细腻, amateur photo, film grain\n",
+      "clip": [
+        "185",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Positive Prompt  (SDXL / PONY)"
+    }
+  },
+  "179": {
+    "inputs": {
+      "anything": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "🧹  Clean VRAM"
+    }
+  },
+  "180": {
+    "inputs": {
+      "anything": [
+        "179",
+        0
+      ]
+    },
+    "class_type": "easy clearCacheAll",
+    "_meta": {
+      "title": "🧹  Clear Cache"
+    }
+  },
+  "183": {
+    "inputs": {
+      "stop_at_clip_layer": -2,
+      "clip": [
+        "176",
+        1
+      ]
+    },
+    "class_type": "CLIPSetLastLayer",
+    "_meta": {
+      "title": "🔒  CLIP Set Last Layer"
+    }
+  },
+  "185": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "leaked_nudes_style_v1_fixed.safetensors",
+        "strength": 1.1
+      },
+      "lora_2": {
+        "on": false,
+        "lora": "SDXL\\(SDXL)_No_More_Sameface-Face_Randomizer.safetensors",
+        "strength": 1
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "SDXL\\(SDXL)_NSFW-XL-v2.1.safetensors",
+        "strength": 1
+      },
+      "lora_4": {
+        "on": false,
+        "lora": "SDXL\\(SDXL)_Touch_of_Realism_V2.safetensors",
+        "strength": 1
+      },
+      "lora_5": {
+        "on": false,
+        "lora": "SDXL\\(SDXL)_RawfullyStylishForSDXL0.2.safetensors",
+        "strength": 1
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "176",
+        0
+      ],
+      "clip": [
+        "183",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "🧩  SDXL / PONY Lora Loader"
+    }
+  },
+  "225": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "388",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "🔮  Model Sampling Aura Flow"
+    }
+  },
+  "254": {
+    "inputs": {
+      "lora_name": "misu_z6_step1000.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "Lora Loader",
+    "_meta": {
+      "title": "🧩  SDXL Face Lora Loader"
+    }
+  },
+  "255": {
+    "inputs": {
+      "text": "misu, ultra-detailed portrait, photorealistic eyes, natural skin texture, realistic pores, smooth skin transitions, sharp focus, subtle lighting, perfectly clean white teeth, enhance original appearance without altering expression",
+      "clip": [
+        "254",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Face (Positive Prompt)"
+    }
+  },
+  "256": {
+    "inputs": {
+      "text": "face redesign, change ethnicity, change age, change expression, no change to eye shape, no change to eye color, preserve original eyes",
+      "clip": [
+        "254",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Face (Negative Prompt)"
+    }
+  },
+  "257": {
+    "inputs": {
+      "conditioning_1": [
+        "175",
+        0
+      ],
+      "conditioning_2": [
+        "255",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Face Positive Conditioning (Combine)"
+    }
+  },
+  "260": {
+    "inputs": {
+      "lora_name": "misu_z6_step1000.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "Lora Loader",
+    "_meta": {
+      "title": "🧩  SDXL Eyes Lora Loader"
+    }
+  },
+  "261": {
+    "inputs": {
+      "lora_name": "misu_z6_step1000.safetensors",
+      "strength_model": 0.7,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "Lora Loader",
+    "_meta": {
+      "title": "🧩  SDXL Hands Lora Loader"
+    }
+  },
+  "267": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "scale_by": 2,
+      "image": [
+        "180",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy",
+    "_meta": {
+      "title": "⬆️  Upscale Image By"
+    }
+  },
+  "268": {
+    "inputs": {
+      "conditioning_1": [
+        "104",
+        0
+      ],
+      "conditioning_2": [
+        "256",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Face Negative Conditioning (Combine)"
+    }
+  },
+  "270": {
+    "inputs": {
+      "conditioning_1": [
+        "104",
+        0
+      ],
+      "conditioning_2": [
+        "278",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Eyes Negative Conditioning (Combine)"
+    }
+  },
+  "271": {
+    "inputs": {
+      "conditioning_1": [
+        "175",
+        0
+      ],
+      "conditioning_2": [
+        "277",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Eyes Positive Conditioning (Combine)"
+    }
+  },
+  "277": {
+    "inputs": {
+      "text": "misu, highly detailed eyes, glossy pupils, sharp eyelashes, smooth eyelids, realistic texture, fine iris details, preserve original eyes",
+      "clip": [
+        "260",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Eyes (Positive Prompt)"
+    }
+  },
+  "278": {
+    "inputs": {
+      "text": "eye redesign, doll eyes, anime eyes, no change to eye shape, no change to eye color, preserve original eyes",
+      "clip": [
+        "260",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Eyes (Negative Prompt)"
+    }
+  },
+  "279": {
+    "inputs": {
+      "conditioning_1": [
+        "175",
+        0
+      ],
+      "conditioning_2": [
+        "282",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Hands Positive Conditioning (Combine)"
+    }
+  },
+  "280": {
+    "inputs": {
+      "conditioning_1": [
+        "104",
+        0
+      ],
+      "conditioning_2": [
+        "283",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Hands Negative Conditioning (Combine)"
+    }
+  },
+  "282": {
+    "inputs": {
+      "text": "misu, realistic hands, natural finger proportions, detailed fingernails, soft skin texture, natural lighting, sharp focus, subtle veins, elegant posture",
+      "clip": [
+        "261",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Hands (Positive Prompt)"
+    }
+  },
+  "283": {
+    "inputs": {
+      "text": "deformed hands, extra fingers, missing fingers, disproportionate fingers, unnatural hand poses, cartoon hands, anime hands, overexaggerated nails",
+      "clip": [
+        "261",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Hands (Negative Prompt)"
+    }
+  },
+  "287": {
+    "inputs": {
+      "conditioning_1": [
+        "175",
+        0
+      ],
+      "conditioning_2": [
+        "295",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Foot Positive Conditioning (Combine)"
+    }
+  },
+  "288": {
+    "inputs": {
+      "conditioning_1": [
+        "104",
+        0
+      ],
+      "conditioning_2": [
+        "296",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Foot Negative Conditioning (Combine)"
+    }
+  },
+  "290": {
+    "inputs": {
+      "conditioning_1": [
+        "178",
+        0
+      ],
+      "conditioning_2": [
+        "300",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Nipples Positive Conditioning (Combine)"
+    }
+  },
+  "291": {
+    "inputs": {
+      "conditioning_1": [
+        "177",
+        0
+      ],
+      "conditioning_2": [
+        "301",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Nipples Negative Conditioning (Combine)"
+    }
+  },
+  "292": {
+    "inputs": {
+      "conditioning_1": [
+        "178",
+        0
+      ],
+      "conditioning_2": [
+        "302",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Pussy Positive Conditioning (Combine)"
+    }
+  },
+  "293": {
+    "inputs": {
+      "conditioning_1": [
+        "177",
+        0
+      ],
+      "conditioning_2": [
+        "303",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Pussy Negative Conditioning (Combine)"
+    }
+  },
+  "295": {
+    "inputs": {
+      "text": "realistic feet, natural toe proportions, detailed toenails, soft skin texture, subtle veins, natural lighting, sharp focus, elegant posture",
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Foot (Positive Prompt)"
+    }
+  },
+  "296": {
+    "inputs": {
+      "text": "deformed feet, extra toes, missing toes, disproportionate toes, unnatural foot poses, cartoon feet, anime feet, overexaggerated nails",
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Foot (Negative Prompt)"
+    }
+  },
+  "300": {
+    "inputs": {
+      "text": "realistic small breasts, small nipples, natural skin texture, detailed nipples, subtle shading, soft transitions, sharp focus, photorealistic, elegant anatomy",
+      "clip": [
+        "183",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Nipples (Positive Prompt)"
+    }
+  },
+  "301": {
+    "inputs": {
+      "text": "big nipples, oversized breasts, exaggerated nipples, cartoonish, unrealistic anatomy, deformities, unnatural shapes",
+      "clip": [
+        "183",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Nipples (Negative Prompt)"
+    }
+  },
+  "302": {
+    "inputs": {
+      "text": "shaved pussy, realistic small shaved vagina, subtle labia, natural clitoral hood, innie anatomy, soft skin texture, slight gloss, photorealistic, sharp focus, elegant details",
+      "clip": [
+        "183",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Pussy (Positive Prompt)"
+    }
+  },
+  "303": {
+    "inputs": {
+      "text": "large labia, exaggerated anatomy, cartoonish, unrealistic shapes, deformities, unnatural proportions",
+      "clip": [
+        "183",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Pussy (Negative Prompt)"
+    }
+  },
+  "305": {
+    "inputs": {
+      "value": 10.353350534415611
+    },
+    "class_type": "StepSlider",
+    "_meta": {
+      "title": "🪜  Detailers Step Slider"
+    }
+  },
+  "314": {
+    "inputs": {
+      "Enable 🧩  SDXL Face Lora Loader": true
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Face Lora Loader"
+    }
+  },
+  "316": {
+    "inputs": {
+      "Enable 🧩  SDXL Eyes Lora Loader": true
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Eyes Lora Loader"
+    }
+  },
+  "317": {
+    "inputs": {
+      "Enable 🧩  SDXL Hands Lora Loader": true
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Hands Lora Loader"
+    }
+  },
+  "318": {
+    "inputs": {
+      "Enable 🧩  SDXL Foot Lora Loader": false
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Foot Lora Loader"
+    }
+  },
+  "319": {
+    "inputs": {
+      "Enable 🧩  SDXL Nipples Lora Loader": false
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Nipples Lora Loader"
+    }
+  },
+  "320": {
+    "inputs": {
+      "Enable 🧩  SDXL Pussy Lora Loader": false
+    },
+    "class_type": "FastNodeBypasser",
+    "_meta": {
+      "title": "🎚️  Enable / Disable Pussy Lora Loader"
+    }
+  },
+  "332": {
+    "inputs": {
+      "images": [
+        "374",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "🔍  Final Image Preview"
+    }
+  },
+  "370": {
+    "inputs": {
+      "method": "non_local_means",
+      "strength": 0.42,
+      "preserve_detail": 1,
+      "luminance_strength": 0.5,
+      "color_strength": 0.5,
+      "patch_size": 3,
+      "search_window": 35,
+      "sigma_spatial": 75,
+      "sigma_color": 75,
+      "wavelet_level": 2,
+      "blend_original": 0.8,
+      "sharpen_mode": "luminance_only",
+      "sharpen_amount": 0.03,
+      "sharpen_radius": 0.05,
+      "image": [
+        "299:379",
+        0
+      ]
+    },
+    "class_type": "AdvancedImageDenoiser",
+    "_meta": {
+      "title": "🧹 Advanced Image Denoiser"
+    }
+  },
+  "373": {
+    "inputs": {
+      "master_strength": 0.72,
+      "seed": 4022444571,
+      "enable_tone_mapping": true,
+      "tone_strength": 0.5,
+      "highlight_rolloff": 0,
+      "shadow_lift": 0.42,
+      "contrast": 0.21,
+      "enable_p3_color": true,
+      "color_strength": 0.47,
+      "color_saturation": 0.13,
+      "color_warmth": 0.11,
+      "enable_local_tone": true,
+      "local_tone_strength": 0.16,
+      "detail_boost": 0.22,
+      "enable_skin_rendering": true,
+      "skin_strength": 0.3,
+      "skin_warmth": 0.16,
+      "enable_deep_fusion": true,
+      "fusion_strength": 0.22,
+      "fusion_texture_freq": 0.08,
+      "enable_white_balance": true,
+      "wb_strength": 0.21,
+      "wb_temperature": 0,
+      "wb_tint": 0,
+      "enable_color_grading": true,
+      "blue_shadows": 0.21,
+      "warm_highlights": 0.12,
+      "enable_sharpening": false,
+      "sharpen_strength": 0.06,
+      "enable_sensor": false,
+      "sensor_strength": 0.12,
+      "sensor_noise": 0.89,
+      "sensor_vignette": 0,
+      "image": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "CameraForensicRealismEngine",
+    "_meta": {
+      "title": "📷 Camera Forensic Realism"
+    }
+  },
+  "374": {
+    "inputs": {
+      "enable_upscale": false,
+      "upscale_model_path": "1x-ITF-SkinDiffDetail-Lite-v1.pth",
+      "downscale_by": 0.6,
+      "rescale_method": "bicubic",
+      "precision": "auto",
+      "batch_size": 1,
+      "enable_levels": true,
+      "exposure": 0,
+      "gamma": 1,
+      "brightness": 0,
+      "contrast": 1,
+      "saturation": 1,
+      "vibrance": 0.023,
+      "enable_color_wheels": false,
+      "lift_r": 0,
+      "lift_g": 0,
+      "lift_b": 0,
+      "gamma_r": 1,
+      "gamma_g": 1,
+      "gamma_b": 1,
+      "gain_r": 1,
+      "gain_g": 1,
+      "gain_b": 1,
+      "enable_temp_tint": false,
+      "temperature": 0,
+      "tint": 0,
+      "enable_sharpen": false,
+      "sharpen_strength": 0.165,
+      "sharpen_radius": 5,
+      "sharpen_threshold": 0.111,
+      "enable_small_glow": false,
+      "small_glow_intensity": 0.004,
+      "small_glow_radius": 1.446,
+      "small_glow_threshold": 0.647,
+      "enable_large_glow": false,
+      "large_glow_intensity": 0.25,
+      "large_glow_radius": 50,
+      "large_glow_threshold": 0.3,
+      "enable_glare": false,
+      "glare_type": "star_4",
+      "glare_intensity": 0.172,
+      "glare_length": 63.043,
+      "glare_angle": 0,
+      "glare_threshold": 0.756,
+      "glare_quality": 28,
+      "glare_ray_width": 1,
+      "enable_chromatic_aberration": false,
+      "ca_strength": 0.002,
+      "ca_edge_fallof": 2,
+      "enable_ca_hue_shift": false,
+      "ca_hue_shift_degrees": 0,
+      "enable_vignette": false,
+      "vignette_strength": 0.131,
+      "vignette_radius": 2.718,
+      "vignette_softness": 4,
+      "enable_radial_blur": false,
+      "radial_blur_type": "spin",
+      "radial_blur_strength": 0.005,
+      "radial_blur_center_x": 0.5,
+      "radial_blur_center_y": 0.25,
+      "radial_blur_falloff": 0.25,
+      "radial_blur_samples": 16,
+      "enable_film_grain": true,
+      "grain_intensity": 0.005,
+      "grain_size": 0.559,
+      "grain_color_amount": 0.015,
+      "enable_lens_distortion": false,
+      "barrel_distortion": 0.008,
+      "postprocess_ui": "",
+      "image": [
+        "373",
+        0
+      ]
+    },
+    "class_type": "CRT Post-Process Suite",
+    "_meta": {
+      "title": "🎬 CRT Post-Process Suite"
+    }
+  },
+  "387": {
+    "inputs": {
+      "lora_name": "misu_z6_step1000.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Загрузить LoRA"
+    }
+  },
+  "388": {
+    "inputs": {
+      "lora_name": "RealisticSnapshot-Zimage-Turbov5.safetensors",
+      "strength_model": 0.4,
+      "strength_clip": 1,
+      "model": [
+        "387",
+        0
+      ],
+      "clip": [
+        "387",
+        1
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Загрузить LoRA"
+    }
+  },
+  "391": {
+    "inputs": {
+      "eta": 0.45,
+      "sampler_name": "linear/ralston_4s",
+      "scheduler": "simple",
+      "steps": 8,
+      "steps_to_run": -1,
+      "denoise": 0.95,
+      "cfg": 1,
+      "seed": 505133312415267,
+      "sampler_mode": "standard",
+      "bongmath": true,
+      "model": [
+        "225",
+        0
+      ],
+      "positive": [
+        "175",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "latent_image": [
+        "29",
+        0
+      ]
+    },
+    "class_type": "ClownsharKSampler_Beta",
+    "_meta": {
+      "title": "ClownsharKSampler"
+    }
+  },
+  "394": {
+    "inputs": {
+      "seed": 1042580189351336,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.4,
+      "model": [
+        "401",
+        0
+      ],
+      "positive": [
+        "175",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "latent_image": [
+        "391",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "395": {
+    "inputs": {
+      "samples": [
+        "391",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "🧬  VAE Decode"
+    }
+  },
+  "396": {
+    "inputs": {
+      "filename_prefix": "Z-Image",
+      "images": [
+        "395",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾  Save RAW  Image"
+    }
+  },
+  "400": {
+    "inputs": {
+      "lora_name": "misu_z6_step1000.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Загрузить LoRA"
+    }
+  },
+  "401": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "400",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "🔮  Model Sampling Aura Flow"
+    }
+  },
+  "240:238": {
+    "inputs": {
+      "model_name": "bbox/Face.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "240:239": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 473756438605607,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.3,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "267",
+        0
+      ],
+      "model": [
+        "254",
+        0
+      ],
+      "clip": [
+        "254",
+        1
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "257",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "bbox_detector": [
+        "240:238",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "FaceDetailer"
+    }
+  },
+  "237:235": {
+    "inputs": {
+      "model_name": "bbox/Eyes.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "237:236": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 121018585270588,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "euler",
+      "scheduler": "beta",
+      "denoise": 0.2,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "240:239",
+        0
+      ],
+      "model": [
+        "260",
+        0
+      ],
+      "clip": [
+        "260",
+        1
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "271",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "bbox_detector": [
+        "237:235",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "EyesDetailer"
+    }
+  },
+  "243:241": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 627220785229002,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.28,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "237:236",
+        0
+      ],
+      "model": [
+        "261",
+        0
+      ],
+      "clip": [
+        "261",
+        1
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "279",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "bbox_detector": [
+        "243:242",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "Hands Detailer"
+    }
+  },
+  "243:242": {
+    "inputs": {
+      "model_name": "bbox/Hands.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "297:375": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 331541293263469,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.2,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.7,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "243:241",
+        0
+      ],
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "287",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "bbox_detector": [
+        "297:376",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "Hands Detailer"
+    }
+  },
+  "297:376": {
+    "inputs": {
+      "model_name": "bbox/Foot.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "298:378": {
+    "inputs": {
+      "model_name": "bbox/Nipples.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "298:377": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 689219794074782,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "sgm_uniform",
+      "denoise": 0.15,
+      "feather": 15,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "297:375",
+        0
+      ],
+      "model": [
+        "176",
+        0
+      ],
+      "clip": [
+        "183",
+        0
+      ],
+      "vae": [
+        "176",
+        2
+      ],
+      "positive": [
+        "290",
+        0
+      ],
+      "negative": [
+        "291",
+        0
+      ],
+      "bbox_detector": [
+        "298:378",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "Hands Detailer"
+    }
+  },
+  "299:380": {
+    "inputs": {
+      "model_name": "bbox/Pussy.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "299:379": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": false,
+      "max_size": 1024,
+      "seed": 917382531992005,
+      "steps": [
+        "305",
+        0
+      ],
+      "cfg": 4,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "sgm_uniform",
+      "denoise": 0.15,
+      "feather": 15,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "298:377",
+        0
+      ],
+      "model": [
+        "176",
+        0
+      ],
+      "clip": [
+        "183",
+        0
+      ],
+      "vae": [
+        "176",
+        2
+      ],
+      "positive": [
+        "292",
+        0
+      ],
+      "negative": [
+        "293",
+        0
+      ],
+      "bbox_detector": [
+        "299:380",
+        0
+      ],
+      "sam_model_opt": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "Hands Detailer"
+    }
+  }
+}

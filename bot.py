@@ -915,11 +915,11 @@ async def api_image_edit_dark(request: Request):
         )
 
 # ============================================================
-# V9 Test Mode — ULTIMATE V9 pipeline (text2img only)
+# Text to Image — Final T2I pipeline (default mode)
 # ============================================================
 @app.post("/api/image-test")
 async def api_image_test(request: Request):
-    """Generate image via ULTIMATE V9 pipeline on dedicated V9 endpoint."""
+    """Generate image via Final T2I pipeline on dedicated endpoint."""
     user = await require_auth(request)
     if not user:
         return JSONResponse(status_code=401, content={"error": "Unauthorized"})
@@ -929,8 +929,14 @@ async def api_image_test(request: Request):
         prompt = body.get("prompt", "")
         negative = body.get("negative", "")
         aspect_ratio = body.get("aspect_ratio", "5:7 (Balanced Portrait)")
-        lora_strength = float(body.get("lora_strength", 1.0))
+        nsfw = body.get("nsfw", False)
+        redefine = body.get("redefine", False)
+        upscale = body.get("upscale", False)
         auto_prompt = body.get("auto_prompt", False)
+        detailers = body.get("detailers", {
+            "face": True, "eyes": True, "hands": True,
+            "foot": False, "nipples": False, "pussy": False, "penis": False,
+        })
 
         if not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing prompt"})
@@ -959,15 +965,18 @@ async def api_image_test(request: Request):
                 tokens_deducted = True
 
         logger.info(
-            "V9 Test request: prompt=%s, aspect=%s, lora_str=%.2f",
-            prompt[:60], aspect_ratio, lora_strength,
+            "T2I request: prompt=%s, aspect=%s, nsfw=%s, redefine=%s, upscale=%s",
+            prompt[:60], aspect_ratio, nsfw, redefine, upscale,
         )
 
-        result_bytes = await comfyui_api.run_v9_generate(
+        result_bytes = await comfyui_api.run_t2i_generate(
             prompt=prompt,
             negative=negative,
             aspect_ratio=aspect_ratio,
-            lora_strength_override=lora_strength,
+            nsfw=nsfw,
+            redefine=redefine,
+            upscale=upscale,
+            detailers=detailers,
         )
 
         if result_bytes is None:
@@ -975,14 +984,14 @@ async def api_image_test(request: Request):
                 await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
             return JSONResponse(
                 status_code=500,
-                content={"error": "V9 generation failed. Check RunPod logs."},
+                content={"error": "T2I generation failed. Check RunPod logs."},
             )
 
         result_b64 = base64.b64encode(result_bytes).decode("utf-8")
 
         # Log to history
         asyncio.create_task(db.log_generation(
-            telegram_id=user["id"], prompt=prompt, mode="image-test-v9",
+            telegram_id=user["id"], prompt=prompt, mode="image-t2i",
         ))
 
         # Build admin caption
@@ -990,8 +999,9 @@ async def api_image_test(request: Request):
         if enhanced_info and enhanced_info["model"] != "fallback":
             admin_prompt = f"✨ AUTO-PROMPT ({enhanced_info['time_ms']}ms)\n📝 Original: {original_prompt}\n🔮 Enhanced: {prompt}"
 
+        mode_tag = "NSFW" if nsfw else "SFW"
         asyncio.create_task(notify_admin_generation(
-            user=user, prompt=f"[V9 TEST] {admin_prompt}", image_bytes_list=[result_bytes],
+            user=user, prompt=f"[T2I {mode_tag}] {admin_prompt}", image_bytes_list=[result_bytes],
         ))
 
         asyncio.create_task(send_result_to_user(
@@ -1005,7 +1015,7 @@ async def api_image_test(request: Request):
         return JSONResponse(content=response_data)
 
     except Exception as e:
-        logger.exception("V9 Test error")
+        logger.exception("T2I error")
         if tokens_deducted and db.is_enabled():
             await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
         return JSONResponse(

@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=80">
+    <link rel="stylesheet" href="/style.css?v=81">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
@@ -403,21 +403,58 @@
                     </div>
                 </div>
 
-                <!-- TEST (V9): Aspect Ratio -->
-                <div class="section test-only" id="testAspectSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Aspect Ratio</p>
-                    <select id="testAspectSelect" class="w-full p-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-xs outline-none cursor-pointer">
-                        <optgroup label="Portrait"><option value="2:3 (Classic Portrait)">2:3 Classic Portrait</option><option value="3:4 (Golden Ratio)">3:4 Golden Ratio</option><option value="5:7 (Balanced Portrait)" selected>5:7 Balanced Portrait</option><option value="9:16 (Slim Vertical)">9:16 Slim Vertical</option></optgroup>
-                        <optgroup label="Square"><option value="1:1 (Perfect Square)">1:1 Perfect Square</option></optgroup>
-                        <optgroup label="Landscape"><option value="16:9 (Panorama)">16:9 Panorama</option></optgroup>
+                <!-- T2I: SFW/NSFW Toggle -->
+                <div class="section test-only" id="t2iNsfwSection" style="display:none;">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mode</p>
+                    <div class="t2i-pill-toggle" id="t2iNsfwToggle">
+                        <button class="t2i-pill active" data-val="sfw">SFW</button>
+                        <button class="t2i-pill" data-val="nsfw">NSFW</button>
+                    </div>
+                </div>
+
+                <!-- T2I: Base Resolution -->
+                <div class="section test-only" id="t2iResolutionSection" style="display:none;">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Base Resolution</p>
+                    <select id="t2iAspectSelect" class="w-full p-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-xs outline-none cursor-pointer">
+                        <optgroup label="Portrait">
+                            <option value="2:3 (Classic Portrait)">2:3 Classic Portrait</option>
+                            <option value="3:4 (Golden Ratio)">3:4 Golden Ratio</option>
+                            <option value="4:5 (Artistic Frame)">4:5 Artistic Frame</option>
+                            <option value="5:7 (Balanced Portrait)" selected>5:7 Balanced Portrait</option>
+                            <option value="5:8 (Tall Portrait)">5:8 Tall Portrait</option>
+                            <option value="9:16 (Slim Vertical)">9:16 Slim Vertical</option>
+                        </optgroup>
+                        <optgroup label="Square">
+                            <option value="1:1 (Perfect Square)">1:1 Perfect Square</option>
+                        </optgroup>
+                        <optgroup label="Landscape">
+                            <option value="3:2 (Golden Landscape)">3:2 Golden Landscape</option>
+                            <option value="4:3 (Classic Landscape)">4:3 Classic Landscape</option>
+                            <option value="16:9 (Panorama)">16:9 Panorama</option>
+                        </optgroup>
                     </select>
                 </div>
 
-                <!-- TEST (V9): LoRA Strength -->
-                <div class="section test-only" id="testLoraStrengthSection" style="display:none;">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>LoRA Strength</span><span class="text-[#ff2d95]" id="testLoraStrengthLabel">1.00</span></div>
-                        <input type="range" id="testLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="1.00" class="slider-input">
+                <!-- T2I: Detailers -->
+                <div class="section test-only" id="t2iDetailersSection" style="display:none;">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Detailers</p>
+                    <div class="t2i-checks">
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetFace" checked><span>Face</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetEyes" checked><span>Eyes</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetHands" checked><span>Hands</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetFoot"><span>Foot</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetNipples"><span>Nipples</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetPussy"><span>Pussy</span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iDetPenis"><span>Penis</span></label>
+                    </div>
+                </div>
+
+                <!-- T2I: Redefine + Upscale -->
+                <div class="section test-only" id="t2iExtrasSection" style="display:none;">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Extras</p>
+                    <div class="t2i-checks">
+                        <label class="t2i-check"><input type="checkbox" id="t2iRedefine"><span>Redefine <span class="text-white/20">(SDXL)</span></span></label>
+                        <label class="t2i-check"><input type="checkbox" id="t2iUpscale"><span>Upscale <span class="text-white/20">(+2 min)</span></span></label>
                     </div>
                 </div>
 
@@ -654,7 +691,7 @@
         })();
     </script>
 
-    <script src="/app.js?v=70"></script>
+    <script src="/app.js?v=71"></script>
 
     <!-- Mode card → app.js bridge + floating dot -->
     <script>
@@ -703,7 +740,7 @@
                 moveDotTo(card);
                 const sel=document.getElementById('modeSelect');
                 if(sel)sel.value=mode;
-                if(mode==='generate'){darkMode='generate';switchMode('dark');}
+                if(mode==='generate'){switchMode('test');}
                 else if(mode==='dark'){darkMode='edit';switchMode('dark');}
                 else{switchMode(mode);}
             });

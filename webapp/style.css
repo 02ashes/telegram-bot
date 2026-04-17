@@ -653,3 +653,94 @@ select option, select optgroup {
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
 }
+
+/* ── T2I Controls ─────────────────────────── */
+
+/* SFW/NSFW pill toggle */
+.t2i-pill-toggle {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.t2i-pill {
+  flex: 1;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.t2i-pill.active {
+  background: rgba(255,45,149,0.15);
+  color: #ff2d95;
+  box-shadow: inset 0 0 20px rgba(255,45,149,0.1);
+}
+.t2i-pill:hover:not(.active) {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.5);
+}
+
+/* Detailer checkboxes */
+.t2i-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.t2i-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.t2i-check:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+}
+.t2i-check input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.t2i-check input[type="checkbox"]:checked {
+  background: #ff2d95;
+  border-color: #ff2d95;
+}
+.t2i-check input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+.t2i-check span {
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+.t2i-check:has(input:checked) span {
+  color: rgba(255,255,255,0.8);
+}

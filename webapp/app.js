@@ -898,6 +898,14 @@ document.querySelectorAll('#darkGenSubmodeSection .quality-btn').forEach(btn => 
     });
 });
 
+// T2I: SFW/NSFW pill toggle
+document.querySelectorAll('#t2iNsfwToggle .t2i-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('#t2iNsfwToggle .t2i-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+    });
+});
+
 // Face photo upload for BFS face swap
 const faceUploadArea = document.getElementById('faceUploadArea');
 const faceFileInput = document.getElementById('faceFileInput');
@@ -1484,18 +1492,35 @@ async function generateDarkEdit(prompt) {
 }
 
 // ============================================================
-// V9 Test Generation (text2img only)
+// Text to Image — Final T2I pipeline
 // ============================================================
 async function generateTest(prompt) {
     const negative = document.getElementById('negativeInput').value.trim();
-    const aspectSelect = document.getElementById('testAspectSelect');
+    const aspectSelect = document.getElementById('t2iAspectSelect');
     const aspectRatio = aspectSelect ? aspectSelect.value : '5:7 (Balanced Portrait)';
-    const loraSlider = document.getElementById('testLoraStrengthSlider');
-    const loraStrength = loraSlider ? parseFloat(loraSlider.value) : 1.0;
+
+    // SFW/NSFW
+    const nsfwPill = document.querySelector('#t2iNsfwToggle .t2i-pill.active');
+    const nsfw = nsfwPill ? nsfwPill.dataset.val === 'nsfw' : false;
+
+    // Detailers
+    const detailers = {
+        face: document.getElementById('t2iDetFace')?.checked ?? true,
+        eyes: document.getElementById('t2iDetEyes')?.checked ?? true,
+        hands: document.getElementById('t2iDetHands')?.checked ?? true,
+        foot: document.getElementById('t2iDetFoot')?.checked ?? false,
+        nipples: document.getElementById('t2iDetNipples')?.checked ?? false,
+        pussy: document.getElementById('t2iDetPussy')?.checked ?? false,
+        penis: document.getElementById('t2iDetPenis')?.checked ?? false,
+    };
+
+    // Extras
+    const redefine = document.getElementById('t2iRedefine')?.checked ?? false;
+    const upscale = document.getElementById('t2iUpscale')?.checked ?? false;
 
     progressInfo.style.display = '';
     progressFill.style.width = '5%';
-    progressText.textContent = 'Submitting V9 job...';
+    progressText.textContent = 'Submitting T2I job...';
     resultSection.style.display = 'none';
 
     const cancelBtn = document.getElementById('cancelVideoBtn');
@@ -1508,16 +1533,16 @@ async function generateTest(prompt) {
             const cur = parseFloat(progressFill.style.width);
             if (cur < 85) {
                 progressFill.style.width = (cur + 0.5) + '%';
-                if (cur < 15) progressText.textContent = 'Submitting V9 job...';
-                else if (cur < 30) progressText.textContent = 'Dual-pass sampling...';
-                else if (cur < 50) progressText.textContent = 'Running detailers...';
-                else if (cur < 70) progressText.textContent = 'SeedVR2 upscaling...';
-                else progressText.textContent = 'Post-processing...';
+                if (cur < 15) progressText.textContent = 'Dual-pass sampling...';
+                else if (cur < 35) progressText.textContent = redefine ? 'SDXL redefining...' : 'Running detailers...';
+                else if (cur < 55) progressText.textContent = 'Running detailers...';
+                else if (cur < 75) progressText.textContent = upscale ? 'SeedVR2 upscaling...' : 'Post-processing...';
+                else progressText.textContent = 'Finalizing...';
             }
         }, 3000);
 
         currentVideoController = new AbortController();
-        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 15 * 60 * 1000); // 15 min
+        const fetchTimeout = setTimeout(() => currentVideoController.abort(), 15 * 60 * 1000);
 
         const response = await fetch('/api/image-test', {
             method: 'POST',
@@ -1526,7 +1551,10 @@ async function generateTest(prompt) {
                 prompt: prompt,
                 negative: negative,
                 aspect_ratio: aspectRatio,
-                lora_strength: loraStrength,
+                nsfw: nsfw,
+                redefine: redefine,
+                upscale: upscale,
+                detailers: detailers,
                 auto_prompt: false,
             }),
             signal: currentVideoController.signal,
@@ -1573,7 +1601,6 @@ async function generateTest(prompt) {
         if (err.name !== 'AbortError') alert('Error: ' + msg);
     } finally {
         currentVideoController = null;
-        // Button state managed by batch loop
         if (cancelBtn) cancelBtn.style.display = 'none';
     }
 }

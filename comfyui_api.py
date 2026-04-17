@@ -73,3 +73,9 @@ from generation.v9 import (  # noqa: F401
     build_v9_workflow,
     run_v9_generate,
 )
+
+# ── Final T2I ───────────────────────────────────────────────
+from generation.t2i import (  # noqa: F401
+    build_t2i_workflow,
+    run_t2i_generate,
+)
