@@ -282,6 +282,9 @@ You will use these details to write the enhanced prompt.
 This is CRITICAL. Write a DETAILED, RICH prompt that will produce a high-quality photorealistic image.
 
 For EDIT: Describe changes to the existing image. Same pose, same scene. Focus on what changes (clothes removed, skin exposed, etc.).
+- ALWAYS include "same face, keep face unchanged" at the START of the prompt
+- Do NOT describe facial features (eyes, nose, lips) — the face must stay identical
+- Default denoise for undressing = 0.65 (not higher, to preserve face identity)
 
 For TRANSFORM: Write a COMPLETE scene description. IMPORTANT RULES:
 - Describe the body type matching the person in the photo (if female → describe a female body; if male → describe male body)
