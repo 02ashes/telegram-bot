@@ -261,23 +261,31 @@ def _clean_response(text: str) -> str:
 CLASSIFY_SYSTEM_PROMPT = """You are an AI routing assistant for an image generation bot. Given a user's request and whether they uploaded a photo, you must:
 
 1. CLASSIFY the intent into exactly one of:
-   - EDIT: User wants to modify an existing photo (change clothes, add/remove items, undress, change appearance). Face, pose, and scene stay mostly the same.
-   - TRANSFORM: User wants a completely new scene/pose with the same person's face. Everything changes except identity.
+   - EDIT: User wants SURFACE-LEVEL modifications to an existing photo. The body pose, position, and scene composition stay THE SAME. Only clothes, accessories, skin exposure, hair color, or small visual details change.
+   - TRANSFORM: User wants a NEW POSE, NEW POSITION, or NEW SCENE with the same person's face. Anything that requires the body to move differently or be in a different place/action.
    - CREATE: No photo uploaded — generate an image from scratch.
 
 2. ENHANCE the prompt for the target pipeline.
 
 3. Determine if the content is NSFW.
 
-RULES:
-- If photo is uploaded and user wants minor changes (undress, change outfit, add tattoo, change hair) → EDIT
-- If photo is uploaded and user describes a completely new scene/pose (on the beach, riding horse, in gym) → TRANSFORM
-- If no photo → always CREATE
-- Keywords like "remove clothes", "undress", "nude", "naked", "topless" with a photo → EDIT
-- Keywords like "put her in", "imagine her", "she is", "on the beach", "at the pool" → TRANSFORM
+CRITICAL CLASSIFICATION RULES:
+- EDIT = ONLY surface changes. Body stays in the exact same pose/position. Examples:
+  • "remove clothes" / "undress" / "nude" / "naked" / "topless" → EDIT (just removing fabric, same pose)
+  • "change hair to blonde" / "add tattoo" / "remove background" → EDIT
+  • "make her wear a bikini" / "change outfit" → EDIT
 
-For EDIT prompts: describe the CHANGES to the image. Keep it focused. Don't describe the face.
-For TRANSFORM prompts: describe a complete NEW scene. Don't describe facial features (face will be swapped in).
+- TRANSFORM = ANY new pose, action, or scene. The body must move or be repositioned. Examples:
+  • "sucking dick" / "blowjob" / "giving head" → TRANSFORM (requires new body position)
+  • "sex" / "fucking" / "riding" / "doggy style" → TRANSFORM (requires new pose)
+  • "on the beach" / "in the pool" / "in gym" → TRANSFORM (new scene)
+  • "bending over" / "lying down" / "kneeling" / "spreading legs" → TRANSFORM (new pose)
+  • "put her in" / "imagine her" → TRANSFORM
+
+- CREATE = No photo uploaded → always CREATE
+
+For EDIT prompts: describe the CHANGES to the image. Keep it focused. Don't describe the face or pose.
+For TRANSFORM prompts: describe a complete NEW scene with pose and setting. Don't describe facial features (face will be swapped in from the photo).
 For CREATE prompts: describe the full scene with appearance details.
 
 RESPOND IN EXACTLY THIS JSON FORMAT (no markdown, no explanation):
@@ -286,7 +294,7 @@ RESPOND IN EXACTLY THIS JSON FORMAT (no markdown, no explanation):
 denoise is only for EDIT: 0.3-0.5 for subtle changes, 0.6-0.8 for significant changes like undressing.
 For TRANSFORM/CREATE, set denoise to 0.0 (ignored).
 
-Write the enhanced_prompt in ENGLISH regardless of input language. Be explicit for NSFW content."""
+Write the enhanced_prompt in ENGLISH regardless of input language. Be explicit and detailed for NSFW content."""
 
 
 async def classify_and_enhance(
@@ -321,6 +329,11 @@ async def classify_and_enhance(
                 "put her", "imagine her", "she is", "on the beach", "at the pool",
                 "in gym", "riding", "walking", "sitting on", "lying on",
                 "standing in", "dancing", "swimming", "поставь её", "представь её",
+                # Sex acts / pose changes → always TRANSFORM
+                "sucking", "blowjob", "giving head", "oral", "sex",
+                "fucking", "doggy", "missionary", "cowgirl", "reverse",
+                "kneeling", "bending over", "spreading", "squatting",
+                "on all fours", "lying down", "on her knees",
             ]
             if any(kw in prompt_lower for kw in transform_keywords):
                 intent = "TRANSFORM"
