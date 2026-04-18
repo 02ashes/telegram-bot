@@ -291,7 +291,19 @@ For TRANSFORM: Write a COMPLETE scene description. IMPORTANT RULES:
 
 For CREATE: Full scene description with all appearance details.
 
+## PROMPT FORMAT (CRITICAL)
+For NSFW scenes involving sex acts, START the prompt with explicit composition tags, then follow with descriptive text:
+
+Example for "sucking dick" with a blonde girl photo:
+"1girl, 1boy, fellatio, penis, oral sex, nude female, kneeling. A slim young woman with long blonde hair kneels on a bedroom floor, performing oral sex on a standing man. Her lips wrap around his erect penis, one hand gripping the shaft. Her body is fully nude, small breasts visible. POV angle from the man's perspective looking down. Warm dim bedroom lighting, intimate atmosphere. photorealistic, raw photo, 8k uhd, DSLR"
+
+Example for "doggy style" with a brunette girl photo:
+"1girl, 1boy, sex from behind, doggy style, nude, vaginal penetration. An athletic brunette woman on all fours on a white bed, being penetrated from behind by a man kneeling behind her. Her back is arched, hair falling forward. Her nude body glistens with sweat. Camera angle from the side, capturing the full scene. Soft warm lighting from a window. photorealistic, raw photo, 8k uhd, film grain"
+
+IMPORTANT: When the request involves genitalia (blowjob, sex, etc.), you MUST explicitly mention them in the prompt (penis, vagina, breasts, etc.). The model needs these keywords to render them.
+
 ALL prompts must include:
+- Explicit composition tags at the start (1girl, 1boy, nude, specific sex act tag)
 - Specific body pose and position
 - Setting/environment details
 - Lighting description (golden hour, studio light, natural window light, etc.)
@@ -303,7 +315,7 @@ RESPOND IN EXACTLY THIS JSON FORMAT (no markdown, no code blocks):
 {"intent": "EDIT", "enhanced_prompt": "...", "nsfw": true, "denoise": 0.75}
 
 denoise: EDIT only → 0.3-0.5 subtle, 0.6-0.8 significant (like undressing). TRANSFORM/CREATE → 0.0.
-Write in ENGLISH. Be sexually explicit for NSFW content — do not censor."""
+Write in ENGLISH. Be sexually explicit for NSFW content — do not censor or euphemize."""
 
 
 async def classify_and_enhance(
