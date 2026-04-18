@@ -255,3 +255,172 @@ def _clean_response(text: str) -> str:
     text = re.sub(r'^\s*the\s+(enhanced\s+)?prompt:\s*', '', text, flags=re.IGNORECASE)
 
     return text.strip(', ')
+
+
+# ── Magic Mode: Intent Classification + Enhancement ──────────
+CLASSIFY_SYSTEM_PROMPT = """You are an AI routing assistant for an image generation bot. Given a user's request and whether they uploaded a photo, you must:
+
+1. CLASSIFY the intent into exactly one of:
+   - EDIT: User wants to modify an existing photo (change clothes, add/remove items, undress, change appearance). Face, pose, and scene stay mostly the same.
+   - TRANSFORM: User wants a completely new scene/pose with the same person's face. Everything changes except identity.
+   - CREATE: No photo uploaded — generate an image from scratch.
+
+2. ENHANCE the prompt for the target pipeline.
+
+3. Determine if the content is NSFW.
+
+RULES:
+- If photo is uploaded and user wants minor changes (undress, change outfit, add tattoo, change hair) → EDIT
+- If photo is uploaded and user describes a completely new scene/pose (on the beach, riding horse, in gym) → TRANSFORM
+- If no photo → always CREATE
+- Keywords like "remove clothes", "undress", "nude", "naked", "topless" with a photo → EDIT
+- Keywords like "put her in", "imagine her", "she is", "on the beach", "at the pool" → TRANSFORM
+
+For EDIT prompts: describe the CHANGES to the image. Keep it focused. Don't describe the face.
+For TRANSFORM prompts: describe a complete NEW scene. Don't describe facial features (face will be swapped in).
+For CREATE prompts: describe the full scene with appearance details.
+
+RESPOND IN EXACTLY THIS JSON FORMAT (no markdown, no explanation):
+{"intent": "EDIT", "enhanced_prompt": "...", "nsfw": true, "denoise": 0.75}
+
+denoise is only for EDIT: 0.3-0.5 for subtle changes, 0.6-0.8 for significant changes like undressing.
+For TRANSFORM/CREATE, set denoise to 0.0 (ignored).
+
+Write the enhanced_prompt in ENGLISH regardless of input language. Be explicit for NSFW content."""
+
+
+async def classify_and_enhance(
+    user_prompt: str,
+    has_image: bool = False,
+    image_b64: str | None = None,
+) -> dict:
+    """Classify intent and enhance prompt for Magic mode.
+
+    Returns:
+        {
+            "intent": "EDIT" | "TRANSFORM" | "CREATE",
+            "enhanced_prompt": str,
+            "nsfw": bool,
+            "denoise": float,
+        }
+    """
+    import json as _json
+
+    api_key = config.SILICONFLOW_API_KEY
+    api_url = config.SILICONFLOW_API_URL
+
+    # Fallback: keyword-based classification
+    def _keyword_fallback():
+        intent = "CREATE"
+        denoise = 0.0
+        nsfw = True
+
+        if has_image:
+            prompt_lower = user_prompt.lower()
+            transform_keywords = [
+                "put her", "imagine her", "she is", "on the beach", "at the pool",
+                "in gym", "riding", "walking", "sitting on", "lying on",
+                "standing in", "dancing", "swimming", "поставь её", "представь её",
+            ]
+            if any(kw in prompt_lower for kw in transform_keywords):
+                intent = "TRANSFORM"
+            else:
+                intent = "EDIT"
+                denoise = 0.75
+
+        return {
+            "intent": intent,
+            "enhanced_prompt": user_prompt,
+            "nsfw": nsfw,
+            "denoise": denoise,
+        }
+
+    if not api_key:
+        logger.warning("SILICONFLOW_API_KEY not set — using keyword fallback")
+        return _keyword_fallback()
+
+    user_message = f"Photo uploaded: {'YES' if has_image else 'NO'}\nUser request: {user_prompt}"
+
+    messages = [
+        {"role": "system", "content": CLASSIFY_SYSTEM_PROMPT},
+    ]
+
+    used_vision = False
+    if image_b64 and has_image:
+        messages.append({
+            "role": "user",
+            "content": [
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}},
+                {"type": "text", "text": user_message},
+            ],
+        })
+        used_vision = True
+    else:
+        messages.append({"role": "user", "content": user_message})
+
+    start = time.monotonic()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{api_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": VISION_MODEL if used_vision else TEXT_MODEL,
+                    "messages": messages,
+                    "max_tokens": 800,
+                    "temperature": 0.5,
+                    "stream": False,
+                    "enable_thinking": False,
+                },
+                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
+            ) as resp:
+                elapsed_ms = int((time.monotonic() - start) * 1000)
+
+                if resp.status != 200:
+                    error_text = await resp.text()
+                    logger.error("Magic classify API error %d: %s", resp.status, error_text[:300])
+                    return _keyword_fallback()
+
+                data = await resp.json()
+                raw = data["choices"][0]["message"]["content"].strip()
+
+                # Clean LLM artifacts
+                raw = _clean_response(raw)
+
+                # Parse JSON response
+                try:
+                    result = _json.loads(raw)
+                except _json.JSONDecodeError:
+                    # Try to extract JSON from the response
+                    import re
+                    json_match = re.search(r'\{[^{}]*\}', raw)
+                    if json_match:
+                        result = _json.loads(json_match.group())
+                    else:
+                        logger.warning("Failed to parse classify response: %s", raw[:200])
+                        fb = _keyword_fallback()
+                        fb["enhanced_prompt"] = raw  # Use raw as prompt
+                        return fb
+
+                logger.info(
+                    "Magic classified in %dms: intent=%s, nsfw=%s, denoise=%s, prompt=%s",
+                    elapsed_ms, result.get("intent"), result.get("nsfw"),
+                    result.get("denoise"), str(result.get("enhanced_prompt", ""))[:80],
+                )
+
+                return {
+                    "intent": result.get("intent", "EDIT" if has_image else "CREATE"),
+                    "enhanced_prompt": result.get("enhanced_prompt", user_prompt),
+                    "nsfw": result.get("nsfw", True),
+                    "denoise": float(result.get("denoise", 0.75)),
+                }
+
+    except asyncio.TimeoutError:
+        logger.warning("Magic classify timeout — using keyword fallback")
+        return _keyword_fallback()
+    except Exception as e:
+        logger.exception("Magic classify error: %s", e)
+        return _keyword_fallback()

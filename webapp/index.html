@@ -163,6 +163,75 @@
             <!-- ═══════════════════════════════════════ -->
             <div class="tab-content space-y-6" id="contentGenerate">
 
+                <!-- ✨ Magic / ⚙️ Pro Toggle -->
+                <div class="aurora-card p-1.5 flex gap-1.5 anim-fade-in anim-delay-1" id="magicProToggle">
+                    <button class="magic-pro-btn active flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 relative" id="magicBtn" data-level="magic">
+                        <span class="relative z-10 flex items-center justify-center gap-2">✨ Magic</span>
+                    </button>
+                    <button class="magic-pro-btn flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 text-white/30 hover:text-white/50 relative" id="proBtn" data-level="pro">
+                        <span class="relative z-10 flex items-center justify-center gap-2">⚙️ Pro</span>
+                    </button>
+                </div>
+
+                <!-- ═══════════════════════════════════ -->
+                <!-- MAGIC MODE — simplified one-tap UI  -->
+                <!-- ═══════════════════════════════════ -->
+                <div id="magicContainer" class="space-y-5 anim-fade-in">
+
+                    <!-- Magic Upload -->
+                    <div class="section">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Photo <span class="text-white/20 normal-case tracking-normal font-medium">(optional)</span></p>
+                        <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-10 flex items-center justify-center cursor-pointer hover:border-[#ff2d95]/30 hover:bg-[#ff2d95]/[0.03] transition-all relative overflow-hidden" id="magicUploadArea">
+                            <div class="flex flex-col items-center gap-2 text-white/20 text-sm" id="magicUploadPlaceholder">
+                                <span class="text-4xl">📷</span>
+                                <span>Tap to upload photo</span>
+                                <span class="text-[9px] text-white/15">or skip to create from scratch</span>
+                            </div>
+                            <button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center z-10" id="magicRemovePhoto" style="display:none;">✕</button>
+                            <input type="file" id="magicFileInput" accept="image/*" hidden>
+                        </div>
+                    </div>
+
+                    <!-- Magic Prompt -->
+                    <div class="section">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">What do you want?</p>
+                        <textarea class="w-full bg-white/[0.04] border border-white/[0.06] rounded-2xl px-5 py-4 text-sm text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#ff2d95]/30 transition-all" id="magicPromptInput" rows="3" placeholder="e.g. remove clothes, girl on the beach, make her smile..."></textarea>
+                        <p class="text-[9px] text-white/15 mt-1.5 px-1">Leave empty with photo = auto undress • No photo = AI creates from your description</p>
+                    </div>
+
+                    <!-- Magic Generate Button -->
+                    <button class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100" id="magicGenerateBtn">
+                        <span class="btn-text flex items-center justify-center gap-4">✨ Generate</span>
+                        <span class="btn-loader flex items-center justify-center gap-4" style="display:none;">
+                            <span class="spinner"></span> Creating magic...
+                        </span>
+                    </button>
+                    <div id="magicProgressInfo" style="display:none;" class="mt-3 text-[11px] text-white/40">
+                        <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-2">
+                            <div class="h-full rounded-full bg-gradient-to-r from-[#ff2d95] to-[#9d4dff] transition-all duration-300 magic-progress-animate" id="magicProgressFill" style="width:0%"></div>
+                        </div>
+                        <span id="magicProgressText">AI is thinking...</span>
+                    </div>
+
+                    <!-- Magic Result (inline) -->
+                    <div class="section" id="magicResultSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Result</p>
+                        <div class="rounded-3xl overflow-hidden bg-black/30 mb-3">
+                            <img id="magicResultImage" src="" alt="Result" class="w-full block rounded-3xl">
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="magicDownloadBtn">Save</button>
+                            <button class="action-btn send-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="magicSendBtn">Send</button>
+                            <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="magicRetryBtn">Retry</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════ -->
+                <!-- PRO MODE — full controls (existing) -->
+                <!-- ═══════════════════════════════════ -->
+                <div id="proContainer" class="space-y-6" style="display:none;">
+
                 <!-- Mode Grid (exact AI Studio 2x2 + 1) -->
                 <div class="grid grid-cols-2 gap-3 anim-fade-in anim-delay-2 relative" id="modeGrid">
                     <!-- Floating dot indicator (Framer Motion layoutId simulation) -->
@@ -521,6 +590,7 @@
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Gallery</p>
                     <div class="gallery-strip flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="galleryStrip"></div>
                 </div>
+                </div><!-- /proContainer -->
             </div>
 
 

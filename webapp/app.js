@@ -2944,3 +2944,203 @@ function showEnhancedPrompt(data) {
     });
 }
 
+// ============================================================
+// ✨ MAGIC MODE
+// ============================================================
+(function initMagicMode() {
+    const magicBtn = document.getElementById('magicBtn');
+    const proBtn = document.getElementById('proBtn');
+    const magicContainer = document.getElementById('magicContainer');
+    const proContainer = document.getElementById('proContainer');
+    if (!magicBtn || !proBtn || !magicContainer || !proContainer) return;
+
+    // ── Toggle Logic ──
+    let currentLevel = localStorage.getItem('magicProLevel') || 'magic';
+
+    function setLevel(level) {
+        currentLevel = level;
+        localStorage.setItem('magicProLevel', level);
+        if (level === 'magic') {
+            magicBtn.classList.add('active');
+            proBtn.classList.remove('active');
+            proBtn.style.color = '';
+            magicContainer.style.display = '';
+            proContainer.style.display = 'none';
+        } else {
+            proBtn.classList.add('active');
+            magicBtn.classList.remove('active');
+            magicContainer.style.display = 'none';
+            proContainer.style.display = '';
+        }
+    }
+
+    magicBtn.addEventListener('click', () => setLevel('magic'));
+    proBtn.addEventListener('click', () => setLevel('pro'));
+    setLevel(currentLevel);
+
+    // ── Magic Upload ──
+    const magicUploadArea = document.getElementById('magicUploadArea');
+    const magicFileInput = document.getElementById('magicFileInput');
+    const magicUploadPlaceholder = document.getElementById('magicUploadPlaceholder');
+    const magicRemovePhoto = document.getElementById('magicRemovePhoto');
+    let magicImageB64 = null;
+
+    magicUploadArea.addEventListener('click', (e) => {
+        if (e.target.id === 'magicRemovePhoto') return;
+        magicFileInput.click();
+    });
+
+    magicFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            magicImageB64 = ev.target.result.split(',')[1];
+            magicUploadPlaceholder.innerHTML = `<img src="${ev.target.result}" alt="Uploaded" style="max-height:200px; border-radius:16px;">`;
+            magicRemovePhoto.style.display = '';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    magicRemovePhoto.addEventListener('click', (e) => {
+        e.stopPropagation();
+        magicImageB64 = null;
+        magicUploadPlaceholder.innerHTML = `
+            <span class="text-4xl">📷</span>
+            <span>Tap to upload photo</span>
+            <span class="text-[9px] text-white/15">or skip to create from scratch</span>
+        `;
+        magicRemovePhoto.style.display = 'none';
+        magicFileInput.value = '';
+    });
+
+    // ── Magic Generate ──
+    const magicGenerateBtn = document.getElementById('magicGenerateBtn');
+    const magicProgressInfo = document.getElementById('magicProgressInfo');
+    const magicProgressFill = document.getElementById('magicProgressFill');
+    const magicProgressText = document.getElementById('magicProgressText');
+    const magicResultSection = document.getElementById('magicResultSection');
+    const magicResultImage = document.getElementById('magicResultImage');
+    let magicLastResultB64 = null;
+    let magicIsGenerating = false;
+
+    magicGenerateBtn.addEventListener('click', async () => {
+        if (magicIsGenerating) return;
+
+        const prompt = document.getElementById('magicPromptInput').value.trim();
+
+        // Validation: need either photo or prompt
+        if (!magicImageB64 && !prompt) {
+            alert('Upload a photo or describe what you want to create');
+            return;
+        }
+
+        magicIsGenerating = true;
+        magicGenerateBtn.disabled = true;
+        magicGenerateBtn.querySelector('.btn-text').style.display = 'none';
+        magicGenerateBtn.querySelector('.btn-loader').style.display = '';
+        magicResultSection.style.display = 'none';
+        magicProgressInfo.style.display = '';
+        magicProgressFill.style.width = '5%';
+        magicProgressText.textContent = 'AI is analyzing your request...';
+
+        const progressInterval = setInterval(() => {
+            const cur = parseFloat(magicProgressFill.style.width);
+            if (cur < 85) {
+                magicProgressFill.style.width = (cur + 1.2) + '%';
+                if (cur > 15) magicProgressText.textContent = 'Generating image...';
+                if (cur > 50) magicProgressText.textContent = 'Enhancing details...';
+                if (cur > 75) magicProgressText.textContent = 'Almost done...';
+            }
+        }, 1500);
+
+        try {
+            const body = {
+                prompt: prompt || '',
+                image: magicImageB64 || '',
+            };
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000);
+
+            const response = await fetch('/api/magic', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify(body),
+                signal: controller.signal,
+            });
+
+            clearTimeout(timeout);
+            clearInterval(progressInterval);
+
+            if (await handleAuthError(response)) {
+                magicProgressFill.style.width = '0%';
+                magicProgressText.textContent = '';
+                return;
+            }
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => null);
+                throw new Error(errData?.error || `Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            // Show result
+            magicProgressFill.style.width = '100%';
+            magicProgressText.textContent = 'Done ✨';
+
+            magicLastResultB64 = data.image;
+            magicResultImage.src = 'data:image/png;base64,' + data.image;
+            magicResultSection.style.display = '';
+            magicResultSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Also add to Pro gallery if it exists
+            if (typeof addToGallery === 'function') {
+                addToGallery(magicResultImage.src);
+            }
+
+        } catch (err) {
+            clearInterval(progressInterval);
+            magicProgressFill.style.width = '0%';
+            const msg = err.name === 'AbortError' ? 'Request cancelled' : err.message;
+            magicProgressText.textContent = 'Error: ' + msg;
+            if (err.name !== 'AbortError') alert('Error: ' + msg);
+        } finally {
+            magicIsGenerating = false;
+            magicGenerateBtn.disabled = false;
+            magicGenerateBtn.querySelector('.btn-text').style.display = '';
+            magicGenerateBtn.querySelector('.btn-loader').style.display = 'none';
+        }
+    });
+
+    // ── Magic Result Buttons ──
+    document.getElementById('magicDownloadBtn')?.addEventListener('click', () => {
+        if (!magicLastResultB64) return;
+        const link = document.createElement('a');
+        link.href = 'data:image/png;base64,' + magicLastResultB64;
+        link.download = 'magic_result.png';
+        link.click();
+    });
+
+    document.getElementById('magicSendBtn')?.addEventListener('click', async () => {
+        if (!magicLastResultB64) return;
+        try {
+            const resp = await fetch('/api/send', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ image: magicLastResultB64 }),
+            });
+            if (resp.ok) {
+                const btn = document.getElementById('magicSendBtn');
+                if (btn) { btn.textContent = '✓ Sent'; setTimeout(() => btn.textContent = 'Send', 2000); }
+            }
+        } catch (e) { console.error('Send error:', e); }
+    });
+
+    document.getElementById('magicRetryBtn')?.addEventListener('click', () => {
+        magicResultSection.style.display = 'none';
+        magicGenerateBtn.click();
+    });
+})();

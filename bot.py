@@ -1022,6 +1022,122 @@ async def api_image_test(request: Request):
             status_code=500,
             content={"error": str(e)},
         )
+# ============================================================
+# ✨ Magic Mode — Smart Auto-Routing
+# ============================================================
+@app.post("/api/magic")
+async def api_magic(request: Request):
+    """Magic mode: auto-detect intent, enhance prompt, route to correct pipeline."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
+    try:
+        body = await request.json()
+        prompt = body.get("prompt", "").strip()
+        image_b64 = body.get("image", "")
+        has_image = bool(image_b64)
+
+        # If no image and no prompt → error
+        if not has_image and not prompt:
+            return JSONResponse(status_code=400, content={"error": "Upload a photo or describe what you want"})
+
+        # Default prompt for photo-without-text = undress
+        if has_image and not prompt:
+            prompt = "remove clothes, fully nude"
+
+        # ── Step 1: Classify intent + enhance prompt via LLM ──
+        classification = await prompt_enhance.classify_and_enhance(
+            user_prompt=prompt,
+            has_image=has_image,
+            image_b64=image_b64 if has_image else None,
+        )
+        intent = classification.get("intent", "EDIT" if has_image else "CREATE")
+        enhanced_prompt = classification.get("enhanced_prompt", prompt)
+        is_nsfw = classification.get("nsfw", True)
+
+        logger.info(
+            "Magic request: intent=%s, has_image=%s, prompt=%s → enhanced=%s",
+            intent, has_image, prompt[:50], enhanced_prompt[:80],
+        )
+
+        # ── Step 2: Check tokens ──
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_IMAGE):
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
+
+        # ── Step 3: Route to correct pipeline ──
+        result_bytes = None
+
+        if intent == "EDIT" and has_image:
+            # Edit existing photo (face preserved, pose preserved)
+            image_bytes = base64.b64decode(image_b64)
+            denoise = classification.get("denoise", 0.75)
+            result_bytes = await comfyui_api.run_image_edit_dark(
+                image_bytes=image_bytes,
+                prompt=enhanced_prompt,
+                negative="",
+                denoise=denoise,
+                steps=5,
+                cfg=1.0,
+                quality="fast",
+            )
+
+        elif intent == "TRANSFORM" and has_image:
+            # New scene + face swap from source photo
+            face_bytes = base64.b64decode(image_b64)
+            result_bytes = await comfyui_api.run_dark_generate_bfs(
+                face_image_bytes=face_bytes,
+                prompt=enhanced_prompt,
+            )
+
+        else:
+            # CREATE: text to image from scratch
+            result_bytes = await comfyui_api.run_t2i_generate(
+                prompt=enhanced_prompt,
+                negative="",
+                aspect_ratio="5:7 (Balanced Portrait)",
+                nsfw=is_nsfw,
+                redefine=False,
+                upscale=False,
+                detailers={"face": True, "eyes": False, "hands": False, "foot": False,
+                           "nipples": False, "pussy": False, "penis": False},
+            )
+
+        if result_bytes is None:
+            if tokens_deducted and db.is_enabled():
+                await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
+            return JSONResponse(status_code=500, content={"error": "Generation failed. Please try again."})
+
+        result_b64 = base64.b64encode(result_bytes).decode("utf-8")
+
+        # Log + notify
+        asyncio.create_task(db.log_generation(
+            telegram_id=user["id"], prompt=enhanced_prompt, mode=f"magic-{intent.lower()}",
+        ))
+        asyncio.create_task(notify_admin_generation(
+            user=user,
+            prompt=f"✨ MAGIC [{intent}]\n📝 Original: {prompt}\n🔮 Enhanced: {enhanced_prompt}",
+            image_bytes_list=[result_bytes],
+        ))
+        asyncio.create_task(send_result_to_user(
+            user=user, prompt=enhanced_prompt, image_bytes_list=[result_bytes],
+        ))
+
+        return JSONResponse(content={"image": result_b64, "intent": intent})
+
+    except Exception as e:
+        logger.exception("Magic mode error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_IMAGE)
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 
 # ── Serve webapp static files ────────────────────────────────
 # MUST be after all @app routes — catch-all mount at "/" intercepts everything

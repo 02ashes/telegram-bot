@@ -744,3 +744,37 @@ select option, select optgroup {
 .t2i-check:has(input:checked) span {
   color: rgba(255,255,255,0.8);
 }
+
+/* ── Magic / Pro Toggle ─────────────────────────────────── */
+.magic-pro-btn {
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+.magic-pro-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255,45,149,0.25), rgba(157,77,255,0.25));
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255,45,149,0.15), inset 0 0 20px rgba(255,45,149,0.05);
+}
+
+/* Magic mode upload hover glow */
+#magicUploadArea {
+  min-height: 140px;
+}
+#magicUploadArea img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+/* Magic progress bar animation */
+.magic-progress-animate {
+  animation: magic-progress-pulse 2s ease-in-out infinite;
+}
+@keyframes magic-progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
