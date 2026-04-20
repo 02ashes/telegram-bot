@@ -2971,6 +2971,10 @@ function showEnhancedPrompt(data) {
             magicBtn.classList.remove('active');
             magicContainer.style.display = 'none';
             proContainer.style.display = '';
+            // Reposition floating dot after proContainer becomes visible
+            requestAnimationFrame(() => {
+                window.dispatchEvent(new Event('resize'));
+            });
         }
     }
 
