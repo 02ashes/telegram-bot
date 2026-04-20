@@ -187,7 +187,7 @@ IF user mentions one: put trigger FIRST, skip hair/eye color (LoRA controls it).
 
 
 # ── Timeout & Fallback ────────────────────────────────────────
-REQUEST_TIMEOUT = 30  # seconds — GLM-4.6V is 106B, needs more time on cold start
+REQUEST_TIMEOUT = 60  # seconds — GLM-4.6V is 106B, needs more time on cold start
 
 
 async def enhance_prompt(
