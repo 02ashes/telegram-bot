@@ -454,7 +454,7 @@ RESPOND IN EXACTLY THIS JSON FORMAT (no markdown, no code blocks):
 {"intent": "EDIT", "nsfw": true, "denoise": 0.65, "body_desc": ""}
 
 - intent: "EDIT", "TRANSFORM", or "CREATE"
-- nsfw: true/false
+- nsfw: true ONLY for explicit nudity (visible nipples, genitals, bare breasts) or sex acts. Underwear, lingerie, bikini, cleavage = false (SFW).
 - denoise: float (EDIT: 0.3-0.8, TRANSFORM/CREATE: 0.0)
 - body_desc: Short body description from photo (TRANSFORM/CREATE only, empty string for EDIT)
 
