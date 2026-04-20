@@ -250,6 +250,9 @@ def build_t2i_workflow(
     wf["387"]["inputs"]["lora_name"] = lora_name
     wf["387"]["inputs"]["strength_model"] = lora_strength_p1
 
+    # RealisticSnapshot LoRA: stronger when no character LoRA for max realism
+    wf["388"]["inputs"]["strength_model"] = 0.4 if has_character else 0.7
+
     # Pass 2 LoRA: node 400 (character only)
     wf["400"]["inputs"]["lora_name"] = lora_name
     wf["400"]["inputs"]["strength_model"] = lora_strength_p2
