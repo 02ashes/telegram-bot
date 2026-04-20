@@ -51,6 +51,8 @@ from generation.klein_default import (  # noqa: F401
 from generation.bfs import (  # noqa: F401
     build_dark_bfs_workflow,
     run_dark_generate_bfs,
+    build_t2i_bfs_workflow,
+    run_t2i_bfs,
 )
 
 # ── Dark Generate (Z-Image Turbo text2img) ───────────────────

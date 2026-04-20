@@ -305,7 +305,7 @@ async def api_enhance_prompt(request: Request):
         body = await request.json()
         user_prompt = body.get("prompt", "").strip()
         image_b64 = body.get("image", "")  # optional: uploaded photo for vision analysis
-        mode = body.get("mode", "edit")  # "edit", "generate", "dark"
+        mode = body.get("mode", "edit")  # "edit", "t2i", "bfs", "dark" (legacy)
         lora_trigger = body.get("lora_trigger", "")
 
         if not user_prompt:
@@ -800,10 +800,20 @@ async def api_image_edit_dark(request: Request):
         original_prompt = prompt
         enhanced_info = None
         if auto_prompt and config.AUTOPROMPT_ENABLED:
+            # Pick the right enhance mode for the pipeline:
+            # edit → "edit" (short, change-focused)
+            # generate (default) → "t2i" (long, detailed)
+            # generate + faceswap → "bfs" (detailed, no face)
+            if dark_mode == "edit":
+                _enhance_mode = "edit"
+            elif body.get("submode") == "faceswap":
+                _enhance_mode = "bfs"
+            else:
+                _enhance_mode = "t2i"
             enhanced_info = await prompt_enhance.enhance_prompt(
                 user_prompt=prompt,
                 image_b64=image_b64 if image_b64 else None,
-                mode="dark" if dark_mode == "edit" else "generate",
+                mode=_enhance_mode,
                 lora_trigger=body.get("lora_trigger", ""),
             )
             prompt = enhanced_info["enhanced"]
@@ -839,7 +849,7 @@ async def api_image_edit_dark(request: Request):
 
             if submode == "faceswap":
                 face_bytes = base64.b64decode(face_b64)
-                result_bytes = await comfyui_api.run_dark_generate_bfs(
+                result_bytes = await comfyui_api.run_t2i_bfs(
                     face_image_bytes=face_bytes,
                     prompt=prompt,
                 )
@@ -948,7 +958,7 @@ async def api_image_test(request: Request):
             enhanced_info = await prompt_enhance.enhance_prompt(
                 user_prompt=prompt,
                 image_b64=None,
-                mode="generate",
+                mode="t2i",
                 lora_trigger=body.get("lora_trigger", ""),
             )
             prompt = enhanced_info["enhanced"]
@@ -1090,9 +1100,9 @@ async def api_magic(request: Request):
             )
 
         elif intent == "TRANSFORM" and has_image:
-            # New scene + face swap from source photo
+            # New scene (ZIT T2I) + face swap (Klein BFS) from source photo
             face_bytes = base64.b64decode(image_b64)
-            result_bytes = await comfyui_api.run_dark_generate_bfs(
+            result_bytes = await comfyui_api.run_t2i_bfs(
                 face_image_bytes=face_bytes,
                 prompt=enhanced_prompt,
             )

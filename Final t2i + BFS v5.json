@@ -1,0 +1,857 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "394",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "🧬  VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "Z-Image",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾  Save RAW  Image"
+    }
+  },
+  "16": {
+    "inputs": {
+      "unet_name": "pornmasterZImage_turboV2.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "🗂️  Load Diffusion Model  (*.st)"
+    }
+  },
+  "17": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "🧬  Load VAE"
+    }
+  },
+  "18": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "🔤  Load CLIP"
+    }
+  },
+  "28": {
+    "inputs": {
+      "megapixel": "2.0",
+      "aspect_ratio": "5:7 (Balanced Portrait)",
+      "divisible_by": "64",
+      "custom_ratio": false,
+      "custom_aspect_ratio": "1:1"
+    },
+    "class_type": "FluxResolutionNode",
+    "_meta": {
+      "title": "🔳  Base Resolution"
+    }
+  },
+  "29": {
+    "inputs": {
+      "width": [
+        "28",
+        0
+      ],
+      "height": [
+        "28",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "🔢  Latent Image"
+    }
+  },
+  "51": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_gpdma_00007_.png&type=temp&subfolder=&rand=0.2757045371663024"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_gpdma_00008_.png&type=temp&subfolder=&rand=0.14871713256342434"
+          }
+        ]
+      },
+      "image_a": [
+        "8",
+        0
+      ],
+      "image_b": [
+        "395",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "1"
+    }
+  },
+  "58": {
+    "inputs": {
+      "preview_markdown": "1216 x 1664",
+      "preview_text": "1216 x 1664",
+      "previewMode": null,
+      "source": [
+        "28",
+        2
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "↕️  Calculated Resolution"
+    }
+  },
+  "98": {
+    "inputs": {
+      "anything": [
+        "370",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "🧹  Clean VRAM"
+    }
+  },
+  "99": {
+    "inputs": {
+      "anything": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "easy clearCacheAll",
+    "_meta": {
+      "title": "🧹  Clear Cache"
+    }
+  },
+  "104": {
+    "inputs": {
+      "text": "blurry image",
+      "clip": [
+        "388",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➖  Negative Prompt   (not used for ZIT / only for Base Model)"
+    }
+  },
+  "175": {
+    "inputs": {
+      "text": "A young woman with shoulder-length brown hair with subtle blonde highlights, her face angled toward the camera with a soft, intimate gaze, her eyes large and expressive with meticulously applied dark eyeliner and long, voluminous lashes, her lips slightly parted with a natural, relaxed expression; her skin is smooth and luminous, with a warm, healthy glow under the soft, diffused daylight, faint pores visible on her cheeks and forehead, her neck and collarbone showing subtle definition; she rests her chin on her folded arms, her left hand positioned beneath her cheek, a small, dark geometric tattoo visible on her inner wrist; she wears a vibrant, translucent orange lingerie set with delicate lace trim and thin straps, the fabric showing a sheer, slightly glossy texture with visible weave and subtle sheen; she lies on her side on a bed with crisp, white linen sheets that show fine creases and faint dust particles; the camera is positioned at a low angle, capturing a close-up shot with a shallow depth of field, the lens sharp and clean with no visible grain, the framing emphasizing her face and upper torso; the scene is set in a modern, minimalist bedroom, with a dark gray upholstered headboard visible behind her, a window with a white frame and partially drawn blinds allowing soft, natural light to filter in, a black flat-screen TV and speakers on a low table in the background, and gray curtains with vertical folds on the right side; the walls are painted in a neutral beige tone with visible drywall seams; the air feels warm and still, with the scent of fabric and faint humidity implied by the scene; materials are rendered with hyper-realistic detail: the lingerie fabric has a sheer, glossy finish with fine lace texture, the bed sheets exhibit crisp linen weave and subtle dust particles, the window frame shows smooth painted surface with fine edges, the tattoo on her wrist is rendered with crisp, dark ink; cinematic, photorealistic, high resolution, realistic lighting physics, sharp focus, ultra-detailed.\n\n\n\n\n\n\n\n\n",
+      "clip": [
+        "388",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "➕  Positive Prompt   (Use natural language / 100-300 words)"
+    }
+  },
+  "179": {
+    "inputs": {
+      "anything": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "🧹  Clean VRAM"
+    }
+  },
+  "180": {
+    "inputs": {
+      "anything": [
+        "179",
+        0
+      ]
+    },
+    "class_type": "easy clearCacheAll",
+    "_meta": {
+      "title": "🧹  Clear Cache"
+    }
+  },
+  "225": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "388",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "🔮  Model Sampling Aura Flow"
+    }
+  },
+  "332": {
+    "inputs": {
+      "images": [
+        "374",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "🔍  Final Image Preview"
+    }
+  },
+  "370": {
+    "inputs": {
+      "method": "non_local_means",
+      "strength": 0.42,
+      "preserve_detail": 1,
+      "luminance_strength": 0.5,
+      "color_strength": 0.5,
+      "patch_size": 3,
+      "search_window": 35,
+      "sigma_spatial": 75,
+      "sigma_color": 75,
+      "wavelet_level": 2,
+      "blend_original": 0.8,
+      "sharpen_mode": "luminance_only",
+      "sharpen_amount": 0.03,
+      "sharpen_radius": 0.05,
+      "image": [
+        "180",
+        0
+      ]
+    },
+    "class_type": "AdvancedImageDenoiser",
+    "_meta": {
+      "title": "🧹 Advanced Image Denoiser"
+    }
+  },
+  "373": {
+    "inputs": {
+      "master_strength": 0.72,
+      "seed": 4022444571,
+      "enable_tone_mapping": true,
+      "tone_strength": 0.5,
+      "highlight_rolloff": 0,
+      "shadow_lift": 0.42,
+      "contrast": 0.21,
+      "enable_p3_color": true,
+      "color_strength": 0.47,
+      "color_saturation": 0.13,
+      "color_warmth": 0.11,
+      "enable_local_tone": true,
+      "local_tone_strength": 0.16,
+      "detail_boost": 0.22,
+      "enable_skin_rendering": true,
+      "skin_strength": 0.3,
+      "skin_warmth": 0.16,
+      "enable_deep_fusion": true,
+      "fusion_strength": 0.22,
+      "fusion_texture_freq": 0.08,
+      "enable_white_balance": true,
+      "wb_strength": 0.21,
+      "wb_temperature": 0,
+      "wb_tint": 0,
+      "enable_color_grading": true,
+      "blue_shadows": 0.21,
+      "warm_highlights": 0.12,
+      "enable_sharpening": false,
+      "sharpen_strength": 0.06,
+      "enable_sensor": false,
+      "sensor_strength": 0.12,
+      "sensor_noise": 0.89,
+      "sensor_vignette": 0,
+      "image": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "CameraForensicRealismEngine",
+    "_meta": {
+      "title": "📷 Camera Forensic Realism"
+    }
+  },
+  "374": {
+    "inputs": {
+      "enable_upscale": false,
+      "upscale_model_path": "1x-ITF-SkinDiffDetail-Lite-v1.pth",
+      "downscale_by": 0.6,
+      "rescale_method": "bicubic",
+      "precision": "auto",
+      "batch_size": 1,
+      "enable_levels": true,
+      "exposure": 0,
+      "gamma": 1,
+      "brightness": 0,
+      "contrast": 1,
+      "saturation": 1,
+      "vibrance": 0.023,
+      "enable_color_wheels": false,
+      "lift_r": 0,
+      "lift_g": 0,
+      "lift_b": 0,
+      "gamma_r": 1,
+      "gamma_g": 1,
+      "gamma_b": 1,
+      "gain_r": 1,
+      "gain_g": 1,
+      "gain_b": 1,
+      "enable_temp_tint": false,
+      "temperature": 0,
+      "tint": 0,
+      "enable_sharpen": false,
+      "sharpen_strength": 0.165,
+      "sharpen_radius": 5,
+      "sharpen_threshold": 0.111,
+      "enable_small_glow": false,
+      "small_glow_intensity": 0.004,
+      "small_glow_radius": 1.446,
+      "small_glow_threshold": 0.647,
+      "enable_large_glow": false,
+      "large_glow_intensity": 0.25,
+      "large_glow_radius": 50,
+      "large_glow_threshold": 0.3,
+      "enable_glare": false,
+      "glare_type": "star_4",
+      "glare_intensity": 0.172,
+      "glare_length": 63.043,
+      "glare_angle": 0,
+      "glare_threshold": 0.756,
+      "glare_quality": 28,
+      "glare_ray_width": 1,
+      "enable_chromatic_aberration": false,
+      "ca_strength": 0.002,
+      "ca_edge_fallof": 2,
+      "enable_ca_hue_shift": false,
+      "ca_hue_shift_degrees": 0,
+      "enable_vignette": false,
+      "vignette_strength": 0.131,
+      "vignette_radius": 2.718,
+      "vignette_softness": 4,
+      "enable_radial_blur": false,
+      "radial_blur_type": "spin",
+      "radial_blur_strength": 0.005,
+      "radial_blur_center_x": 0.5,
+      "radial_blur_center_y": 0.25,
+      "radial_blur_falloff": 0.25,
+      "radial_blur_samples": 16,
+      "enable_film_grain": true,
+      "grain_intensity": 0.044,
+      "grain_size": 0.559,
+      "grain_color_amount": 0.015,
+      "enable_lens_distortion": false,
+      "barrel_distortion": 0.008,
+      "postprocess_ui": "",
+      "image": [
+        "526",
+        0
+      ]
+    },
+    "class_type": "CRT Post-Process Suite",
+    "_meta": {
+      "title": "🎬 CRT Post-Process Suite"
+    }
+  },
+  "388": {
+    "inputs": {
+      "lora_name": "RealisticSnapshot-Zimage-Turbov5.safetensors",
+      "strength_model": 0.7,
+      "strength_clip": 1,
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Загрузить LoRA"
+    }
+  },
+  "391": {
+    "inputs": {
+      "eta": 0.45,
+      "sampler_name": "exponential/res_2s",
+      "scheduler": "simple",
+      "steps": 8,
+      "steps_to_run": -1,
+      "denoise": 0.95,
+      "cfg": 1,
+      "seed": 694752459033126,
+      "sampler_mode": "standard",
+      "bongmath": true,
+      "model": [
+        "225",
+        0
+      ],
+      "positive": [
+        "175",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "latent_image": [
+        "29",
+        0
+      ]
+    },
+    "class_type": "ClownsharKSampler_Beta",
+    "_meta": {
+      "title": "ClownsharKSampler"
+    }
+  },
+  "394": {
+    "inputs": {
+      "seed": 958741862098561,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.4,
+      "model": [
+        "401",
+        0
+      ],
+      "positive": [
+        "175",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "latent_image": [
+        "391",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "395": {
+    "inputs": {
+      "samples": [
+        "391",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "🧬  VAE Decode"
+    }
+  },
+  "396": {
+    "inputs": {
+      "filename_prefix": "Z-Image",
+      "images": [
+        "395",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾  Save RAW  Image"
+    }
+  },
+  "401": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "🔮  Model Sampling Aura Flow"
+    }
+  },
+  "502": {
+    "inputs": {
+      "unet_name": "darkBeastMar0326Latest_dbkleinv2BFS.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "🧠 Klein BFS Model"
+    }
+  },
+  "504": {
+    "inputs": {
+      "clip_name": "qwen_3_8b.safetensors",
+      "type": "flux2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "📝 Klein CLIP"
+    }
+  },
+  "505": {
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "🔧 Klein VAE"
+    }
+  },
+  "506": {
+    "inputs": {
+      "text": "head_swap: start with Picture 1 as the base image, keeping its lighting, environment, and background. remove the head from Picture 1 completely and replace it with the head from Picture 2, strictly preserving the hair, eye color, nose structure of Picture 2. copy the direction of the eye, head rotation, micro expressions from Picture 1, high quality, sharp details, 4k.",
+      "clip": [
+        "504",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "✏️ BFS Swap Prompt"
+    }
+  },
+  "507": {
+    "inputs": {
+      "conditioning": [
+        "506",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "BFS Neg Cond"
+    }
+  },
+  "508": {
+    "inputs": {
+      "image": "syd.webp"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "📷 Reference Face"
+    }
+  },
+  "509": {
+    "inputs": {
+      "images": [
+        "508",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "👁️ Ref Face Preview"
+    }
+  },
+  "511": {
+    "inputs": {
+      "upscale_method": "bicubic",
+      "megapixels": 1,
+      "resolution_steps": 1,
+      "image": [
+        "508",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToTotalPixels",
+    "_meta": {
+      "title": "BFS1: Scale Ref"
+    }
+  },
+  "512": {
+    "inputs": {
+      "upscale_method": "bicubic",
+      "width": 1216,
+      "height": 1664,
+      "crop": "center",
+      "image": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "ImageScale",
+    "_meta": {
+      "title": "BFS1: Scale Source"
+    }
+  },
+  "513": {
+    "inputs": {
+      "image": [
+        "512",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "BFS1: Size"
+    }
+  },
+  "514": {
+    "inputs": {
+      "width": [
+        "513",
+        0
+      ],
+      "height": [
+        "513",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyFlux2LatentImage",
+    "_meta": {
+      "title": "BFS1: Empty Latent"
+    }
+  },
+  "515": {
+    "inputs": {
+      "pixels": [
+        "512",
+        0
+      ],
+      "vae": [
+        "505",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "BFS1: Encode Source"
+    }
+  },
+  "516": {
+    "inputs": {
+      "conditioning": [
+        "506",
+        0
+      ],
+      "latent": [
+        "515",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "BFS1: Ref Src→Pos"
+    }
+  },
+  "517": {
+    "inputs": {
+      "conditioning": [
+        "507",
+        0
+      ],
+      "latent": [
+        "515",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "BFS1: Ref Src→Neg"
+    }
+  },
+  "518": {
+    "inputs": {
+      "pixels": [
+        "511",
+        0
+      ],
+      "vae": [
+        "505",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "BFS1: Encode Ref"
+    }
+  },
+  "519": {
+    "inputs": {
+      "conditioning": [
+        "516",
+        0
+      ],
+      "latent": [
+        "518",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "BFS1: Ref Face→Pos"
+    }
+  },
+  "520": {
+    "inputs": {
+      "conditioning": [
+        "517",
+        0
+      ],
+      "latent": [
+        "518",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "BFS1: Ref Face→Neg"
+    }
+  },
+  "521": {
+    "inputs": {
+      "cfg": 1,
+      "model": [
+        "502",
+        0
+      ],
+      "positive": [
+        "519",
+        0
+      ],
+      "negative": [
+        "520",
+        0
+      ]
+    },
+    "class_type": "CFGGuider",
+    "_meta": {
+      "title": "BFS1: CFG"
+    }
+  },
+  "522": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "BFS1: Sampler"
+    }
+  },
+  "523": {
+    "inputs": {
+      "steps": 5,
+      "width": [
+        "513",
+        0
+      ],
+      "height": [
+        "513",
+        1
+      ]
+    },
+    "class_type": "Flux2Scheduler",
+    "_meta": {
+      "title": "BFS1: Schedule"
+    }
+  },
+  "524": {
+    "inputs": {
+      "noise_seed": 746
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "BFS1: Noise"
+    }
+  },
+  "525": {
+    "inputs": {
+      "noise": [
+        "524",
+        0
+      ],
+      "guider": [
+        "521",
+        0
+      ],
+      "sampler": [
+        "522",
+        0
+      ],
+      "sigmas": [
+        "523",
+        0
+      ],
+      "latent_image": [
+        "514",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "BFS1: Sample"
+    }
+  },
+  "526": {
+    "inputs": {
+      "samples": [
+        "525",
+        0
+      ],
+      "vae": [
+        "505",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "BFS1: Decode"
+    }
+  },
+  "527": {
+    "inputs": {
+      "filename_prefix": "BFS-1st",
+      "images": [
+        "526",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "💾 BFS 1st Result"
+    }
+  }
+}

@@ -1,9 +1,16 @@
-"""Dark Beast BFS face swap workflow — Klein9b 3-pass pipeline."""
+"""Dark Beast BFS face swap workflows.
+
+- Klein9b 3-pass pipeline (legacy): build_dark_bfs_workflow / run_dark_generate_bfs
+- Final T2I + BFS v5 (new):        build_t2i_bfs_workflow / run_t2i_bfs
+"""
 
 import base64
+import copy
 import io
+import json
 import logging
 import uuid
+from pathlib import Path
 
 from PIL import Image, ImageOps
 
@@ -346,3 +353,132 @@ async def run_dark_generate_bfs(
         logger.error("Failed to parse BFS result: %s", e)
         return None
 
+
+# ============================================================
+# Final T2I + BFS v5 — ZIT quality body + Klein BFS face swap
+# ============================================================
+
+_T2I_BFS_TEMPLATE: dict | None = None
+_T2I_BFS_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "Final t2i + BFS v5.json"
+
+
+def _load_t2i_bfs_template() -> dict:
+    """Load and cache the T2I+BFS workflow template."""
+    global _T2I_BFS_TEMPLATE
+    if _T2I_BFS_TEMPLATE is None:
+        with open(_T2I_BFS_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+            _T2I_BFS_TEMPLATE = json.load(f)
+        logger.info("Loaded T2I+BFS template: %s (%d nodes)", _T2I_BFS_TEMPLATE_PATH.name, len(_T2I_BFS_TEMPLATE))
+    return _T2I_BFS_TEMPLATE
+
+
+def build_t2i_bfs_workflow(
+    prompt: str,
+    negative: str = "blurry image",
+    aspect_ratio: str = "5:7 (Balanced Portrait)",
+    seed: int | None = None,
+) -> dict:
+    """Build T2I+BFS workflow from template JSON.
+
+    Patches:
+        Node 175 — positive prompt
+        Node 104 — negative prompt
+        Node 508 — reference face image (LoadImage → face_ref.png)
+        Node 28  — aspect ratio
+        Node 391 — sampler seed
+        Node 394 — refine seed
+        Node 524 — BFS noise seed
+    """
+    if seed is None:
+        seed = int(uuid.uuid4().int % (2**63))
+
+    template = _load_t2i_bfs_template()
+    wf = copy.deepcopy(template)
+
+    # ── Prompt ──
+    wf["175"]["inputs"]["text"] = prompt
+    wf["104"]["inputs"]["text"] = negative
+
+    # ── Aspect ratio ──
+    wf["28"]["inputs"]["aspect_ratio"] = aspect_ratio
+
+    # ── Face reference (will be uploaded as face_ref.png) ──
+    wf["508"]["inputs"]["image"] = "face_ref.png"
+
+    # ── Seeds ──
+    wf["391"]["inputs"]["seed"] = seed
+    wf["394"]["inputs"]["seed"] = seed + 1
+    wf["524"]["inputs"]["noise_seed"] = seed + 2
+
+    # ── Remove preview/comparer nodes (not needed on server) ──
+    for nid in ["51", "58", "509", "332"]:
+        wf.pop(nid, None)
+
+    # ── Remove old SaveImage nodes (keep only BFS final) ──
+    # Node 9 = save raw T2I, Node 396 = save raw pass1 — not needed
+    wf.pop("9", None)
+    wf.pop("396", None)
+
+    # ── Remove VRAM/Cache cleanup nodes & reconnect ──
+    # Chain was: 8→179→180→370→98→99→373
+    # Becomes:   8→370→373
+    for nid in ["98", "99", "179", "180"]:
+        wf.pop(nid, None)
+    wf["370"]["inputs"]["image"] = ["8", 0]     # Denoiser ← VAEDecode
+    wf["373"]["inputs"]["image"] = ["370", 0]   # CameraForensic ← Denoiser
+
+    return wf
+
+
+async def run_t2i_bfs(
+    face_image_bytes: bytes,
+    prompt: str,
+    negative: str = "blurry image",
+    aspect_ratio: str = "5:7 (Balanced Portrait)",
+) -> bytes | None:
+    """Run Final T2I + BFS v5 pipeline on RunPod V9 endpoint.
+
+    1. ZIT T2I generates high-quality body/scene
+    2. CameraForensic + CRT post-processing
+    3. Klein BFS swaps face from reference photo
+
+    Returns PNG bytes or None on failure.
+    """
+    # Prepare face image
+    face_b64 = _image_to_png_b64(face_image_bytes)
+
+    workflow = build_t2i_bfs_workflow(
+        prompt=prompt,
+        negative=negative,
+        aspect_ratio=aspect_ratio,
+    )
+    images = [{"name": "face_ref.png", "image": face_b64}]
+
+    logger.info(
+        "T2I+BFS job: prompt=%s, aspect=%s",
+        prompt[:60], aspect_ratio,
+    )
+
+    job_id = await submit_job(
+        workflow, images,
+        endpoint_id=config.RUNPOD_V9_ENDPOINT_ID,
+    )
+    if not job_id:
+        return None
+
+    output = await poll_job(
+        job_id, timeout=600,
+        endpoint_id=config.RUNPOD_V9_ENDPOINT_ID,
+    )
+    if not output:
+        return None
+
+    try:
+        result = _extract_file_from_output(output)
+        if not result:
+            logger.error("Could not extract image from T2I+BFS output")
+            return None
+        return result
+    except Exception as e:
+        logger.error("Failed to parse T2I+BFS result: %s", e)
+        return None
