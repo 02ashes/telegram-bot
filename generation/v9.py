@@ -206,8 +206,8 @@ def build_v9_workflow(
         lora_strength = 1.0
     else:
         trigger = ""
-        lora_name = _V9_FALLBACK_LORA
-        lora_strength = 1.0
+        lora_name = _V9_FALLBACK_LORA  # still need a valid filename for the node
+        lora_strength = 0.0  # effectively disabled — pure base model
 
     # ── Node 391 (NSFW LoRA Merger Pass 1): slot lora_2 = character/fallback ──
     wf["391"]["inputs"]["lora_2"] = lora_name
@@ -227,9 +227,9 @@ def build_v9_workflow(
             wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_template"].replace("{trigger}", trigger)
             wf[bypass_node]["inputs"][bypass_key] = True
         elif zone_cfg["always_on"]:
-            # No character + Face/Eyes/Hands: use fallback LoRA
+            # No character + Face/Eyes/Hands: disable LoRA — pure base model
             wf[lora_node]["inputs"]["lora_name"] = _V9_FALLBACK_LORA
-            wf[lora_node]["inputs"]["strength_model"] = zone_cfg["strength_model"]
+            wf[lora_node]["inputs"]["strength_model"] = 0.0
             wf[prompt_node]["inputs"]["text"] = zone_cfg["prompt_no_trigger"]
             wf[bypass_node]["inputs"][bypass_key] = True
         else:

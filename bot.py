@@ -1226,7 +1226,12 @@ async def send_result_to_user(
         if not user_id:
             return
 
-        caption = f"🎨 Your generation\n📝 {prompt[:900]}"
+        max_caption = 900  # Telegram caption limit is 1024 chars
+        prompt_text = prompt[:max_caption]
+        if len(prompt) > max_caption:
+            # Cut at last space to avoid mid-word truncation
+            prompt_text = prompt_text[:prompt_text.rfind(' ')] + '...'
+        caption = f"🎨 Your generation\n📝 {prompt_text}"
 
         # Uses shared _prepare_photo() helper defined above
 

@@ -238,17 +238,21 @@ def build_t2i_workflow(
         char = character_loras[0]
         trigger = char["trigger"]
         lora_name = char["lora_name"]
+        lora_strength_p1 = 0.8
+        lora_strength_p2 = 1.0
     else:
         trigger = ""
-        lora_name = _FALLBACK_LORA
+        lora_name = _FALLBACK_LORA  # still need a valid filename for the node
+        lora_strength_p1 = 0.0  # effectively disabled — pure base model
+        lora_strength_p2 = 0.0
 
     # Pass 1 LoRAs: node 387 (character) + 388 (RealisticSnapshot)
     wf["387"]["inputs"]["lora_name"] = lora_name
-    wf["387"]["inputs"]["strength_model"] = 0.8
+    wf["387"]["inputs"]["strength_model"] = lora_strength_p1
 
     # Pass 2 LoRA: node 400 (character only)
     wf["400"]["inputs"]["lora_name"] = lora_name
-    wf["400"]["inputs"]["strength_model"] = 1.0
+    wf["400"]["inputs"]["strength_model"] = lora_strength_p2
 
     # ── SDXL Pre-Definer toggle ──
     if not redefine:

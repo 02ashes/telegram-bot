@@ -12,7 +12,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "🧬  VAE Decode"
+      "title": "\ud83e\uddec  VAE Decode"
     }
   },
   "9": {
@@ -25,7 +25,7 @@
     },
     "class_type": "SaveImage",
     "_meta": {
-      "title": "💾  Save RAW  Image"
+      "title": "\ud83d\udcbe  Save RAW  Image"
     }
   },
   "16": {
@@ -35,7 +35,7 @@
     },
     "class_type": "UNETLoader",
     "_meta": {
-      "title": "🗂️  Load Diffusion Model  (*.st)"
+      "title": "\ud83d\uddc2\ufe0f  Load Diffusion Model  (*.st)"
     }
   },
   "17": {
@@ -44,7 +44,7 @@
     },
     "class_type": "VAELoader",
     "_meta": {
-      "title": "🧬  Load VAE"
+      "title": "\ud83e\uddec  Load VAE"
     }
   },
   "18": {
@@ -55,7 +55,7 @@
     },
     "class_type": "CLIPLoader",
     "_meta": {
-      "title": "🔤  Load CLIP"
+      "title": "\ud83d\udd24  Load CLIP"
     }
   },
   "28": {
@@ -68,7 +68,7 @@
     },
     "class_type": "FluxResolutionNode",
     "_meta": {
-      "title": "🔳  Base Resolution"
+      "title": "\ud83d\udd33  Base Resolution"
     }
   },
   "29": {
@@ -85,7 +85,7 @@
     },
     "class_type": "EmptySD3LatentImage",
     "_meta": {
-      "title": "🔢  Latent Image"
+      "title": "\ud83d\udd22  Latent Image"
     }
   },
   "51": {
@@ -115,7 +115,7 @@
     },
     "class_type": "Image Comparer (rgthree)",
     "_meta": {
-      "title": "🆚  Compare (Color Graded Image vs. RAW Image)"
+      "title": "\ud83c\udd9a  Compare (Color Graded Image vs. RAW Image)"
     }
   },
   "58": {
@@ -130,7 +130,7 @@
     },
     "class_type": "PreviewAny",
     "_meta": {
-      "title": "↕️  Calculated Resolution"
+      "title": "\u2195\ufe0f  Calculated Resolution"
     }
   },
   "68": {
@@ -160,7 +160,7 @@
     },
     "class_type": "Image Comparer (rgthree)",
     "_meta": {
-      "title": "🆚  Compare (Detailer Image vs. RAW Image)"
+      "title": "\ud83c\udd9a  Compare (Detailer Image vs. RAW Image)"
     }
   },
   "84": {
@@ -170,7 +170,7 @@
     },
     "class_type": "SAMLoader",
     "_meta": {
-      "title": "🔍  SAM Loader (Impact)"
+      "title": "\ud83d\udd0d  SAM Loader (Impact)"
     }
   },
   "91": {
@@ -184,7 +184,7 @@
     },
     "class_type": "ImageScaleBy",
     "_meta": {
-      "title": "⬇️  Downscale 4 better Upscale"
+      "title": "\u2b07\ufe0f  Downscale 4 better Upscale"
     }
   },
   "92": {
@@ -199,7 +199,7 @@
     },
     "class_type": "SeedVR2LoadDiTModel",
     "_meta": {
-      "title": "🗂️  SeedVR2 Load DiT Model"
+      "title": "\ud83d\uddc2\ufe0f  SeedVR2 Load DiT Model"
     }
   },
   "93": {
@@ -218,7 +218,7 @@
     },
     "class_type": "SeedVR2LoadVAEModel",
     "_meta": {
-      "title": "🧬  SeedVR2 Load VAE Model"
+      "title": "\ud83e\uddec  SeedVR2 Load VAE Model"
     }
   },
   "94": {
@@ -250,7 +250,7 @@
     },
     "class_type": "SeedVR2VideoUpscaler",
     "_meta": {
-      "title": "⬆️  SeedVR2 Upscaler"
+      "title": "\u2b06\ufe0f  SeedVR2 Upscaler"
     }
   },
   "98": {
@@ -262,7 +262,7 @@
     },
     "class_type": "easy cleanGpuUsed",
     "_meta": {
-      "title": "🧹  Clean VRAM"
+      "title": "\ud83e\uddf9  Clean VRAM"
     }
   },
   "99": {
@@ -274,7 +274,7 @@
     },
     "class_type": "easy clearCacheAll",
     "_meta": {
-      "title": "🧹  Clear Cache"
+      "title": "\ud83e\uddf9  Clear Cache"
     }
   },
   "100": {
@@ -287,7 +287,7 @@
     },
     "class_type": "SaveImage",
     "_meta": {
-      "title": "💾  Save Final Image"
+      "title": "\ud83d\udcbe  Save Final Image"
     }
   },
   "101": {
@@ -317,7 +317,7 @@
     },
     "class_type": "Image Comparer (rgthree)",
     "_meta": {
-      "title": "🆚  Compare (SeedVR2 Upscale vs. RAW Image)"
+      "title": "\ud83c\udd9a  Compare (SeedVR2 Upscale vs. RAW Image)"
     }
   },
   "104": {
@@ -330,12 +330,12 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Negative Prompt   (not used for ZIT / only for Base Model)"
+      "title": "\u2796  Negative Prompt   (not used for ZIT / only for Base Model)"
     }
   },
   "175": {
     "inputs": {
-      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n光影, 氛围感, 构图, 细腻, amateur photo, film grain\n\n\n\n\n\n\n\n\n\n",
+      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n\u5149\u5f71, \u6c1b\u56f4\u611f, \u6784\u56fe, \u7ec6\u817b, amateur photo, film grain\n\n\n\n\n\n\n\n\n\n",
       "clip": [
         "388",
         1
@@ -343,7 +343,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Positive Prompt   (Use natural language / 100-300 words)"
+      "title": "\u2795  Positive Prompt   (Use natural language / 100-300 words)"
     }
   },
   "176": {
@@ -352,7 +352,7 @@
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
-      "title": "🗂️  Load SDXL / Pony / Illustrious Model"
+      "title": "\ud83d\uddc2\ufe0f  Load SDXL / Pony / Illustrious Model"
     }
   },
   "177": {
@@ -365,12 +365,12 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Negative Prompt  (SDXL / PONY)"
+      "title": "\u2796  Negative Prompt  (SDXL / PONY)"
     }
   },
   "178": {
     "inputs": {
-      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n光影, 氛围感, 构图, 细腻, amateur photo, film grain\n",
+      "text": "misu, Raw intimate POV photograph taken from above. A young European woman with dark hair and visible tattoos on her chest, looking directly up at the camera with intense eye contact, wide dark eyes with long eyelashes, natural skin with visible pores and light perspiration.\n\nShe is performing oral sex, her lips wrapped around a large erect penis viewed from the male POV perspective. Her hands are placed on his thighs for support. Her dark hair is slightly messy and falling around her face.\n\nWarm moody teal-orange color grading with soft directional sidelight creating dramatic shadows across her face. Shallow depth of field with the background softly blurred. The lighting is dim and intimate, casting deep shadows under her cheekbones and jawline.\n\nClose-up framing, slightly tilted angle, imperfect amateur composition. Realistic skin texture with natural imperfections, high-ISO noise, soft film grain. Intimate bedroom atmosphere.\n\n\u5149\u5f71, \u6c1b\u56f4\u611f, \u6784\u56fe, \u7ec6\u817b, amateur photo, film grain\n",
       "clip": [
         "185",
         1
@@ -378,7 +378,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Positive Prompt  (SDXL / PONY)"
+      "title": "\u2795  Positive Prompt  (SDXL / PONY)"
     }
   },
   "179": {
@@ -390,7 +390,7 @@
     },
     "class_type": "easy cleanGpuUsed",
     "_meta": {
-      "title": "🧹  Clean VRAM"
+      "title": "\ud83e\uddf9  Clean VRAM"
     }
   },
   "180": {
@@ -402,7 +402,7 @@
     },
     "class_type": "easy clearCacheAll",
     "_meta": {
-      "title": "🧹  Clear Cache"
+      "title": "\ud83e\uddf9  Clear Cache"
     }
   },
   "183": {
@@ -415,7 +415,7 @@
     },
     "class_type": "CLIPSetLastLayer",
     "_meta": {
-      "title": "🔒  CLIP Set Last Layer"
+      "title": "\ud83d\udd12  CLIP Set Last Layer"
     }
   },
   "185": {
@@ -448,7 +448,7 @@
         "lora": "SDXL\\(SDXL)_RawfullyStylishForSDXL0.2.safetensors",
         "strength": 1
       },
-      "➕ Add Lora": "",
+      "\u2795 Add Lora": "",
       "model": [
         "176",
         0
@@ -460,7 +460,7 @@
     },
     "class_type": "Power Lora Loader (rgthree)",
     "_meta": {
-      "title": "🧩  SDXL / PONY Lora Loader"
+      "title": "\ud83e\udde9  SDXL / PONY Lora Loader"
     }
   },
   "225": {
@@ -473,7 +473,7 @@
     },
     "class_type": "ModelSamplingAuraFlow",
     "_meta": {
-      "title": "🔮  Model Sampling Aura Flow"
+      "title": "\ud83d\udd2e  Model Sampling Aura Flow"
     }
   },
   "254": {
@@ -492,7 +492,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "🧩  SDXL Face Lora Loader"
+      "title": "\ud83e\udde9  SDXL Face Lora Loader"
     }
   },
   "255": {
@@ -505,7 +505,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Face (Positive Prompt)"
+      "title": "\u2795  Face (Positive Prompt)"
     }
   },
   "256": {
@@ -518,7 +518,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Face (Negative Prompt)"
+      "title": "\u2796  Face (Negative Prompt)"
     }
   },
   "257": {
@@ -553,7 +553,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "🧩  SDXL Eyes Lora Loader"
+      "title": "\ud83e\udde9  SDXL Eyes Lora Loader"
     }
   },
   "261": {
@@ -572,7 +572,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "🧩  SDXL Hands Lora Loader"
+      "title": "\ud83e\udde9  SDXL Hands Lora Loader"
     }
   },
   "267": {
@@ -586,7 +586,7 @@
     },
     "class_type": "ImageScaleBy",
     "_meta": {
-      "title": "⬆️  Upscale Image By"
+      "title": "\u2b06\ufe0f  Upscale Image By"
     }
   },
   "268": {
@@ -647,7 +647,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Eyes (Positive Prompt)"
+      "title": "\u2795  Eyes (Positive Prompt)"
     }
   },
   "278": {
@@ -660,7 +660,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Eyes (Negative Prompt)"
+      "title": "\u2796  Eyes (Negative Prompt)"
     }
   },
   "279": {
@@ -705,7 +705,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Hands (Positive Prompt)"
+      "title": "\u2795  Hands (Positive Prompt)"
     }
   },
   "283": {
@@ -718,7 +718,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Hands (Negative Prompt)"
+      "title": "\u2796  Hands (Negative Prompt)"
     }
   },
   "286": {
@@ -748,7 +748,7 @@
     },
     "class_type": "Image Comparer (rgthree)",
     "_meta": {
-      "title": "🆚  Compare PreDefined vs. RAW"
+      "title": "\ud83c\udd9a  Compare PreDefined vs. RAW"
     }
   },
   "287": {
@@ -857,7 +857,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Foot (Positive Prompt)"
+      "title": "\u2795  Foot (Positive Prompt)"
     }
   },
   "296": {
@@ -870,7 +870,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Foot (Negative Prompt)"
+      "title": "\u2796  Foot (Negative Prompt)"
     }
   },
   "300": {
@@ -883,7 +883,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Nipples (Positive Prompt)"
+      "title": "\u2795  Nipples (Positive Prompt)"
     }
   },
   "301": {
@@ -896,7 +896,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Nipples (Negative Prompt)"
+      "title": "\u2796  Nipples (Negative Prompt)"
     }
   },
   "302": {
@@ -909,7 +909,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Pussy (Positive Prompt)"
+      "title": "\u2795  Pussy (Positive Prompt)"
     }
   },
   "303": {
@@ -922,7 +922,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Pussy (Negative Prompt)"
+      "title": "\u2796  Pussy (Negative Prompt)"
     }
   },
   "305": {
@@ -931,61 +931,61 @@
     },
     "class_type": "StepSlider",
     "_meta": {
-      "title": "🪜  Detailers Step Slider"
+      "title": "\ud83e\ude9c  Detailers Step Slider"
     }
   },
   "314": {
     "inputs": {
-      "Enable 🧩  SDXL Face Lora Loader": true
+      "Enable \ud83e\udde9  SDXL Face Lora Loader": true
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Face Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Face Lora Loader"
     }
   },
   "316": {
     "inputs": {
-      "Enable 🧩  SDXL Eyes Lora Loader": true
+      "Enable \ud83e\udde9  SDXL Eyes Lora Loader": true
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Eyes Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Eyes Lora Loader"
     }
   },
   "317": {
     "inputs": {
-      "Enable 🧩  SDXL Hands Lora Loader": true
+      "Enable \ud83e\udde9  SDXL Hands Lora Loader": true
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Hands Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Hands Lora Loader"
     }
   },
   "318": {
     "inputs": {
-      "Enable 🧩  SDXL Foot Lora Loader": false
+      "Enable \ud83e\udde9  SDXL Foot Lora Loader": false
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Foot Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Foot Lora Loader"
     }
   },
   "319": {
     "inputs": {
-      "Enable 🧩  SDXL Nipples Lora Loader": false
+      "Enable \ud83e\udde9  SDXL Nipples Lora Loader": false
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Nipples Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Nipples Lora Loader"
     }
   },
   "320": {
     "inputs": {
-      "Enable 🧩  SDXL Pussy Lora Loader": false
+      "Enable \ud83e\udde9  SDXL Pussy Lora Loader": false
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Pussy Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Pussy Lora Loader"
     }
   },
   "323": {
@@ -1002,16 +1002,16 @@
     },
     "class_type": "easy imageSwitch",
     "_meta": {
-      "title": "🛡️  Face Preservation Switch"
+      "title": "\ud83d\udee1\ufe0f  Face Preservation Switch"
     }
   },
   "325": {
     "inputs": {
-      "Enable 🧩  SDXL Penis Lora Loader": false
+      "Enable \ud83e\udde9  SDXL Penis Lora Loader": false
     },
     "class_type": "FastNodeBypasser",
     "_meta": {
-      "title": "🎚️  Enable / Disable Penis Lora Loader"
+      "title": "\ud83c\udf9a\ufe0f  Enable / Disable Penis Lora Loader"
     }
   },
   "327": {
@@ -1024,7 +1024,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➕  Penis (Positive Prompt)"
+      "title": "\u2795  Penis (Positive Prompt)"
     }
   },
   "328": {
@@ -1037,7 +1037,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "➖  Penis (Negative Prompt)"
+      "title": "\u2796  Penis (Negative Prompt)"
     }
   },
   "332": {
@@ -1049,7 +1049,7 @@
     },
     "class_type": "PreviewImage",
     "_meta": {
-      "title": "🔍  Final Image Preview"
+      "title": "\ud83d\udd0d  Final Image Preview"
     }
   },
   "363": {
@@ -1107,7 +1107,7 @@
     },
     "class_type": "AdvancedImageDenoiser",
     "_meta": {
-      "title": "🧹 Advanced Image Denoiser"
+      "title": "\ud83e\uddf9 Advanced Image Denoiser"
     }
   },
   "373": {
@@ -1152,7 +1152,7 @@
     },
     "class_type": "CameraForensicRealismEngine",
     "_meta": {
-      "title": "📷 Camera Forensic Realism"
+      "title": "\ud83d\udcf7 Camera Forensic Realism"
     }
   },
   "374": {
@@ -1220,7 +1220,7 @@
       "radial_blur_falloff": 0.25,
       "radial_blur_samples": 16,
       "enable_film_grain": true,
-      "grain_intensity": 0.005,
+      "grain_intensity": 0.044,
       "grain_size": 0.559,
       "grain_color_amount": 0.015,
       "enable_lens_distortion": false,
@@ -1233,7 +1233,7 @@
     },
     "class_type": "CRT Post-Process Suite",
     "_meta": {
-      "title": "🎬 CRT Post-Process Suite"
+      "title": "\ud83c\udfac CRT Post-Process Suite"
     }
   },
   "387": {
@@ -1252,7 +1252,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "Загрузить LoRA"
+      "title": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c LoRA"
     }
   },
   "388": {
@@ -1271,7 +1271,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "Загрузить LoRA"
+      "title": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c LoRA"
     }
   },
   "391": {
@@ -1351,7 +1351,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "🧬  VAE Decode"
+      "title": "\ud83e\uddec  VAE Decode"
     }
   },
   "396": {
@@ -1364,7 +1364,7 @@
     },
     "class_type": "SaveImage",
     "_meta": {
-      "title": "💾  Save RAW  Image"
+      "title": "\ud83d\udcbe  Save RAW  Image"
     }
   },
   "400": {
@@ -1383,7 +1383,7 @@
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "Загрузить LoRA"
+      "title": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c LoRA"
     }
   },
   "401": {
@@ -1396,7 +1396,7 @@
     },
     "class_type": "ModelSamplingAuraFlow",
     "_meta": {
-      "title": "🔮  Model Sampling Aura Flow"
+      "title": "\ud83d\udd2e  Model Sampling Aura Flow"
     }
   },
   "309:308": {
@@ -1449,7 +1449,7 @@
     },
     "class_type": "UltimateSDUpscaleNoUpscale",
     "_meta": {
-      "title": "✨  Ultimate Pre-Definer"
+      "title": "\u2728  Ultimate Pre-Definer"
     }
   },
   "324:358": {
@@ -1481,7 +1481,7 @@
     },
     "class_type": "ImageCompositeMasked",
     "_meta": {
-      "title": "Составное изображение с маской"
+      "title": "\u0421\u043e\u0441\u0442\u0430\u0432\u043d\u043e\u0435 \u0438\u0437\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u0435 \u0441 \u043c\u0430\u0441\u043a\u043e\u0439"
     }
   },
   "324:361": {
