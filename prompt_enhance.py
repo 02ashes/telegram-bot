@@ -270,62 +270,83 @@ async def enhance_prompt(
         })
         used_vision = False
 
-    # Call API
+    # Call API with retry
+    max_retries = 2
     start = time.monotonic()
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{api_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": VISION_MODEL if used_vision else TEXT_MODEL,
-                    "messages": messages,
-                    "max_tokens": 800,
-                    "temperature": 0.7,
-                    "stream": False,
-                    "enable_thinking": False,  # disable CoT for speed
-                },
-                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
-            ) as resp:
-                elapsed_ms = int((time.monotonic() - start) * 1000)
 
-                if resp.status != 200:
-                    error_text = await resp.text()
-                    logger.error(
-                        "SiliconFlow API error %d: %s", resp.status, error_text[:300]
+    for attempt in range(max_retries + 1):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{api_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": VISION_MODEL if used_vision else TEXT_MODEL,
+                        "messages": messages,
+                        "max_tokens": 800,
+                        "temperature": 0.7,
+                        "stream": False,
+                        "enable_thinking": False,  # disable CoT for speed
+                    },
+                    timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
+                ) as resp:
+                    elapsed_ms = int((time.monotonic() - start) * 1000)
+
+                    if resp.status >= 500 and attempt < max_retries:
+                        error_text = await resp.text()
+                        logger.warning(
+                            "SiliconFlow API 5xx (attempt %d/%d): %s — retrying...",
+                            attempt + 1, max_retries + 1, error_text[:200],
+                        )
+                        await asyncio.sleep(1 * (attempt + 1))  # 1s, 2s backoff
+                        continue
+
+                    if resp.status != 200:
+                        error_text = await resp.text()
+                        logger.error(
+                            "SiliconFlow API error %d: %s", resp.status, error_text[:300]
+                        )
+                        return _fallback(user_prompt, elapsed_ms)
+
+                    data = await resp.json()
+                    enhanced = data["choices"][0]["message"]["content"].strip()
+
+                    # Clean up: remove markdown quotes, thinking tags, etc.
+                    enhanced = _clean_response(enhanced)
+
+                    logger.info(
+                        "Prompt enhanced in %dms (vision=%s, attempt=%d): '%s' → '%s'",
+                        elapsed_ms, used_vision, attempt + 1, user_prompt[:50], enhanced[:80],
                     )
-                    return _fallback(user_prompt, elapsed_ms)
 
-                data = await resp.json()
-                enhanced = data["choices"][0]["message"]["content"].strip()
+                    return {
+                        "enhanced": enhanced,
+                        "original": user_prompt,
+                        "model": VISION_MODEL if used_vision else TEXT_MODEL,
+                        "time_ms": elapsed_ms,
+                        "used_vision": used_vision,
+                    }
 
-                # Clean up: remove markdown quotes, thinking tags, etc.
-                enhanced = _clean_response(enhanced)
-
-                logger.info(
-                    "Prompt enhanced in %dms (vision=%s): '%s' → '%s'",
-                    elapsed_ms, used_vision, user_prompt[:50], enhanced[:80],
+        except asyncio.TimeoutError:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            if attempt < max_retries:
+                logger.warning(
+                    "SiliconFlow API timeout (attempt %d/%d, %dms) — retrying...",
+                    attempt + 1, max_retries + 1, elapsed_ms,
                 )
+                continue
+            logger.warning("SiliconFlow API timeout after %dms — using original prompt", elapsed_ms)
+            return _fallback(user_prompt, elapsed_ms)
+        except Exception as e:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            logger.exception("Prompt enhance error: %s", e)
+            return _fallback(user_prompt, elapsed_ms)
 
-                return {
-                    "enhanced": enhanced,
-                    "original": user_prompt,
-                    "model": VISION_MODEL if used_vision else TEXT_MODEL,
-                    "time_ms": elapsed_ms,
-                    "used_vision": used_vision,
-                }
-
-    except asyncio.TimeoutError:
-        elapsed_ms = int((time.monotonic() - start) * 1000)
-        logger.warning("SiliconFlow API timeout after %dms — using original prompt", elapsed_ms)
-        return _fallback(user_prompt, elapsed_ms)
-    except Exception as e:
-        elapsed_ms = int((time.monotonic() - start) * 1000)
-        logger.exception("Prompt enhance error: %s", e)
-        return _fallback(user_prompt, elapsed_ms)
+    # Should not reach here, but just in case
+    return _fallback(user_prompt, int((time.monotonic() - start) * 1000))
 
 
 def _fallback(user_prompt: str, time_ms: int = 0) -> dict:
@@ -490,66 +511,85 @@ async def classify_and_enhance(
         messages.append({"role": "user", "content": user_message})
 
     start = time.monotonic()
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{api_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": VISION_MODEL if used_vision else TEXT_MODEL,
-                    "messages": messages,
-                    "max_tokens": 300,  # classification only — short response
-                    "temperature": 0.3,  # low temp for reliable classification
-                    "stream": False,
-                    "enable_thinking": False,
-                },
-                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
-            ) as resp:
-                classify_ms = int((time.monotonic() - start) * 1000)
+    max_retries = 2
 
-                if resp.status != 200:
-                    error_text = await resp.text()
-                    logger.error("Magic classify API error %d: %s", resp.status, error_text[:300])
-                    return _keyword_fallback()
+    for attempt in range(max_retries + 1):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{api_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": VISION_MODEL if used_vision else TEXT_MODEL,
+                        "messages": messages,
+                        "max_tokens": 300,  # classification only — short response
+                        "temperature": 0.3,  # low temp for reliable classification
+                        "stream": False,
+                        "enable_thinking": False,
+                    },
+                    timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
+                ) as resp:
+                    classify_ms = int((time.monotonic() - start) * 1000)
 
-                data = await resp.json()
-                raw = data["choices"][0]["message"]["content"].strip()
+                    if resp.status >= 500 and attempt < max_retries:
+                        error_text = await resp.text()
+                        logger.warning(
+                            "Magic classify 5xx (attempt %d/%d): %s — retrying...",
+                            attempt + 1, max_retries + 1, error_text[:200],
+                        )
+                        await asyncio.sleep(1 * (attempt + 1))
+                        continue
 
-                # Clean LLM artifacts
-                raw = _clean_response(raw)
-
-                # Parse JSON response
-                try:
-                    result = _json.loads(raw)
-                except _json.JSONDecodeError:
-                    # Try to extract JSON from the response
-                    import re
-                    json_match = re.search(r'\{[^{}]*\}', raw)
-                    if json_match:
-                        result = _json.loads(json_match.group())
-                    else:
-                        logger.warning("Failed to parse classify response: %s", raw[:200])
+                    if resp.status != 200:
+                        error_text = await resp.text()
+                        logger.error("Magic classify API error %d: %s", resp.status, error_text[:300])
                         return _keyword_fallback()
 
-                intent = result.get("intent", "EDIT" if has_image else "CREATE")
-                nsfw = result.get("nsfw", True)
-                denoise = float(result.get("denoise", 0.75 if intent == "EDIT" else 0.0))
-                body_desc = result.get("body_desc", "")
+                    data = await resp.json()
+                    raw = data["choices"][0]["message"]["content"].strip()
 
-                logger.info(
-                    "Magic classified in %dms: intent=%s, nsfw=%s, denoise=%s, body=%s",
-                    classify_ms, intent, nsfw, denoise, body_desc[:60],
+                    # Clean LLM artifacts
+                    raw = _clean_response(raw)
+
+                    # Parse JSON response
+                    try:
+                        result = _json.loads(raw)
+                    except _json.JSONDecodeError:
+                        # Try to extract JSON from the response
+                        import re
+                        json_match = re.search(r'\{[^{}]*\}', raw)
+                        if json_match:
+                            result = _json.loads(json_match.group())
+                        else:
+                            logger.warning("Failed to parse classify response: %s", raw[:200])
+                            return _keyword_fallback()
+
+                    intent = result.get("intent", "EDIT" if has_image else "CREATE")
+                    nsfw = result.get("nsfw", True)
+                    denoise = float(result.get("denoise", 0.75 if intent == "EDIT" else 0.0))
+                    body_desc = result.get("body_desc", "")
+
+                    logger.info(
+                        "Magic classified in %dms (attempt=%d): intent=%s, nsfw=%s, denoise=%s, body=%s",
+                        classify_ms, attempt + 1, intent, nsfw, denoise, body_desc[:60],
+                    )
+                    break  # success — exit retry loop
+
+        except asyncio.TimeoutError:
+            if attempt < max_retries:
+                logger.warning(
+                    "Magic classify timeout (attempt %d/%d) — retrying...",
+                    attempt + 1, max_retries + 1,
                 )
-
-    except asyncio.TimeoutError:
-        logger.warning("Magic classify timeout — using keyword fallback")
-        return _keyword_fallback()
-    except Exception as e:
-        logger.exception("Magic classify error: %s", e)
-        return _keyword_fallback()
+                continue
+            logger.warning("Magic classify timeout — using keyword fallback")
+            return _keyword_fallback()
+        except Exception as e:
+            logger.exception("Magic classify error: %s", e)
+            return _keyword_fallback()
 
     # ─── STEP 2: ENHANCE with pipeline-specific prompt ────────
     # Map intent to pipeline mode
