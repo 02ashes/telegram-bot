@@ -467,10 +467,15 @@ Look at the uploaded photo carefully. Identify:
 - EDIT: SURFACE-LEVEL changes only. Body pose stays THE SAME. Only clothes, accessories, skin exposure, hair color change.
   Examples: "remove clothes", "undress", "nude", "topless", "change outfit", "add tattoo", "micro bikini", "make her naked"
   
-- TRANSFORM: NEW POSE, ACTION, or SCENE. Body moves or repositions. Sex acts, new locations, new poses.
-  Examples: "sucking dick", "blowjob", "doggy style", "on the beach", "bending over", "riding", "kneeling", "lying down", "spreading legs", "imagine her in gym"
+- TRANSFORM: NEW POSE, ACTION, or SCENE. Body moves or repositions. Sex acts, new locations, new poses. Also: when user describes a COMPLETELY NEW SCENE using the uploaded photo as a face/body reference.
+  Examples: "sucking dick", "blowjob", "doggy style", "on the beach", "bending over", "riding", "kneeling", "lying down", "spreading legs", "imagine her in gym", "selfie in mirror", "селфи у зеркала", any scene description that differs from the original photo
   
-- CREATE: No photo uploaded → always CREATE.
+- CREATE: ONLY when NO photo is uploaded. Never use CREATE if a photo is present.
+
+CRITICAL RULE: If "Photo uploaded: YES" → intent is ALWAYS either EDIT or TRANSFORM. NEVER CREATE.
+- Photo + minor change (clothes, nudity) → EDIT
+- Photo + new pose/scene/action → TRANSFORM
+- No photo → CREATE
 
 ## STEP 3: DETERMINE DENOISE
 For EDIT only:
@@ -534,12 +539,30 @@ async def classify_and_enhance(
                 "fucking", "doggy", "missionary", "cowgirl", "reverse",
                 "kneeling", "bending over", "spreading", "squatting",
                 "on all fours", "lying down", "on her knees",
+                # New scene descriptions (RU) → TRANSFORM
+                "селфи", "у зеркала", "в комнате", "в спальне", "в ванной",
+                "на кровати", "на полу", "ночное", "в машине", "на кухне",
+                "в подъезде", "курит", "сидит", "стоит", "лежит",
+                "фотка", "фотография", "делает фото", "снимает",
+                # New scene descriptions (EN) → TRANSFORM
+                "selfie", "mirror", "bedroom", "bathroom", "kitchen",
+                "in a room", "at night", "smoking", "taking a photo",
             ]
-            if any(kw in prompt_lower for kw in transform_keywords):
-                _intent = "TRANSFORM"
-            else:
+            # Check for EDIT keywords first (simple surface changes)
+            edit_keywords = [
+                "remove", "undress", "nude", "naked", "topless",
+                "change outfit", "change clothes", "add tattoo",
+                "убери", "раздень", "голая", "сними", "переодень",
+                "micro bikini", "бикини",
+            ]
+            if any(kw in prompt_lower for kw in edit_keywords) and not any(kw in prompt_lower for kw in transform_keywords):
                 _intent = "EDIT"
                 _denoise = 0.75
+            elif any(kw in prompt_lower for kw in transform_keywords):
+                _intent = "TRANSFORM"
+            else:
+                # Default for photo + unrecognized prompt → TRANSFORM (safer than EDIT)
+                _intent = "TRANSFORM"
 
         return _intent, _nsfw, _denoise, ""  # intent, nsfw, denoise, body_desc
 
