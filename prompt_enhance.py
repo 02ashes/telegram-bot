@@ -128,7 +128,19 @@ MANDATORY PROMPT STRUCTURE (write as flowing connected paragraphs, NOT labeled s
 
 4) LIGHTING — ALWAYS use NATURAL/AMBIENT light sources that exist in real life: "warm tungsten light from bedside lamp on nightstand", "harsh overhead bathroom fluorescent", "soft natural daylight from bedroom window with sheer curtains", "phone screen glow illuminating face in dark room", "ring light reflecting in eyes". NEVER use studio lighting terms like "softbox", "key light", "fill light". Describe how light falls on skin: shadows, highlights, warm/cool tones.
 
-5) CAMERA — ALWAYS smartphone. Default: "Shot on iPhone 15 Pro, front-facing camera, 12mm equivalent, f/1.9, computational HDR, auto white balance". For selfies: "handheld high-angle selfie, arm extended, phone visible in frame". For mirror shots: "mirror selfie, phone held at chest level". NEVER use DSLR or professional camera terms.
+5) CAMERA — ALWAYS smartphone. Default: "Shot on iPhone 15 Pro, front-facing camera, 12mm equivalent, f/1.9, computational HDR, auto white balance".
+
+SELFIE RULES (when user says "selfie", "селфи", or "делает фото себя"):
+- Camera is the PHONE in her OWN hand pointed at her face
+- Angle: slightly above face level (classic selfie angle), arm extended upward at ~45 degrees
+- Framing: CLOSE-UP, face fills 60-70% of frame, shoulders/upper chest visible
+- Her eyes look DIRECTLY into the camera lens (not down at phone, not to the side)
+- One arm visibly extended toward camera, slight wide-angle lens distortion on the hand/arm closest to camera
+- Background compressed and slightly blurred (smartphone portrait mode)
+- The photo must look like SHE took it herself — NOT like someone else photographed her
+- NEVER describe her "holding phone at low angle" or "arm at side" — that's NOT a selfie
+
+For mirror shots: "mirror selfie, phone held at chest level, phone visible in reflection". NEVER use DSLR or professional camera terms.
 
 6) ATMOSPHERE & POST-PROCESSING — style is ALWAYS "leaked amateur nudes" — raw, unedited, authentic. Think phone photos that were never meant to be public: "raw, unprocessed phone photo, no filters, no editing, harsh direct lighting, unflattering angles, real skin with blemishes". NEVER use words like "cinematic", "editorial", "professional", "polished".
 
