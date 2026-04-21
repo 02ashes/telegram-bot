@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -19,10 +20,13 @@
         }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=81">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body class="bg-[#020205] text-white font-sans overflow-x-hidden">
     <!-- Aurora Background -->
     <div class="aurora-bg"></div>
@@ -36,12 +40,20 @@
             <header class="flex justify-between items-center px-2 anim-fade-in">
                 <div class="space-y-1">
                     <h1 class="font-display text-4xl font-bold tracking-tight text-white flex items-center gap-3">
-                        Angel <svg class="floating text-[#ff2d95] fill-[#ff2d95]" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3.332.834-4.5 2.105C10.832 3.834 9.26 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        Angel <svg class="floating text-[#ff2d95] fill-[#ff2d95]" width="28" height="28"
+                            viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                            <path
+                                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3.332.834-4.5 2.105C10.832 3.834 9.26 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                        </svg>
                     </h1>
-                    <p class="text-[10px] uppercase tracking-[0.4em] text-white/50 font-black">Neural Synthesis // Elite</p>
+                    <p class="text-[10px] uppercase tracking-[0.4em] text-white/50 font-black">Arena</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl aurora-card flex items-center justify-center text-[#ff2d95] shadow-lg shadow-pink-500/20 hover-rotate" id="tokenCount">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <div class="w-12 h-12 rounded-2xl aurora-card flex items-center justify-center text-[#ff2d95] shadow-lg shadow-pink-500/20 hover-rotate"
+                    id="tokenCount">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
                 </div>
             </header>
 
@@ -51,14 +63,40 @@
             <nav class="aurora-card p-2 flex gap-2 top-tabs anim-fade-in anim-delay-1 relative" id="tabNav">
                 <!-- Sliding pill (AI Studio layoutId animation) -->
                 <div class="tab-pill" id="tabPill"></div>
-                <button class="top-tab relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white/30 hover:text-white/50" id="tabFaq" data-tab="faq">
-                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> faq</span>
+                <button
+                    class="top-tab relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white/30 hover:text-white/50"
+                    id="tabFaq" data-tab="faq">
+                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg> faq</span>
                 </button>
-                <button class="top-tab active relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white" id="tabGenerate" data-tab="generate">
-                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> generation</span>
+                <button
+                    class="top-tab active relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white"
+                    id="tabGenerate" data-tab="generate">
+                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                            <path d="M5 3v4" />
+                            <path d="M19 17v4" />
+                            <path d="M3 5h4" />
+                            <path d="M17 19h4" />
+                        </svg> generation</span>
                 </button>
-                <button class="top-tab relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white/30 hover:text-white/50" id="tabProfile" data-tab="profile">
-                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> profile</span>
+                <button
+                    class="top-tab relative flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-white/30 hover:text-white/50"
+                    id="tabProfile" data-tab="profile">
+                    <span class="relative z-10 flex items-center justify-center gap-2"><svg width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg> profile</span>
                 </button>
             </nav>
 
@@ -73,28 +111,67 @@
                     </div>
                     <div class="faq-container space-y-8">
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What is Angel Arena?</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Angel Arena is an AI-powered creative studio inside Telegram. Upload a photo, describe what you want, and let AI generate images or videos. All processing runs on high-end GPUs (NVIDIA H100) for maximum quality and speed.</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What is Angel Arena?
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Angel
+                                Arena is an AI-powered creative studio inside Telegram. Upload a photo, describe what
+                                you want, and let AI generate images or videos. All processing runs on high-end GPUs
+                                (NVIDIA H100) for maximum quality and speed.</div>
                         </details>
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>How do tokens work?</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Each generation costs tokens:<br>• <b class="text-white/60">Image</b> — <b class="text-white/60">1 token</b><br>• <b class="text-white/60">Video</b> — <b class="text-white/60">37 tokens</b><br><br>Token packages:<br>• 10 tokens — 100 ⭐<br>• 30 tokens — 250 ⭐<br>• 100 tokens — 700 ⭐<br><br><b class="text-white/60">Premium</b> users get unlimited generations.</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>How do tokens work?
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Each
+                                generation costs tokens:<br>• <b class="text-white/60">Image</b> — <b
+                                    class="text-white/60">1 token</b><br>• <b class="text-white/60">Video</b> — <b
+                                    class="text-white/60">37 tokens</b><br><br>Token packages:<br>• 10 tokens — 100
+                                ⭐<br>• 30 tokens — 250 ⭐<br>• 100 tokens — 700 ⭐<br><br><b
+                                    class="text-white/60">Premium</b> users get unlimited generations.</div>
                         </details>
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What modes are available?</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4"><b class="text-white/60">Inpaint</b> — Mask &amp; replace parts of an image.<br><br><b class="text-white/60">Video</b> — Animate a photo into a multi-scene video.<br><br><b class="text-white/60">Edit Easy</b> — Quick AI edit with flexible strength.<br><br><b class="text-white/60">Edit Dark</b> — Advanced edit with own model.<br><br><b class="text-white/60">Generate</b> — Create images from text only.</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What modes are available?
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4"><b
+                                    class="text-white/60">Inpaint</b> — Mask &amp; replace parts of an image.<br><br><b
+                                    class="text-white/60">Video</b> — Animate a photo into a multi-scene
+                                video.<br><br><b class="text-white/60">Edit Easy</b> — Quick AI edit with flexible
+                                strength.<br><br><b class="text-white/60">Edit Dark</b> — Advanced edit with own
+                                model.<br><br><b class="text-white/60">Generate</b> — Create images from text only.
+                            </div>
                         </details>
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What is Premium?</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Premium gives you:<br>• <b class="text-white/60">Unlimited</b> generations<br>• <b class="text-white/60">Priority</b> queue<br>• Access to all features<br><br>Price: <b class="text-white/60">1500 ⭐</b> for 30 days.</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>What is Premium?
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Premium
+                                gives you:<br>• <b class="text-white/60">Unlimited</b> generations<br>• <b
+                                    class="text-white/60">Priority</b> queue<br>• Access to all features<br><br>Price:
+                                <b class="text-white/60">1500 ⭐</b> for 30 days.</div>
                         </details>
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>Tips for best results</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">• Use <b class="text-white/60">high-quality photos</b> with good lighting<br>• Be <b class="text-white/60">specific</b> in prompts<br>• LoRA strength 0.6–0.9 is optimal</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>Tips for best results
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">• Use <b
+                                    class="text-white/60">high-quality photos</b> with good lighting<br>• Be <b
+                                    class="text-white/60">specific</b> in prompts<br>• LoRA strength 0.6–0.9 is optimal
+                            </div>
                         </details>
                         <details class="faq-item">
-                            <summary class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none"><div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>Need help?</summary>
-                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Contact <b class="text-white/60">@vowofquiet</b> on Telegram.</div>
+                            <summary
+                                class="faq-question flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-white cursor-pointer list-none">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#00d2ff]"></div>Need help?
+                            </summary>
+                            <div class="faq-answer text-sm text-white/40 leading-relaxed font-medium mt-3 pl-4">Contact
+                                <b class="text-white/60">@vowofquiet</b> on Telegram.</div>
                         </details>
                     </div>
                 </div>
@@ -107,7 +184,8 @@
                 <div class="aurora-card p-10 flex flex-col items-center text-center space-y-6">
                     <div class="relative">
                         <div class="w-32 h-32 rounded-[40px] aurora-card p-1 rotate-12">
-                            <div class="w-full h-full rounded-[36px] bg-gradient-to-tr from-[#ff2d95] to-[#9d4dff] flex items-center justify-center -rotate-12 text-5xl">
+                            <div
+                                class="w-full h-full rounded-[36px] bg-gradient-to-tr from-[#ff2d95] to-[#9d4dff] flex items-center justify-center -rotate-12 text-5xl">
                                 👤
                             </div>
                         </div>
@@ -115,7 +193,8 @@
                     <div class="space-y-2">
                         <h2 class="font-display text-3xl font-bold" id="profileName">—</h2>
                         <div class="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
-                            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#ff2d95]" id="profileRole">User</p>
+                            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#ff2d95]"
+                                id="profileRole">User</p>
                         </div>
                         <div id="profileBadge"></div>
                         <div id="profileId" class="text-[10px] text-white/15 mt-2"></div>
@@ -142,17 +221,30 @@
                 <div>
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3 px-1">Buy Tokens</p>
                     <div class="space-y-2" id="buyTokensGrid">
-                        <button class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold" data-package="tokens_10">10 Tokens<span class="text-[11px] text-[#4dffff] font-bold">100 Stars</span></button>
-                        <button class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold" data-package="tokens_30">30 Tokens<span class="text-[11px] text-[#4dffff] font-bold">250 Stars</span></button>
-                        <button class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold" data-package="tokens_100">100 Tokens<span class="text-[11px] text-[#4dffff] font-bold">700 Stars</span></button>
+                        <button
+                            class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold"
+                            data-package="tokens_10">10 Tokens<span class="text-[11px] text-[#4dffff] font-bold">100
+                                Stars</span></button>
+                        <button
+                            class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold"
+                            data-package="tokens_30">30 Tokens<span class="text-[11px] text-[#4dffff] font-bold">250
+                                Stars</span></button>
+                        <button
+                            class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all text-white text-sm font-semibold"
+                            data-package="tokens_100">100 Tokens<span class="text-[11px] text-[#4dffff] font-bold">700
+                                Stars</span></button>
                     </div>
                 </div>
 
                 <!-- Premium -->
                 <div id="premiumCard">
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3 px-1">Premium</p>
-                    <p class="text-xs text-white/30 mb-3 px-1" id="premiumDesc">Unlimited generations + priority queue for 30 days</p>
-                    <button class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-[#ff2d95]/[0.06] border border-[#ff2d95]/20 hover:bg-[#ff2d95]/[0.12] transition-all text-white text-sm font-semibold" id="buyPremiumBtn">Premium 30 Days<span class="text-[11px] text-[#4dffff] font-bold">1500 Stars</span></button>
+                    <p class="text-xs text-white/30 mb-3 px-1" id="premiumDesc">Unlimited generations + priority queue
+                        for 30 days</p>
+                    <button
+                        class="buy-btn w-full px-5 py-4 flex items-center justify-between rounded-2xl bg-[#ff2d95]/[0.06] border border-[#ff2d95]/20 hover:bg-[#ff2d95]/[0.12] transition-all text-white text-sm font-semibold"
+                        id="buyPremiumBtn">Premium 30 Days<span class="text-[11px] text-[#4dffff] font-bold">1500
+                            Stars</span></button>
                 </div>
 
                 <div id="historyList"></div>
@@ -165,10 +257,14 @@
 
                 <!-- ✨ Magic / ⚙️ Pro Toggle -->
                 <div class="aurora-card p-1.5 flex gap-1.5 anim-fade-in anim-delay-1" id="magicProToggle">
-                    <button class="magic-pro-btn active flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 relative" id="magicBtn" data-level="magic">
+                    <button
+                        class="magic-pro-btn active flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 relative"
+                        id="magicBtn" data-level="magic">
                         <span class="relative z-10 flex items-center justify-center gap-2">✨ Magic</span>
                     </button>
-                    <button class="magic-pro-btn flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 text-white/30 hover:text-white/50 relative" id="proBtn" data-level="pro">
+                    <button
+                        class="magic-pro-btn flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-400 text-white/30 hover:text-white/50 relative"
+                        id="proBtn" data-level="pro">
                         <span class="relative z-10 flex items-center justify-center gap-2">⚙️ Pro</span>
                     </button>
                 </div>
@@ -180,27 +276,39 @@
 
                     <!-- Magic Upload -->
                     <div class="section">
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Photo <span class="text-white/20 normal-case tracking-normal font-medium">(optional)</span></p>
-                        <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-10 flex items-center justify-center cursor-pointer hover:border-[#ff2d95]/30 hover:bg-[#ff2d95]/[0.03] transition-all relative overflow-hidden" id="magicUploadArea">
-                            <div class="flex flex-col items-center gap-2 text-white/20 text-sm" id="magicUploadPlaceholder">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Photo <span
+                                class="text-white/20 normal-case tracking-normal font-medium">(optional)</span></p>
+                        <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-10 flex items-center justify-center cursor-pointer hover:border-[#ff2d95]/30 hover:bg-[#ff2d95]/[0.03] transition-all relative overflow-hidden"
+                            id="magicUploadArea">
+                            <div class="flex flex-col items-center gap-2 text-white/20 text-sm"
+                                id="magicUploadPlaceholder">
                                 <span class="text-4xl">📷</span>
                                 <span>Tap to upload photo</span>
                                 <span class="text-[9px] text-white/15">or skip to create from scratch</span>
                             </div>
-                            <button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center z-10" id="magicRemovePhoto" style="display:none;">✕</button>
+                            <button
+                                class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center z-10"
+                                id="magicRemovePhoto" style="display:none;">✕</button>
                             <input type="file" id="magicFileInput" accept="image/*" hidden>
                         </div>
                     </div>
 
                     <!-- Magic Prompt -->
                     <div class="section">
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">What do you want?</p>
-                        <textarea class="w-full bg-white/[0.04] border border-white/[0.06] rounded-2xl px-5 py-4 text-sm text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#ff2d95]/30 transition-all" id="magicPromptInput" rows="3" placeholder="e.g. remove clothes, girl on the beach, make her smile..."></textarea>
-                        <p class="text-[9px] text-white/15 mt-1.5 px-1">Leave empty with photo = auto undress • No photo = AI creates from your description</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">What do you
+                            want?</p>
+                        <textarea
+                            class="w-full bg-white/[0.04] border border-white/[0.06] rounded-2xl px-5 py-4 text-sm text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#ff2d95]/30 transition-all"
+                            id="magicPromptInput" rows="3"
+                            placeholder="e.g. remove clothes, girl on the beach, make her smile..."></textarea>
+                        <p class="text-[9px] text-white/15 mt-1.5 px-1">Leave empty with photo = auto undress • No photo
+                            = AI creates from your description</p>
                     </div>
 
                     <!-- Magic Generate Button -->
-                    <button class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100" id="magicGenerateBtn">
+                    <button
+                        class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                        id="magicGenerateBtn">
                         <span class="btn-text flex items-center justify-center gap-4">✨ Generate</span>
                         <span class="btn-loader flex items-center justify-center gap-4" style="display:none;">
                             <span class="spinner"></span> Creating magic...
@@ -208,7 +316,8 @@
                     </button>
                     <div id="magicProgressInfo" style="display:none;" class="mt-3 text-[11px] text-white/40">
                         <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-2">
-                            <div class="h-full rounded-full bg-gradient-to-r from-[#ff2d95] to-[#9d4dff] transition-all duration-300 magic-progress-animate" id="magicProgressFill" style="width:0%"></div>
+                            <div class="h-full rounded-full bg-gradient-to-r from-[#ff2d95] to-[#9d4dff] transition-all duration-300 magic-progress-animate"
+                                id="magicProgressFill" style="width:0%"></div>
                         </div>
                         <span id="magicProgressText">AI is thinking...</span>
                     </div>
@@ -220,9 +329,15 @@
                             <img id="magicResultImage" src="" alt="Result" class="w-full block rounded-3xl">
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="magicDownloadBtn">Save</button>
-                            <button class="action-btn send-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="magicSendBtn">Send</button>
-                            <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="magicRetryBtn">Retry</button>
+                            <button
+                                class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center"
+                                id="magicDownloadBtn">Save</button>
+                            <button
+                                class="action-btn send-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent"
+                                id="magicSendBtn">Send</button>
+                            <button
+                                class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center"
+                                id="magicRetryBtn">Retry</button>
                         </div>
                     </div>
                 </div>
@@ -232,370 +347,544 @@
                 <!-- ═══════════════════════════════════ -->
                 <div id="proContainer" class="space-y-6" style="display:none;">
 
-                <!-- Mode Grid (exact AI Studio 2x2 + 1) -->
-                <div class="grid grid-cols-2 gap-3 anim-fade-in anim-delay-2 relative" id="modeGrid">
-                    <!-- Floating dot indicator (Framer Motion layoutId simulation) -->
-                    <div class="mode-dot-float" id="modeDotFloat"></div>
-                    
-                    <div class="mode-card active" data-mode="inpaint" data-tip="/tips/inpaint.mp4">
-                        <div class="flex justify-between items-start mb-2">
-                            <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>
-                            <div class="mode-dot-placeholder"></div>
-                        </div>
-                        <div class="space-y-0.5">
-                            <p class="text-xs font-bold uppercase tracking-wider">Surgical</p>
-                            <p class="text-[9px] text-white/30 font-medium">Area edit</p>
-                        </div>
-                    </div>
-                    <div class="mode-card" data-mode="image" data-tip="/tips/Refine.mp4">
-                        <div class="flex justify-between items-start mb-2">
-                            <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                            <div class="mode-dot-placeholder"></div>
-                        </div>
-                        <div class="space-y-0.5">
-                            <p class="text-xs font-bold uppercase tracking-wider">Refine</p>
-                            <p class="text-[9px] text-white/30 font-medium">Image to image</p>
-                        </div>
-                    </div>
-                    <div class="mode-card" data-mode="dark" data-tip="/tips/NSFW Refine.mp4">
-                        <div class="flex justify-between items-start mb-2">
-                            <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 9 9 9"/><path d="M7 3v2"/><path d="M3 7h2"/><path d="m21 15-3-3"/><path d="M15 21v-2"/><path d="M21 17h-2"/></svg>
-                            <div class="mode-dot-placeholder"></div>
-                        </div>
-                        <div class="space-y-0.5">
-                            <p class="text-xs font-bold uppercase tracking-wider">Dark Beast</p>
-                            <p class="text-[9px] text-white/30 font-medium">Advanced edit</p>
-                        </div>
-                    </div>
-                    <div class="mode-card" data-mode="generate">
-                        <div class="flex justify-between items-start mb-2">
-                            <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                            <div class="mode-dot-placeholder"></div>
-                        </div>
-                        <div class="space-y-0.5">
-                            <p class="text-xs font-bold uppercase tracking-wider">Create</p>
-                            <p class="text-[9px] text-white/30 font-medium">Text to image</p>
-                        </div>
-                    </div>
-                    <div class="mode-card col-span-2" data-mode="video" data-tip="/tips/Motion.mp4">
-                        <div class="flex justify-between items-start mb-2">
-                            <svg class="mode-icon transition-all duration-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
-                            <div class="mode-dot-placeholder"></div>
-                        </div>
-                        <div class="space-y-0.5">
-                            <p class="text-xs font-bold uppercase tracking-wider">Motion</p>
-                            <p class="text-[9px] text-white/30 font-medium">Animate scene</p>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Mode Grid (exact AI Studio 2x2 + 1) -->
+                    <div class="grid grid-cols-2 gap-3 anim-fade-in anim-delay-2 relative" id="modeGrid">
+                        <!-- Floating dot indicator (Framer Motion layoutId simulation) -->
+                        <div class="mode-dot-float" id="modeDotFloat"></div>
 
-                <!-- Hidden selects for app.js compat -->
-                <div class="custom-select hidden" id="customSelect">
-                    <div id="selectTrigger"><span id="selectText">Inpaint</span></div>
-                    <div id="selectOptions">
-                        <div class="custom-option active" data-value="inpaint">Inpaint</div>
-                        <div class="custom-option" data-value="video">Video</div>
-                        <div class="custom-option" data-value="image">Edit Easy</div>
-                        <div class="custom-option" data-value="dark">Edit Dark</div>
-                        <div class="custom-option" data-value="generate">Generate</div>
-                        <div class="custom-option" data-value="test">Test</div>
-                    </div>
-                </div>
-                <select id="modeSelect" class="hidden"><option value="inpaint">Inpaint</option><option value="video">Video</option><option value="image">Edit Easy</option><option value="dark">Edit Dark</option><option value="generate">Generate</option><option value="test">Test</option></select>
-
-                <!-- Upload Photo -->
-                <div class="section" id="uploadSection">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Photo</p>
-                    <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 flex items-center justify-center cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all relative overflow-hidden" id="uploadArea">
-                        <div class="flex flex-col items-center gap-2 text-white/20 text-sm" id="uploadPlaceholder">
-                            <span class="text-3xl">+</span>
-                            <span>Tap to upload or paste</span>
-                        </div>
-                        <button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center z-10" id="removeMainPhoto" style="display:none;">✕</button>
-                        <input type="file" id="fileInput" accept="image/*" hidden>
-                    </div>
-                </div>
-
-                <!-- DARK: 2nd Image -->
-                <div class="section dark-only" id="darkImage2Section" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Reference <span class="opacity-40 text-[0.75em]" id="darkImg2Hint">(combine two girls)</span></p>
-                    <div id="darkImg2Container" class="relative">
-                        <div class="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-6 text-center cursor-pointer hover:border-white/15 transition-all" id="darkImg2Add">
-                            <span class="text-xl text-white/20 block">+</span>
-                            <span class="text-[11px] text-white/15">Tap to add 2nd photo</span>
-                        </div>
-                        <div id="darkImg2Preview" style="display:none;" class="relative flex items-center justify-center">
-                            <img id="darkImg2Img" src="" alt="Image 2" class="max-w-full max-h-[200px] rounded-2xl object-contain">
-                            <button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center" id="darkImg2Remove">✕</button>
-                        </div>
-                        <input type="file" id="darkFileInput2" accept="image/*" hidden>
-                    </div>
-                </div>
-
-                <!-- INPAINT: Canvas + Mask -->
-                <div class="section inpaint-only" id="canvasSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mask</p>
-                    <div class="rounded-3xl overflow-hidden bg-black/30 relative touch-none" id="canvasContainer">
-                        <canvas id="mainCanvas" class="block w-full"></canvas>
-                        <canvas id="maskCanvas" class="absolute top-0 left-0 w-full h-full opacity-50"></canvas>
-                    </div>
-                    <div class="flex gap-2 flex-wrap items-center mt-3">
-                        <button class="tool-btn px-4 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[11px] font-semibold transition-all active" id="brushBtn" data-tool="brush">Brush</button>
-                        <button class="tool-btn px-4 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[11px] font-semibold transition-all" id="eraserBtn" data-tool="eraser">Eraser</button>
-                        <button class="tool-btn danger px-4 py-2 rounded-xl border border-red-500/20 text-red-400/70 text-[11px] font-semibold transition-all" id="clearBtn">Clear</button>
-                        <div class="flex items-center gap-2 ml-auto">
-                            <label class="text-[10px] text-white/30 whitespace-nowrap">Size: <span id="brushSizeLabel">20</span>px</label>
-                            <input type="range" id="brushSize" min="5" max="100" value="20" class="w-20">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Prompt -->
-                <div class="section" id="promptSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Prompt</p>
-                    <div class="preset-row flex flex-wrap gap-1.5 mb-2" id="presetRow"></div>
-                    <div class="aurora-card p-1">
-                        <textarea id="promptInput" class="w-full h-32 bg-transparent p-5 text-sm leading-relaxed outline-none resize-none placeholder:text-white/20" placeholder="Whisper your desires to the machine..." rows="3"></textarea>
-                    </div>
-                    <div class="flex items-center justify-start px-2 mt-2">
-                        <button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] transition-all group" id="enhancePromptBtn">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/50 group-hover:text-white transition-colors"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white/80">Enhance Prompt</span>
-                        </button>
-                    </div>
-                    <div id="enhancedPromptBox" class="mt-2 p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-[11px] text-white/40" style="display:none;">
-                        <div id="enhancedPromptText"></div>
-                        <button id="copyEnhancedPrompt" class="text-[10px] px-2 py-1 rounded-lg border border-white/[0.08] bg-white/[0.04] text-white/50 cursor-pointer mt-1 mr-1">Copy</button>
-                        <button id="restoreOriginalBtn" class="text-[10px] px-2 py-1 rounded-lg border border-white/[0.08] bg-white/[0.04] text-white/50 cursor-pointer mt-1 mr-1">Restore</button>
-                        <span id="originalPromptBadge"></span>
-                    </div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mt-4 mb-2 px-1">Negative</p>
-                    <textarea id="negativeInput" rows="2" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-white/50 text-xs outline-none resize-none"></textarea>
-                </div>
-
-                <!-- INPAINT: Settings -->
-                <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
-                    <div class="aurora-card p-6 space-y-4">
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-                                <span>Sampling Precision</span>
-                                <span class="text-[#ff2d95]" id="cfgLabel">3.5</span>
+                        <div class="mode-card active" data-mode="inpaint" data-tip="/tips/inpaint.mp4">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" />
+                                    <path d="m14 7 3 3" />
+                                    <path d="M5 6v4" />
+                                    <path d="M19 14v4" />
+                                    <path d="M10 2v2" />
+                                    <path d="M7 8H3" />
+                                    <path d="M21 16h-4" />
+                                    <path d="M11 3H9" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
                             </div>
-                            <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5" class="slider-input">
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-                                <span>Neural Steps</span>
-                                <span class="text-[#ff2d95]" id="stepsLabel">25</span>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Surgical</p>
+                                <p class="text-[9px] text-white/30 font-medium">Area edit</p>
                             </div>
-                            <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25" class="slider-input">
+                        </div>
+                        <div class="mode-card" data-mode="image" data-tip="/tips/Refine.mp4">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                    <path d="m15 5 4 4" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Refine</p>
+                                <p class="text-[9px] text-white/30 font-medium">Image to image</p>
+                            </div>
+                        </div>
+                        <div class="mode-card" data-mode="dark" data-tip="/tips/NSFW Refine.mp4">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                                    <path d="m3 9 9 9" />
+                                    <path d="M7 3v2" />
+                                    <path d="M3 7h2" />
+                                    <path d="m21 15-3-3" />
+                                    <path d="M15 21v-2" />
+                                    <path d="M21 17h-2" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Dark Beast</p>
+                                <p class="text-[9px] text-white/30 font-medium">Advanced edit</p>
+                            </div>
+                        </div>
+                        <div class="mode-card" data-mode="generate">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                                    <path d="M5 3v4" />
+                                    <path d="M19 17v4" />
+                                    <path d="M3 5h4" />
+                                    <path d="M17 19h4" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Create</p>
+                                <p class="text-[9px] text-white/30 font-medium">Text to image</p>
+                            </div>
+                        </div>
+                        <div class="mode-card col-span-2" data-mode="video" data-tip="/tips/Motion.mp4">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m22 8-6 4 6 4V8Z" />
+                                    <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Motion</p>
+                                <p class="text-[9px] text-white/30 font-medium">Animate scene</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- IMAGE (Edit Easy): Settings -->
-                <div class="section image-only" id="imageSettingsSection" style="display:none;">
-                    <div id="editSubmodeSection" class="mb-3"></div>
-                    <div class="aurora-card p-6 space-y-4">
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>Denoise Strength</span><span class="text-[#ff2d95]" id="denoiseLabel">0.80</span></div>
-                            <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="0.80" class="slider-input">
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>Neural Steps</span><span class="text-[#ff2d95]" id="editStepsLabel">8</span></div>
-                            <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8" class="slider-input">
+                    <!-- Hidden selects for app.js compat -->
+                    <div class="custom-select hidden" id="customSelect">
+                        <div id="selectTrigger"><span id="selectText">Inpaint</span></div>
+                        <div id="selectOptions">
+                            <div class="custom-option active" data-value="inpaint">Inpaint</div>
+                            <div class="custom-option" data-value="video">Video</div>
+                            <div class="custom-option" data-value="image">Edit Easy</div>
+                            <div class="custom-option" data-value="dark">Edit Dark</div>
+                            <div class="custom-option" data-value="generate">Generate</div>
+                            <div class="custom-option" data-value="test">Test</div>
                         </div>
                     </div>
-                    <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
-                    <input type="hidden" id="loraStrengthSlider" value="0.7">
-                </div>
-
-                <!-- DARK: Settings -->
-                <div class="section dark-only" id="darkSettingsSection" style="display:none;">
-                    <div class="aurora-card p-6 space-y-4">
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>Denoise</span><span class="text-[#ff2d95]" id="darkDenoiseLabel">0.85</span></div>
-                            <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85" class="slider-input">
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>Steps</span><span class="text-[#ff2d95]" id="darkStepsLabel">5</span></div>
-                            <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5" class="slider-input">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DARK: Quality -->
-                <div class="section dark-only" id="darkQualitySection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Quality</p>
-                    <div class="quality-toggle flex gap-2">
-                        <button class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" id="qualityFast" data-quality="fast">Fast</button>
-                        <button class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" id="qualityDetailed" data-quality="detailed">Detailed</button>
-                    </div>
-                </div>
-
-                <!-- DARK GENERATE: Sub-mode -->
-                <div class="section dark-only" id="darkGenSubmodeSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Sub-mode</p>
-                    <div class="quality-toggle flex gap-2">
-                        <button class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" id="darkGenDefault" data-gensubmode="default">Default</button>
-                        <button class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" id="darkGenFaceswap" data-gensubmode="faceswap">Face Swap</button>
-                    </div>
-                </div>
-
-                <!-- DARK GENERATE: Face Upload -->
-                <div class="section dark-only" id="darkFaceUploadSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Face Photo</p>
-                    <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-5 flex items-center justify-center cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all relative" id="faceUploadArea">
-                        <div id="faceUploadPlaceholder" class="flex flex-col items-center gap-2 text-white/20 text-sm">
-                            <span class="text-2xl">+</span>
-                            <span>Tap to upload face</span>
-                        </div>
-                        <input type="file" accept="image/*" id="faceFileInput" style="display:none;">
-                    </div>
-                </div>
-
-                <!-- DARK GENERATE: Resolution -->
-                <div class="section dark-only" id="darkResolutionSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Aspect Ratio</p>
-                    <div class="quality-toggle flex gap-2">
-                        <button class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" data-res="768x1344">9:16</button>
-                        <button class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" data-res="1024x1024">1:1</button>
-                        <button class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all" data-res="1344x768">16:9</button>
-                    </div>
-                </div>
-
-                <!-- DARK: LoRA Strength -->
-                <div class="section dark-only" id="darkLoraStrengthSection" style="display:none;">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40"><span>LoRA Strength</span><span class="text-[#ff2d95]" id="darkLoraStrengthLabel">0.95</span></div>
-                        <input type="range" id="darkLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="0.95" class="slider-input">
-                    </div>
-                </div>
-
-                <!-- T2I: SFW/NSFW Toggle -->
-                <div class="section test-only" id="t2iNsfwSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mode</p>
-                    <div class="t2i-pill-toggle" id="t2iNsfwToggle">
-                        <button class="t2i-pill active" data-val="sfw">SFW</button>
-                        <button class="t2i-pill" data-val="nsfw">NSFW</button>
-                    </div>
-                </div>
-
-                <!-- T2I: Base Resolution -->
-                <div class="section test-only" id="t2iResolutionSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Base Resolution</p>
-                    <select id="t2iAspectSelect" class="w-full p-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-xs outline-none cursor-pointer">
-                        <optgroup label="Portrait">
-                            <option value="2:3 (Classic Portrait)">2:3 Classic Portrait</option>
-                            <option value="3:4 (Golden Ratio)">3:4 Golden Ratio</option>
-                            <option value="4:5 (Artistic Frame)">4:5 Artistic Frame</option>
-                            <option value="5:7 (Balanced Portrait)" selected>5:7 Balanced Portrait</option>
-                            <option value="5:8 (Tall Portrait)">5:8 Tall Portrait</option>
-                            <option value="9:16 (Slim Vertical)">9:16 Slim Vertical</option>
-                        </optgroup>
-                        <optgroup label="Square">
-                            <option value="1:1 (Perfect Square)">1:1 Perfect Square</option>
-                        </optgroup>
-                        <optgroup label="Landscape">
-                            <option value="3:2 (Golden Landscape)">3:2 Golden Landscape</option>
-                            <option value="4:3 (Classic Landscape)">4:3 Classic Landscape</option>
-                            <option value="16:9 (Panorama)">16:9 Panorama</option>
-                        </optgroup>
+                    <select id="modeSelect" class="hidden">
+                        <option value="inpaint">Inpaint</option>
+                        <option value="video">Video</option>
+                        <option value="image">Edit Easy</option>
+                        <option value="dark">Edit Dark</option>
+                        <option value="generate">Generate</option>
+                        <option value="test">Test</option>
                     </select>
-                </div>
 
-                <!-- T2I: Detailers -->
-                <div class="section test-only" id="t2iDetailersSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Detailers</p>
-                    <div class="t2i-checks">
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetFace" checked><span>Face</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetEyes" checked><span>Eyes</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetHands" checked><span>Hands</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetFoot"><span>Foot</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetNipples"><span>Nipples</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetPussy"><span>Pussy</span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iDetPenis"><span>Penis</span></label>
-                    </div>
-                </div>
-
-                <!-- T2I: Redefine + Upscale -->
-                <div class="section test-only" id="t2iExtrasSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Extras</p>
-                    <div class="t2i-checks">
-                        <label class="t2i-check"><input type="checkbox" id="t2iRedefine"><span>Redefine <span class="text-white/20">(SDXL)</span></span></label>
-                        <label class="t2i-check"><input type="checkbox" id="t2iUpscale"><span>Upscale <span class="text-white/20">(+2 min)</span></span></label>
-                    </div>
-                </div>
-
-                <!-- VIDEO: Kenpechi Scenes -->
-                <div class="section video-only" id="kenpechiScenesSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Scenes <span class="opacity-50 text-[0.7em]">(6 max)</span></p>
-                    <div class="preset-row flex flex-wrap gap-1.5 mb-3" id="videoPresetRow">
-                        <button class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-preset="missionary">Missionary</button>
-                        <button class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-preset="blowjob">Blowjob</button>
-                        <button class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-preset="doggy">Doggy</button>
-                        <button class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-preset="cowgirl">Cowgirl</button>
-                        <button class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-preset="handjob">Handjob</button>
-                    </div>
-                    <div id="scenesContainer"></div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mt-4 mb-2 px-1">Negative</p>
-                    <textarea id="kenpechiNegativeInput" rows="2" placeholder="Optional negative prompt..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-white/50 text-xs outline-none resize-none"></textarea>
-                </div>
-
-
-                <!-- Batch + Generate -->
-                <div class="section" id="generateSection" style="display:none;">
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Count:</span>
-                        <div class="batch-selector flex gap-1.5" id="batchSelector">
-                            <button class="batch-btn active w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all" data-count="1">1</button>
-                            <button class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all" data-count="2">2</button>
-                            <button class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all" data-count="3">3</button>
-                            <button class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all" data-count="4">4</button>
+                    <!-- Upload Photo -->
+                    <div class="section" id="uploadSection">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Photo</p>
+                        <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 flex items-center justify-center cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all relative overflow-hidden"
+                            id="uploadArea">
+                            <div class="flex flex-col items-center gap-2 text-white/20 text-sm" id="uploadPlaceholder">
+                                <span class="text-3xl">+</span>
+                                <span>Tap to upload or paste</span>
+                            </div>
+                            <button
+                                class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center z-10"
+                                id="removeMainPhoto" style="display:none;">✕</button>
+                            <input type="file" id="fileInput" accept="image/*" hidden>
                         </div>
                     </div>
-                    <button class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100" id="generateBtn">
-                        <span class="btn-text flex items-center justify-center gap-4">⚡ Execute Synthesis</span>
-                        <span class="btn-loader flex items-center justify-center gap-4" style="display:none;">
-                            <span class="spinner"></span> Manifesting...
-                        </span>
-                    </button>
-                    <div id="progressInfo" style="display:none;" class="mt-3 text-[11px] text-white/40">
-                        <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-2">
-                            <div class="h-full rounded-full bg-gradient-to-r from-[#ff2d95] to-[#9d4dff] transition-all duration-300" id="progressFill" style="width:0%"></div>
+
+                    <!-- DARK: 2nd Image -->
+                    <div class="section dark-only" id="darkImage2Section" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Reference
+                            <span class="opacity-40 text-[0.75em]" id="darkImg2Hint">(combine two girls)</span></p>
+                        <div id="darkImg2Container" class="relative">
+                            <div class="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-6 text-center cursor-pointer hover:border-white/15 transition-all"
+                                id="darkImg2Add">
+                                <span class="text-xl text-white/20 block">+</span>
+                                <span class="text-[11px] text-white/15">Tap to add 2nd photo</span>
+                            </div>
+                            <div id="darkImg2Preview" style="display:none;"
+                                class="relative flex items-center justify-center">
+                                <img id="darkImg2Img" src="" alt="Image 2"
+                                    class="max-w-full max-h-[200px] rounded-2xl object-contain">
+                                <button
+                                    class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white text-sm flex items-center justify-center"
+                                    id="darkImg2Remove">✕</button>
+                            </div>
+                            <input type="file" id="darkFileInput2" accept="image/*" hidden>
                         </div>
-                        <span id="progressText">Starting...</span>
-                        <button id="cancelVideoBtn" onclick="cancelVideoGeneration()" style="display:none;" class="mt-2 w-full py-2 px-5 rounded-full bg-red-900/15 text-red-400/60 border border-red-900/15 text-[11px] tracking-wider cursor-pointer">Cancel</button>
                     </div>
-                    <div id="modelLoadingInfo" style="display:none;" class="mt-2 text-[10px] text-white/25 text-center"><span>Loading model...</span></div>
-                </div>
 
-                <!-- Result -->
-                <div class="section" id="resultSection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Result</p>
-                    <div class="rounded-3xl overflow-hidden bg-black/30 mb-3">
-                        <img id="resultImage" src="" alt="Result" class="w-full block rounded-3xl" style="display:none;">
-                        <video id="resultVideo" controls loop class="w-full block rounded-3xl" style="display:none;"></video>
+                    <!-- INPAINT: Canvas + Mask -->
+                    <div class="section inpaint-only" id="canvasSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mask</p>
+                        <div class="rounded-3xl overflow-hidden bg-black/30 relative touch-none" id="canvasContainer">
+                            <canvas id="mainCanvas" class="block w-full"></canvas>
+                            <canvas id="maskCanvas" class="absolute top-0 left-0 w-full h-full opacity-50"></canvas>
+                        </div>
+                        <div class="flex gap-2 flex-wrap items-center mt-3">
+                            <button
+                                class="tool-btn px-4 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[11px] font-semibold transition-all active"
+                                id="brushBtn" data-tool="brush">Brush</button>
+                            <button
+                                class="tool-btn px-4 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[11px] font-semibold transition-all"
+                                id="eraserBtn" data-tool="eraser">Eraser</button>
+                            <button
+                                class="tool-btn danger px-4 py-2 rounded-xl border border-red-500/20 text-red-400/70 text-[11px] font-semibold transition-all"
+                                id="clearBtn">Clear</button>
+                            <div class="flex items-center gap-2 ml-auto">
+                                <label class="text-[10px] text-white/30 whitespace-nowrap">Size: <span
+                                        id="brushSizeLabel">20</span>px</label>
+                                <input type="range" id="brushSize" min="5" max="100" value="20" class="w-20">
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="downloadBtn">Save</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="copyBtn">Copy</button>
-                        <button class="action-btn send-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="sendBtn">Send</button>
-                        <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="retryBtn">Retry</button>
-                    </div>
-                </div>
 
-                <!-- Gallery -->
-                <div class="section" id="gallerySection" style="display:none;">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Gallery</p>
-                    <div class="gallery-strip flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="galleryStrip"></div>
-                </div>
+                    <!-- Prompt -->
+                    <div class="section" id="promptSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Prompt</p>
+                        <div class="preset-row flex flex-wrap gap-1.5 mb-2" id="presetRow"></div>
+                        <div class="aurora-card p-1">
+                            <textarea id="promptInput"
+                                class="w-full h-32 bg-transparent p-5 text-sm leading-relaxed outline-none resize-none placeholder:text-white/20"
+                                placeholder="Whisper your desires to the machine..." rows="3"></textarea>
+                        </div>
+                        <div class="flex items-center justify-start px-2 mt-2">
+                            <button
+                                class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] transition-all group"
+                                id="enhancePromptBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="text-white/50 group-hover:text-white transition-colors">
+                                    <path
+                                        d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                                    <path d="M5 3v4" />
+                                    <path d="M19 17v4" />
+                                    <path d="M3 5h4" />
+                                    <path d="M17 19h4" />
+                                </svg>
+                                <span
+                                    class="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white/80">Enhance
+                                    Prompt</span>
+                            </button>
+                        </div>
+                        <div id="enhancedPromptBox"
+                            class="mt-2 p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-[11px] text-white/40"
+                            style="display:none;">
+                            <div id="enhancedPromptText"></div>
+                            <button id="copyEnhancedPrompt"
+                                class="text-[10px] px-2 py-1 rounded-lg border border-white/[0.08] bg-white/[0.04] text-white/50 cursor-pointer mt-1 mr-1">Copy</button>
+                            <button id="restoreOriginalBtn"
+                                class="text-[10px] px-2 py-1 rounded-lg border border-white/[0.08] bg-white/[0.04] text-white/50 cursor-pointer mt-1 mr-1">Restore</button>
+                            <span id="originalPromptBadge"></span>
+                        </div>
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mt-4 mb-2 px-1">
+                            Negative</p>
+                        <textarea id="negativeInput" rows="2"
+                            class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-white/50 text-xs outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- INPAINT: Settings -->
+                    <div class="section settings-row inpaint-only" id="settingsSection" style="display:none;">
+                        <div class="aurora-card p-6 space-y-4">
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Sampling Precision</span>
+                                    <span class="text-[#ff2d95]" id="cfgLabel">3.5</span>
+                                </div>
+                                <input type="range" id="cfgSlider" min="1" max="10" step="0.5" value="3.5"
+                                    class="slider-input">
+                            </div>
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Neural Steps</span>
+                                    <span class="text-[#ff2d95]" id="stepsLabel">25</span>
+                                </div>
+                                <input type="range" id="stepsSlider" min="10" max="50" step="1" value="25"
+                                    class="slider-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IMAGE (Edit Easy): Settings -->
+                    <div class="section image-only" id="imageSettingsSection" style="display:none;">
+                        <div id="editSubmodeSection" class="mb-3"></div>
+                        <div class="aurora-card p-6 space-y-4">
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Denoise Strength</span><span class="text-[#ff2d95]"
+                                        id="denoiseLabel">0.80</span></div>
+                                <input type="range" id="denoiseSlider" min="0.1" max="1.0" step="0.05" value="0.80"
+                                    class="slider-input">
+                            </div>
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Neural Steps</span><span class="text-[#ff2d95]" id="editStepsLabel">8</span>
+                                </div>
+                                <input type="range" id="editStepsSlider" min="2" max="50" step="1" value="8"
+                                    class="slider-input">
+                            </div>
+                        </div>
+                        <input type="hidden" id="loraNameInput" value="flux20klein2020NSFW.1M27.safetensors">
+                        <input type="hidden" id="loraStrengthSlider" value="0.7">
+                    </div>
+
+                    <!-- DARK: Settings -->
+                    <div class="section dark-only" id="darkSettingsSection" style="display:none;">
+                        <div class="aurora-card p-6 space-y-4">
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Denoise</span><span class="text-[#ff2d95]" id="darkDenoiseLabel">0.85</span>
+                                </div>
+                                <input type="range" id="darkDenoiseSlider" min="0.1" max="1.0" step="0.05" value="0.85"
+                                    class="slider-input">
+                            </div>
+                            <div class="space-y-3">
+                                <div
+                                    class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                    <span>Steps</span><span class="text-[#ff2d95]" id="darkStepsLabel">5</span></div>
+                                <input type="range" id="darkStepsSlider" min="2" max="20" step="1" value="5"
+                                    class="slider-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DARK: Quality -->
+                    <div class="section dark-only" id="darkQualitySection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Quality</p>
+                        <div class="quality-toggle flex gap-2">
+                            <button
+                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                id="qualityFast" data-quality="fast">Fast</button>
+                            <button
+                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                id="qualityDetailed" data-quality="detailed">Detailed</button>
+                        </div>
+                    </div>
+
+                    <!-- DARK GENERATE: Sub-mode -->
+                    <div class="section dark-only" id="darkGenSubmodeSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Sub-mode
+                        </p>
+                        <div class="quality-toggle flex gap-2">
+                            <button
+                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                id="darkGenDefault" data-gensubmode="default">Default</button>
+                            <button
+                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                id="darkGenFaceswap" data-gensubmode="faceswap">Face Swap</button>
+                        </div>
+                    </div>
+
+                    <!-- DARK GENERATE: Face Upload -->
+                    <div class="section dark-only" id="darkFaceUploadSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Face Photo
+                        </p>
+                        <div class="upload-area rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-5 flex items-center justify-center cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all relative"
+                            id="faceUploadArea">
+                            <div id="faceUploadPlaceholder"
+                                class="flex flex-col items-center gap-2 text-white/20 text-sm">
+                                <span class="text-2xl">+</span>
+                                <span>Tap to upload face</span>
+                            </div>
+                            <input type="file" accept="image/*" id="faceFileInput" style="display:none;">
+                        </div>
+                    </div>
+
+                    <!-- DARK GENERATE: Resolution -->
+                    <div class="section dark-only" id="darkResolutionSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Aspect
+                            Ratio</p>
+                        <div class="quality-toggle flex gap-2">
+                            <button
+                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                data-res="768x1344">9:16</button>
+                            <button
+                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                data-res="1024x1024">1:1</button>
+                            <button
+                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                data-res="1344x768">16:9</button>
+                        </div>
+                    </div>
+
+                    <!-- DARK: LoRA Strength -->
+                    <div class="section dark-only" id="darkLoraStrengthSection" style="display:none;">
+                        <div class="space-y-3">
+                            <div
+                                class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                <span>LoRA Strength</span><span class="text-[#ff2d95]"
+                                    id="darkLoraStrengthLabel">0.95</span></div>
+                            <input type="range" id="darkLoraStrengthSlider" min="0.5" max="2.0" step="0.05" value="0.95"
+                                class="slider-input">
+                        </div>
+                    </div>
+
+                    <!-- T2I: SFW/NSFW Toggle -->
+                    <div class="section test-only" id="t2iNsfwSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mode</p>
+                        <div class="t2i-pill-toggle" id="t2iNsfwToggle">
+                            <button class="t2i-pill active" data-val="sfw">SFW</button>
+                            <button class="t2i-pill" data-val="nsfw">NSFW</button>
+                        </div>
+                    </div>
+
+                    <!-- T2I: Base Resolution -->
+                    <div class="section test-only" id="t2iResolutionSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Base
+                            Resolution</p>
+                        <select id="t2iAspectSelect"
+                            class="w-full p-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-xs outline-none cursor-pointer">
+                            <optgroup label="Portrait">
+                                <option value="2:3 (Classic Portrait)">2:3 Classic Portrait</option>
+                                <option value="3:4 (Golden Ratio)">3:4 Golden Ratio</option>
+                                <option value="4:5 (Artistic Frame)">4:5 Artistic Frame</option>
+                                <option value="5:7 (Balanced Portrait)" selected>5:7 Balanced Portrait</option>
+                                <option value="5:8 (Tall Portrait)">5:8 Tall Portrait</option>
+                                <option value="9:16 (Slim Vertical)">9:16 Slim Vertical</option>
+                            </optgroup>
+                            <optgroup label="Square">
+                                <option value="1:1 (Perfect Square)">1:1 Perfect Square</option>
+                            </optgroup>
+                            <optgroup label="Landscape">
+                                <option value="3:2 (Golden Landscape)">3:2 Golden Landscape</option>
+                                <option value="4:3 (Classic Landscape)">4:3 Classic Landscape</option>
+                                <option value="16:9 (Panorama)">16:9 Panorama</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- T2I: Detailers -->
+                    <div class="section test-only" id="t2iDetailersSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Detailers
+                        </p>
+                        <div class="t2i-checks">
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetFace"
+                                    checked><span>Face</span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetEyes"
+                                    checked><span>Eyes</span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetHands"
+                                    checked><span>Hands</span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetFoot"><span>Foot</span></label>
+                            <label class="t2i-check"><input type="checkbox"
+                                    id="t2iDetNipples"><span>Nipples</span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetPussy"><span>Pussy</span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iDetPenis"><span>Penis</span></label>
+                        </div>
+                    </div>
+
+                    <!-- T2I: Redefine + Upscale -->
+                    <div class="section test-only" id="t2iExtrasSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Extras</p>
+                        <div class="t2i-checks">
+                            <label class="t2i-check"><input type="checkbox" id="t2iRedefine"><span>Redefine <span
+                                        class="text-white/20">(SDXL)</span></span></label>
+                            <label class="t2i-check"><input type="checkbox" id="t2iUpscale"><span>Upscale <span
+                                        class="text-white/20">(+2 min)</span></span></label>
+                        </div>
+                    </div>
+
+                    <!-- VIDEO: Kenpechi Scenes -->
+                    <div class="section video-only" id="kenpechiScenesSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Scenes
+                            <span class="opacity-50 text-[0.7em]">(6 max)</span></p>
+                        <div class="preset-row flex flex-wrap gap-1.5 mb-3" id="videoPresetRow">
+                            <button
+                                class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white"
+                                data-preset="missionary">Missionary</button>
+                            <button
+                                class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white"
+                                data-preset="blowjob">Blowjob</button>
+                            <button
+                                class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white"
+                                data-preset="doggy">Doggy</button>
+                            <button
+                                class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white"
+                                data-preset="cowgirl">Cowgirl</button>
+                            <button
+                                class="preset-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white"
+                                data-preset="handjob">Handjob</button>
+                        </div>
+                        <div id="scenesContainer"></div>
+                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mt-4 mb-2 px-1">
+                            Negative</p>
+                        <textarea id="kenpechiNegativeInput" rows="2" placeholder="Optional negative prompt..."
+                            class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-white/50 text-xs outline-none resize-none"></textarea>
+                    </div>
+
+
+                    <!-- Batch + Generate -->
+                    <div class="section" id="generateSection" style="display:none;">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Count:</span>
+                            <div class="batch-selector flex gap-1.5" id="batchSelector">
+                                <button
+                                    class="batch-btn active w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all"
+                                    data-count="1">1</button>
+                                <button
+                                    class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all"
+                                    data-count="2">2</button>
+                                <button
+                                    class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all"
+                                    data-count="3">3</button>
+                                <button
+                                    class="batch-btn w-9 h-9 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-sm font-bold cursor-pointer transition-all"
+                                    data-count="4">4</button>
+                            </div>
+                        </div>
+                        <button
+                            class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                            id="generateBtn">
+                            <span class="btn-text flex items-center justify-center gap-4">⚡ Execute Synthesis</span>
+                            <span class="btn-loader flex items-center justify-center gap-4" style="display:none;">
+                                <span class="spinner"></span> Manifesting...
+                            </span>
+                        </button>
+                        <div id="progressInfo" style="display:none;" class="mt-3 text-[11px] text-white/40">
+                            <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-2">
+                                <div class="h-full rounded-full bg-gradient-to-r from-[#ff2d95] to-[#9d4dff] transition-all duration-300"
+                                    id="progressFill" style="width:0%"></div>
+                            </div>
+                            <span id="progressText">Starting...</span>
+                            <button id="cancelVideoBtn" onclick="cancelVideoGeneration()" style="display:none;"
+                                class="mt-2 w-full py-2 px-5 rounded-full bg-red-900/15 text-red-400/60 border border-red-900/15 text-[11px] tracking-wider cursor-pointer">Cancel</button>
+                        </div>
+                        <div id="modelLoadingInfo" style="display:none;"
+                            class="mt-2 text-[10px] text-white/25 text-center"><span>Loading model...</span></div>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="section" id="resultSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Result</p>
+                        <div class="rounded-3xl overflow-hidden bg-black/30 mb-3">
+                            <img id="resultImage" src="" alt="Result" class="w-full block rounded-3xl"
+                                style="display:none;">
+                            <video id="resultVideo" controls loop class="w-full block rounded-3xl"
+                                style="display:none;"></video>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center"
+                                id="downloadBtn">Save</button>
+                            <button
+                                class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center"
+                                id="copyBtn">Copy</button>
+                            <button
+                                class="action-btn send-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent"
+                                id="sendBtn">Send</button>
+                            <button
+                                class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center"
+                                id="retryBtn">Retry</button>
+                        </div>
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="section" id="gallerySection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Gallery</p>
+                        <div class="gallery-strip flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="galleryStrip"></div>
+                    </div>
                 </div><!-- /proContainer -->
             </div>
 
 
             <!-- Quick Buy Modal -->
-            <div id="quickBuyOverlay" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center" style="display:none;">
+            <div id="quickBuyOverlay"
+                class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center"
+                style="display:none;">
                 <div class="bg-[#16161e] border border-white/[0.08] rounded-[32px] p-7 max-w-[320px] w-[90%]">
                     <div class="text-center mb-3">
                         <div class="text-sm font-bold text-white">Insufficient Tokens</div>
@@ -603,7 +892,8 @@
                     </div>
                     <div id="quickBuyPackages" class="space-y-2"></div>
                     <button id="quickBuyBtn" class="hidden"></button>
-                    <button id="quickBuyClose" class="w-full mt-2 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] cursor-pointer">Close</button>
+                    <button id="quickBuyClose"
+                        class="w-full mt-2 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] cursor-pointer">Close</button>
                 </div>
             </div>
 
@@ -616,7 +906,7 @@
                 <span class="text-[#00d2ff]">⭐</span>
                 <span class="text-[#ff2d95]">❤️</span>
             </div>
-            <p class="text-[9px] uppercase tracking-[0.6em] font-black">Angel Arena // Neural Synthesis</p>
+            <p class="text-[9px] uppercase tracking-[0.6em] font-black">Angel Arena</p>
         </footer>
     </div>
 
@@ -627,29 +917,45 @@
     <!-- LoRA Modal -->
     <div class="fixed inset-0 z-[2000] flex items-center justify-center" id="loraModalOverlay" style="display:none;">
         <div class="absolute inset-0 backdrop-blur-md bg-black/50" onclick="closeLoraModal()"></div>
-        <div class="relative z-10 bg-[#16161e] border border-white/10 rounded-[24px] w-[88%] max-w-[380px] max-h-[75vh] flex flex-col overflow-hidden">
+        <div
+            class="relative z-10 bg-[#16161e] border border-white/10 rounded-[24px] w-[88%] max-w-[380px] max-h-[75vh] flex flex-col overflow-hidden">
             <div class="flex justify-between items-center px-5 py-4 border-b border-white/[0.06] shrink-0">
                 <span class="text-sm font-bold" id="loraModalTitle">Scene 1 — LoRAs</span>
-                <button class="text-white/40 text-base cursor-pointer bg-transparent border-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 hover:text-white transition-all" id="loraModalClose">✕</button>
+                <button
+                    class="text-white/40 text-base cursor-pointer bg-transparent border-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 hover:text-white transition-all"
+                    id="loraModalClose">✕</button>
             </div>
             <div class="px-5 py-4 overflow-y-auto overflow-x-hidden flex-1" id="loraModalBody"></div>
             <div class="px-5 pb-5 pt-2 shrink-0">
-                <button class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer hover:bg-white/10 transition-all" id="loraModalSave">✅ Save & Close</button>
+                <button
+                    class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white text-xs font-semibold cursor-pointer hover:bg-white/10 transition-all"
+                    id="loraModalSave">✅ Save & Close</button>
             </div>
         </div>
     </div>
 
     <!-- Lightbox -->
-    <div class="gallery-lightbox fixed inset-0 z-[1000] flex items-center justify-center" id="galleryLightbox" style="display:none;">
+    <div class="gallery-lightbox fixed inset-0 z-[1000] flex items-center justify-center" id="galleryLightbox"
+        style="display:none;">
         <div class="absolute inset-0 backdrop-blur-lg bg-black/50" id="lightboxOverlay"></div>
         <div class="relative z-10 w-[92%] max-w-[420px] flex flex-col gap-3">
             <img id="lightboxImage" src="" alt="Preview" class="w-full max-h-[65vh] object-contain rounded-3xl">
             <div class="flex flex-wrap gap-2">
-                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxDownload">Save</button>
-                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center" id="lightboxCopy">Copy</button>
-                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent" id="lightboxSend">Send</button>
-                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-red-500/15 text-red-400/70 text-[11px] font-semibold transition-all text-center bg-transparent" id="lightboxDelete">Delete</button>
-                <button class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center" id="lightboxClose">Close</button>
+                <button
+                    class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center"
+                    id="lightboxDownload">Save</button>
+                <button
+                    class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/60 text-[11px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white text-center"
+                    id="lightboxCopy">Copy</button>
+                <button
+                    class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-[#ff2d95]/30 text-[#ff2d95] text-[11px] font-semibold transition-all hover:bg-[#ff2d95]/15 text-center bg-transparent"
+                    id="lightboxSend">Send</button>
+                <button
+                    class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-red-500/15 text-red-400/70 text-[11px] font-semibold transition-all text-center bg-transparent"
+                    id="lightboxDelete">Delete</button>
+                <button
+                    class="action-btn flex-1 min-w-[60px] py-3 px-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/30 text-[11px] font-semibold transition-all text-center"
+                    id="lightboxClose">Close</button>
             </div>
         </div>
     </div>
@@ -658,7 +964,8 @@
     <div id="customAlert" class="fixed inset-0 z-[99999] bg-black/70 items-center justify-center" style="display:none;">
         <div class="bg-[#16161e] border border-white/[0.08] rounded-[32px] p-6 max-w-[300px] w-[85%] text-center">
             <div id="customAlertText" class="text-[#d4d4d8] text-sm leading-relaxed mb-4"></div>
-            <button id="customAlertOk" class="bg-white/[0.06] text-[#e4e4e7] border border-white/10 rounded-full px-10 py-2.5 text-sm tracking-wider cursor-pointer">OK</button>
+            <button id="customAlertOk"
+                class="bg-white/[0.06] text-[#e4e4e7] border border-white/10 rounded-full px-10 py-2.5 text-sm tracking-wider cursor-pointer">OK</button>
         </div>
     </div>
 
@@ -669,12 +976,12 @@
     </div>
 
     <script>
-        (function(){const o=document.getElementById('customAlert'),t=document.getElementById('customAlertText'),b=document.getElementById('customAlertOk');b.addEventListener('click',()=>{o.style.display='none';});o.addEventListener('click',(e)=>{if(e.target===o)o.style.display='none';});window.alert=function(m){t.textContent=m;o.style.display='flex';};})();
+            (function () { const o = document.getElementById('customAlert'), t = document.getElementById('customAlertText'), b = document.getElementById('customAlertOk'); b.addEventListener('click', () => { o.style.display = 'none'; }); o.addEventListener('click', (e) => { if (e.target === o) o.style.display = 'none'; }); window.alert = function (m) { t.textContent = m; o.style.display = 'flex'; }; })();
     </script>
 
     <!-- Tip tooltip logic (triggered by pink floating dot) -->
     <script>
-        (function(){
+        (function () {
             const tooltip = document.getElementById('tipTooltip');
             const tipVideo = document.getElementById('tipVideo');
             const tipClose = document.getElementById('tipClose');
@@ -765,85 +1072,85 @@
 
     <!-- Mode card → app.js bridge + floating dot -->
     <script>
-        (function(){
-            const grid=document.getElementById('modeGrid');
-            const dot=document.getElementById('modeDotFloat');
-            if(!grid||!dot)return;
+        (function () {
+            const grid = document.getElementById('modeGrid');
+            const dot = document.getElementById('modeDotFloat');
+            if (!grid || !dot) return;
 
-            function moveDotTo(card){
-                const placeholder=card.querySelector('.mode-dot-placeholder');
-                if(!placeholder)return;
-                const gridRect=grid.getBoundingClientRect();
-                const phRect=placeholder.getBoundingClientRect();
-                dot.style.top=(phRect.top-gridRect.top+phRect.height/2-4)+'px';
-                dot.style.left=(phRect.left-gridRect.left+phRect.width/2-4)+'px';
+            function moveDotTo(card) {
+                const placeholder = card.querySelector('.mode-dot-placeholder');
+                if (!placeholder) return;
+                const gridRect = grid.getBoundingClientRect();
+                const phRect = placeholder.getBoundingClientRect();
+                dot.style.top = (phRect.top - gridRect.top + phRect.height / 2 - 4) + 'px';
+                dot.style.left = (phRect.left - gridRect.left + phRect.width / 2 - 4) + 'px';
             }
 
-            function repositionDot(){
+            function repositionDot() {
                 // Disable transition during resize — teleport instantly
-                dot.style.transition='none';
-                const active=grid.querySelector('.mode-card.active');
-                if(active)moveDotTo(active);
+                dot.style.transition = 'none';
+                const active = grid.querySelector('.mode-card.active');
+                if (active) moveDotTo(active);
                 // Re-enable transition after paint
-                requestAnimationFrame(()=>{
-                    dot.style.transition='';
+                requestAnimationFrame(() => {
+                    dot.style.transition = '';
                 });
             }
 
             // Position dot on initial active card (no animation)
-            dot.style.transition='none';
-            requestAnimationFrame(()=>{
+            dot.style.transition = 'none';
+            requestAnimationFrame(() => {
                 repositionDot();
-                requestAnimationFrame(()=>{ dot.style.transition=''; });
+                requestAnimationFrame(() => { dot.style.transition = ''; });
             });
             // Reposition on resize (instant)
             window.addEventListener('resize', repositionDot);
 
-            grid.addEventListener('click',function(e){
+            grid.addEventListener('click', function (e) {
                 // Ignore clicks on the floating dot (used for tip tooltip)
-                if(e.target===dot||e.target.closest('.mode-dot-float'))return;
-                const card=e.target.closest('.mode-card');
-                if(!card)return;
-                const mode=card.dataset.mode;
-                grid.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active'));
+                if (e.target === dot || e.target.closest('.mode-dot-float')) return;
+                const card = e.target.closest('.mode-card');
+                if (!card) return;
+                const mode = card.dataset.mode;
+                grid.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 moveDotTo(card);
-                const sel=document.getElementById('modeSelect');
-                if(sel)sel.value=mode;
-                if(mode==='generate'){switchMode('test');}
-                else if(mode==='dark'){darkMode='edit';switchMode('dark');}
-                else{switchMode(mode);}
+                const sel = document.getElementById('modeSelect');
+                if (sel) sel.value = mode;
+                if (mode === 'generate') { switchMode('test'); }
+                else if (mode === 'dark') { darkMode = 'edit'; switchMode('dark'); }
+                else { switchMode(mode); }
             });
         })();
     </script>
 
     <!-- Tab sliding pill animation -->
     <script>
-        (function(){
-            const nav=document.getElementById('tabNav');
-            const pill=document.getElementById('tabPill');
-            const tabs=document.querySelectorAll('.top-tab');
-            if(!nav||!pill)return;
+        (function () {
+            const nav = document.getElementById('tabNav');
+            const pill = document.getElementById('tabPill');
+            const tabs = document.querySelectorAll('.top-tab');
+            if (!nav || !pill) return;
 
-            function movePillTo(tab){
-                pill.style.left=tab.offsetLeft+'px';
-                pill.style.width=tab.offsetWidth+'px';
+            function movePillTo(tab) {
+                pill.style.left = tab.offsetLeft + 'px';
+                pill.style.width = tab.offsetWidth + 'px';
             }
 
             // Position pill on initial active tab
-            requestAnimationFrame(()=>{
-                const active=nav.querySelector('.top-tab.active');
-                if(active)movePillTo(active);
+            requestAnimationFrame(() => {
+                const active = nav.querySelector('.top-tab.active');
+                if (active) movePillTo(active);
             });
 
             // Reposition on resize
-            window.addEventListener('resize',()=>{
-                const active=nav.querySelector('.top-tab.active');
-                if(active)movePillTo(active);
+            window.addEventListener('resize', () => {
+                const active = nav.querySelector('.top-tab.active');
+                if (active) movePillTo(active);
             });
 
-            tabs.forEach(tab=>{
-                tab.addEventListener('click',()=>{
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
                     movePillTo(tab);
                 });
             });
@@ -852,30 +1159,31 @@
 
     <!-- Inpaint slider label sync -->
     <script>
-        (function(){
-            const cfgSlider=document.getElementById('cfgSlider');
-            const stepsSlider=document.getElementById('stepsSlider');
-            const cfgLabel=document.getElementById('cfgLabel');
-            const stepsLabel=document.getElementById('stepsLabel');
-            
-            if(cfgSlider)cfgSlider.addEventListener('input',()=>{
-                if(cfgLabel)cfgLabel.textContent=cfgSlider.value;
+        (function () {
+            const cfgSlider = document.getElementById('cfgSlider');
+            const stepsSlider = document.getElementById('stepsSlider');
+            const cfgLabel = document.getElementById('cfgLabel');
+            const stepsLabel = document.getElementById('stepsLabel');
+
+            if (cfgSlider) cfgSlider.addEventListener('input', () => {
+                if (cfgLabel) cfgLabel.textContent = cfgSlider.value;
             });
-            if(stepsSlider)stepsSlider.addEventListener('input',()=>{
-                if(stepsLabel)stepsLabel.textContent=stepsSlider.value;
+            if (stepsSlider) stepsSlider.addEventListener('input', () => {
+                if (stepsLabel) stepsLabel.textContent = stepsSlider.value;
             });
         })();
     </script>
 
     <!-- Telegram overrides -->
     <script>
-        (function(){
-            const hdr=()=>({'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''});
-            async function prodLoadProfile(){try{const r=await fetch('/api/profile',{headers:hdr()});if(!r.ok){document.getElementById('profileName').textContent='Auth Error '+r.status;return;}const d=await r.json();document.getElementById('profileName').textContent=window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name||'User';document.getElementById('profileTokens').textContent=d.tokens??0;document.getElementById('profileGens').textContent=d.total_gens??0;document.getElementById('profilePremium').textContent=d.is_premium?'Active':'None';document.getElementById('profileRole').textContent=d.is_admin?'Admin':(d.is_premium?'Premium':'User');}catch(e){document.getElementById('profileName').textContent='Error: '+e.message;}}
-            function openInvoiceSafe(url){try{if(window.Telegram?.WebApp?.openInvoice){window.Telegram.WebApp.openInvoice(url,(s)=>{if(s==='paid')prodLoadProfile();});}else{window.open(url,'_blank');}}catch(e){alert('Invoice error: '+e.message);}}
-            async function prodBuyPremium(){try{const r=await fetch('/api/buy-premium',{method:'POST',headers:hdr()});const d=await r.json();if(!r.ok){alert(d.error||'Failed');return;}if(!d.invoice_url){alert('No invoice URL');return;}openInvoiceSafe(d.invoice_url);}catch(e){alert('Premium error: '+e.message);}}
-            setTimeout(()=>{window.loadProfile=prodLoadProfile;window.buyPremium=prodBuyPremium;const btn=document.getElementById('buyPremiumBtn');if(btn){const n=btn.cloneNode(true);btn.parentNode.replaceChild(n,btn);n.addEventListener('click',prodBuyPremium);}},100);
+        (function () {
+            const hdr = () => ({ 'Content-Type': 'application/json', 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' });
+            async function prodLoadProfile() { try { const r = await fetch('/api/profile', { headers: hdr() }); if (!r.ok) { document.getElementById('profileName').textContent = 'Auth Error ' + r.status; return; } const d = await r.json(); document.getElementById('profileName').textContent = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User'; document.getElementById('profileTokens').textContent = d.tokens ?? 0; document.getElementById('profileGens').textContent = d.total_gens ?? 0; document.getElementById('profilePremium').textContent = d.is_premium ? 'Active' : 'None'; document.getElementById('profileRole').textContent = d.is_admin ? 'Admin' : (d.is_premium ? 'Premium' : 'User'); } catch (e) { document.getElementById('profileName').textContent = 'Error: ' + e.message; } }
+            function openInvoiceSafe(url) { try { if (window.Telegram?.WebApp?.openInvoice) { window.Telegram.WebApp.openInvoice(url, (s) => { if (s === 'paid') prodLoadProfile(); }); } else { window.open(url, '_blank'); } } catch (e) { alert('Invoice error: ' + e.message); } }
+            async function prodBuyPremium() { try { const r = await fetch('/api/buy-premium', { method: 'POST', headers: hdr() }); const d = await r.json(); if (!r.ok) { alert(d.error || 'Failed'); return; } if (!d.invoice_url) { alert('No invoice URL'); return; } openInvoiceSafe(d.invoice_url); } catch (e) { alert('Premium error: ' + e.message); } }
+            setTimeout(() => { window.loadProfile = prodLoadProfile; window.buyPremium = prodBuyPremium; const btn = document.getElementById('buyPremiumBtn'); if (btn) { const n = btn.cloneNode(true); btn.parentNode.replaceChild(n, btn); n.addEventListener('click', prodBuyPremium); } }, 100);
         })();
     </script>
 </body>
+
 </html>
