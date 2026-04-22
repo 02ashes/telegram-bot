@@ -2807,8 +2807,10 @@ async function generateKenpechiVideo() {
             mode = darkMode === 'generate' ? 'generate' : 'dark';
         } else if (currentMode === 'inpaint') {
             mode = 'edit';
+        } else if (currentMode === 'image') {
+            mode = 't2i';
         } else {
-            mode = 'edit';
+            mode = 't2i';
         }
 
         // Get uploaded image for vision analysis
