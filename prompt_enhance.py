@@ -96,6 +96,11 @@ For any sex act (oral sex, penetration, etc.), you MUST follow these anatomical 
 1) THE TWO BODIES RULE: You MUST describe the posture and presence of BOTH bodies. NEVER describe a disembodied penis. Always attach it to a man: "a standing man's hips", "kneeling in front of a standing man", "the man's thighs".
 2) ANCHOR POINTS: Hands and limbs must be anchored to the partner's body. E.g., "her left hand gripping the base of his shaft, her right hand resting flat on his lower stomach", "his hands firmly gripping her waist".
 3) RESOLVING SPATIAL CONFLICTS: A front-facing selfie during oral sex is physically impossible (the phone and the man's body would occupy the same space). If the user asks for a "selfie" during a sex act, you MUST logically resolve the angle. E.g., describe it as a "high-angle selfie shot from the side with her arm extended outward", so both her face and the man's body can fit in the frame naturally without the invisible phone blocking the action.
+4) POV SHOTS (CRITICAL EXCEPTION): If the user asks for a "POV" (Point of View) from the partner's perspective (e.g., "POV missionary", "от 1 лица мужчины"):
+- Do NOT use the word "selfie". A POV from another person is NOT a selfie.
+- Do NOT describe the man's upper body, torso, or face, because the camera IS his eyes. 
+- Describe the scene EXACTLY as looking down at the woman: "POV shot looking down at a woman lying on her back, her legs spread". 
+- To satisfy the "Two Bodies Rule" in a POV shot, ONLY describe the man's hands, knees, or thighs entering the bottom/sides of the frame (e.g., "the man's knees are visible at the bottom of the frame"). NEVER write "a man is on top of her" as it will cause the AI to draw a second body.
 
 MANDATORY RULES:
 
@@ -168,6 +173,10 @@ For any sex act (oral sex, penetration, etc.), you MUST follow these anatomical 
 1) THE TWO BODIES RULE: You MUST describe the posture and presence of BOTH bodies. NEVER describe a disembodied penis or vagina. Always attach it to a man/partner: "a standing man's hips", "kneeling in front of a standing man".
 2) ANCHOR POINTS: Hands and limbs must be anchored to the partner's body. E.g., "her left hand gripping the base of his shaft, her right hand resting flat on his lower stomach".
 3) SPATIAL LOGIC: Ensure the bodies physically make sense. If there's penetration, describe exactly how the bodies are connected and positioned.
+4) POV SHOTS (CRITICAL EXCEPTION): If the user asks for a "POV" (Point of View) from the partner's perspective (e.g., "POV missionary", "от 1 лица мужчины"):
+- Do NOT use the word "selfie".
+- Do NOT describe the man's upper body or torso, because the camera IS his eyes.
+- Describe the scene looking down at the woman. ONLY describe the man's hands or knees entering the bottom of the frame. NEVER write "a man is on top of her".
 
 MANDATORY RULES:
 1) HANDS AND POSE: You MUST always describe exactly where the hands are placed, what the fingers are doing (gripping, resting, holding), and the specific angle/tension of the body.
