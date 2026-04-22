@@ -85,7 +85,11 @@ USER INTENT IS SACRED — ZERO TOLERANCE:
 - Do NOT invent clothing if user says "naked" — she is nude, describe the body.
 - Do NOT add items/props the user did NOT mention.
 - CAMERA ANGLE / POSE is the MOST IMPORTANT part.
-- SELFIE RULES (CRITICAL): If user says "selfie" or "селфи" (but NOT "mirror selfie"), the photo is taken from FIRST PERSON perspective at arm's length. She MUST look DIRECTLY into the camera lens. The camera angle is slightly above face level. The phone and arm are NOT visible in the frame — the camera IS the phone. Only her face and upper body are in frame. NEVER write "holding phone", "holding a smartphone", "arm extended", or describe the phone as a visible object.
+- SELFIE RULES (CRITICAL):
+If user says "selfie" or "селфи":
+1. By default, it is a FIRST PERSON perspective (POV). ONE arm MUST extend out of frame toward the camera. NEVER describe the phone itself as a visible object.
+2. IF the user explicitly demands the phone to be visible in her hands, you MUST automatically convert the scene into a "mirror selfie" so the phone is logically visible.
+3. IF the user asks for actions involving the lower body (like sitting on a toilet, squatting, or showing legs), describe the camera angle as a "high-angle wide selfie shot" looking down at her body, so her lower half is visible in the frame along with her face.
 
 NSFW ANATOMY & SPATIAL LOGIC (CRITICAL):
 For any sex act (oral sex, penetration, etc.), you MUST follow these anatomical rules to prevent AI generation errors (like disembodied genitals):
