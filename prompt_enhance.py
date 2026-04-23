@@ -19,8 +19,8 @@ import config
 logger = logging.getLogger(__name__)
 
 # ── Models ────────────────────────────────────────────────────
-VISION_MODEL = "Pro/Qwen/Qwen2.5-VL-72B-Instruct"  # Deep logic for images
-TEXT_MODEL = "deepseek-ai/DeepSeek-V3"             # Deep logic for text
+VISION_MODEL = "grok-3"  # Deep logic for images (xAI)
+TEXT_MODEL = "grok-3"    # Deep logic for text (xAI)
 
 # ── System Prompts — pipeline-specific ─────────────────────────
 
@@ -205,11 +205,11 @@ async def enhance_prompt(
             "used_vision": bool,
         }
     """
-    api_key = config.SILICONFLOW_API_KEY
-    api_url = config.SILICONFLOW_API_URL
+    api_key = config.XAI_API_KEY
+    api_url = config.XAI_API_URL
 
     if not api_key:
-        logger.warning("SILICONFLOW_API_KEY not set — skipping prompt enhancement")
+        logger.warning("XAI_API_KEY not set — skipping prompt enhancement")
         return _fallback(user_prompt, mode=mode)
 
     # ── Select system prompt by pipeline mode ──
@@ -286,7 +286,7 @@ async def enhance_prompt(
                     if resp.status >= 500 and attempt < max_retries:
                         error_text = await resp.text()
                         logger.warning(
-                            "SiliconFlow API 5xx (attempt %d/%d): %s — retrying...",
+                            "xAI API 5xx (attempt %d/%d): %s — retrying...",
                             attempt + 1, max_retries + 1, error_text[:200],
                         )
                         await asyncio.sleep(1 * (attempt + 1))  # 1s, 2s backoff
@@ -294,36 +294,7 @@ async def enhance_prompt(
 
                     if resp.status != 200:
                         error_text = await resp.text()
-                        
-                        # Fallback for Qwen NSFW 400 Bad Request
-                        if resp.status == 400 and used_vision and "DataInspectionFailed" in error_text:
-                            logger.warning("Qwen blocked image (NSFW). Falling back to text-only DeepSeek...")
-                            # Drop the image from messages and retry with TEXT_MODEL
-                            fallback_messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
-                            async with session.post(
-                                f"{api_url}/chat/completions",
-                                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                                json={
-                                    "model": TEXT_MODEL,
-                                    "messages": fallback_messages,
-                                    "max_tokens": 2000,
-                                    "temperature": 0.7,
-                                    "stream": False,
-                                },
-                                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
-                            ) as fallback_resp:
-                                if fallback_resp.status == 200:
-                                    data = await fallback_resp.json()
-                                    enhanced = data["choices"][0]["message"]["content"].strip()
-                                    enhanced = _clean_response(enhanced)
-                                    logger.info("DeepSeek fallback success: '%s' → '%s'", user_prompt[:50], enhanced[:80])
-                                    return {"enhanced": enhanced, "original": user_prompt, "model": TEXT_MODEL, "time_ms": int((time.monotonic() - start) * 1000), "used_vision": False}
-                                else:
-                                    logger.error("DeepSeek fallback also failed %d: %s", fallback_resp.status, await fallback_resp.text())
-
-                        logger.error(
-                            "SiliconFlow API error %d: %s", resp.status, error_text[:300]
-                        )
+                        logger.error("xAI API error %d: %s", resp.status, error_text[:300])
                         return _fallback(user_prompt, elapsed_ms, mode=mode)
 
                     data = await resp.json()

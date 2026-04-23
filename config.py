@@ -24,9 +24,8 @@ ADMIN_TELEGRAM_ID = int(os.environ.get("ADMIN_TELEGRAM_ID", "1946394239"))
 # Database (PostgreSQL on Railway)
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
-# SiliconFlow API (Auto-Prompt Enhancement)
-SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "sk-hamcvdnbovzdvstidyuiyjpuqlgygjhhfbbsshgjafydtrxm")
-SILICONFLOW_API_URL = os.environ.get(
-    "SILICONFLOW_API_URL", "https://api.siliconflow.com/v1"
-)
+# API Keys (LLM)
+XAI_API_KEY = os.environ.get("XAI_API_KEY", "xai-d2Qw3J8Xjy0pTH6zuchwG0oioTKOMj5kIRblNtnEyMeyfQsOygXVZZ2okRDYVSMrAcUF2V9yKDHa0DXv")
+XAI_API_URL = os.environ.get("XAI_API_URL", "https://api.x.ai/v1")
+
 AUTOPROMPT_ENABLED = os.environ.get("AUTOPROMPT_ENABLED", "true").lower() == "true"
