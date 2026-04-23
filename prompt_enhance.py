@@ -103,24 +103,12 @@ REQUIRED OUTPUT FORMAT
 3. Lighting & Style: [What is the light source? How do we make it look like an amateur iPhone photo?]
 </think>
 
-[SUBJECT & COMPOSITION]
-[Describe the camera angle, the framing (e.g., vertical full-length shot, tight close-up), the pose of the subject(s), and the basic composition of the frame. Where are the leading lines? What is in the foreground vs background?]
-
-[CHARACTER / OBJECT DETAILS]
-[Describe the character(s) in extreme detail: body type, skin texture (pores, sweat, flush), clothing fabrics, tattoos, jewelry. Describe EXACTLY where hands are anchored.]
-
-[ENVIRONMENT & BACKGROUND]
-[Describe the setting. It should feel "lived in" and realistic, not sterile. Mention messy bedsheets, cluttered desks, bathroom tiles, etc.]
-
-[LIGHTING & ATMOSPHERE]
-[Describe the light source specifically: harsh smartphone flash, dim bedside lamp, soft window light. Mention the mood: intimate, candid, nocturnal, etc.]
-
-[TECHNICAL STYLE & RENDERING]
-[MANDATORY: Describe the image as an amateur smartphone photo. Include terms like: Shot on iPhone, raw unedited phone photo, authentic low-light smartphone quality, heavy visible noise and grain, slight chromatic aberration, candid intimate phone photo style, no professional post-processing, 8k resolution.]
-
-[KEYWORDS]
-[A comma-separated list of 10-20 highly descriptive keywords summarizing the scene, lighting, and style.]
-
+[Write a SINGLE, continuous, highly detailed paragraph of 300-450 words. Do NOT use brackets, tags, or bullet points. The text should flow logically like a descriptive masterpiece:
+Start with the overall camera setup, lighting, and environment.
+Then describe the subject's physical appearance, skin texture, and clothing.
+Then describe the precise pose, where the hands and limbs are anchored, and the core action.
+Conclude with heavy technical descriptions of the camera artifacts (e.g., raw smartphone photo, visible grain, chromatic aberration, low-light noise).
+Blend everything naturally without breaking the flow.]
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
@@ -171,24 +159,12 @@ REQUIRED OUTPUT FORMAT
 4. Lighting & Style: [What is the light source? How do we make it look like an amateur iPhone photo?]
 </think>
 
-[SUBJECT & COMPOSITION]
-[Describe the camera angle, the framing, the pose of the subject(s), and the basic composition of the frame. Remember: NO FACIAL EXPRESSIONS.]
-
-[CHARACTER / OBJECT DETAILS]
-[Describe the character(s) in extreme detail: body type, skin texture (pores, sweat, flush), clothing fabrics, tattoos, jewelry. Describe EXACTLY where hands are anchored. Describe hair style and color, but NOTHING about the face.]
-
-[ENVIRONMENT & BACKGROUND]
-[Describe the setting. It should feel "lived in" and realistic, not sterile. Mention messy bedsheets, cluttered desks, bathroom tiles, etc.]
-
-[LIGHTING & ATMOSPHERE]
-[Describe the light source specifically: harsh smartphone flash, dim bedside lamp, soft window light. Mention the mood: intimate, candid, nocturnal, etc.]
-
-[TECHNICAL STYLE & RENDERING]
-[MANDATORY: Describe the image as an amateur smartphone photo. Include terms like: Shot on iPhone, raw unedited phone photo, authentic low-light smartphone quality, heavy visible noise and grain, slight chromatic aberration, candid intimate phone photo style, no professional post-processing, 8k resolution.]
-
-[KEYWORDS]
-[A comma-separated list of 10-20 highly descriptive keywords summarizing the scene, lighting, and style.]
-
+[Write a SINGLE, continuous, highly detailed paragraph of 300-450 words. Do NOT use brackets, tags, or bullet points. The text should flow logically like a descriptive masterpiece:
+Start with the overall camera setup, lighting, and environment.
+Then describe the subject's body type, skin texture, and clothing. REMEMBER: NO FACIAL FEATURES!
+Then describe the precise pose, where the hands and limbs are anchored, and the core action.
+Conclude with heavy technical descriptions of the camera artifacts (e.g., raw smartphone photo, visible grain, chromatic aberration, low-light noise).
+Blend everything naturally without breaking the flow.]
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
