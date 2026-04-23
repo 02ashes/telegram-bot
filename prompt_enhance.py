@@ -310,6 +310,33 @@ async def enhance_prompt(
 
                     if resp.status != 200:
                         error_text = await resp.text()
+                        
+                        # Fallback for Qwen NSFW 400 Bad Request
+                        if resp.status == 400 and used_vision and "DataInspectionFailed" in error_text:
+                            logger.warning("Qwen blocked image (NSFW). Falling back to text-only DeepSeek...")
+                            # Drop the image from messages and retry with TEXT_MODEL
+                            fallback_messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
+                            async with session.post(
+                                f"{api_url}/chat/completions",
+                                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                                json={
+                                    "model": TEXT_MODEL,
+                                    "messages": fallback_messages,
+                                    "max_tokens": 2000,
+                                    "temperature": 0.7,
+                                    "stream": False,
+                                },
+                                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
+                            ) as fallback_resp:
+                                if fallback_resp.status == 200:
+                                    data = await fallback_resp.json()
+                                    enhanced = data["choices"][0]["message"]["content"].strip()
+                                    enhanced = _clean_response(enhanced)
+                                    logger.info("DeepSeek fallback success: '%s' → '%s'", user_prompt[:50], enhanced[:80])
+                                    return {"enhanced": enhanced, "original": user_prompt, "model": TEXT_MODEL, "time_ms": int((time.monotonic() - start) * 1000), "used_vision": False}
+                                else:
+                                    logger.error("DeepSeek fallback also failed %d: %s", fallback_resp.status, await fallback_resp.text())
+
                         logger.error(
                             "SiliconFlow API error %d: %s", resp.status, error_text[:300]
                         )
