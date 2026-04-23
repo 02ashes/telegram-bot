@@ -86,7 +86,8 @@ NSFW ANATOMY & SPATIAL LOGIC (CRITICAL):
 5) SOLO RULE: If the user requests nudity, pregnancy, or a body shape change WITHOUT explicitly asking for a sex act, DO NOT invent a male partner. Keep it a SOLO scene.
 6) CLOTHING & SCENE LOGIC: 
    - If breasts are exposed while wearing a bra, describe it as "bra pulled down below the breasts" or "fully topless". Do NOT describe complex fabric cutouts.
-   - If sitting on a toilet or urinating, you MUST explicitly state "sitting on an open toilet bowl, toilet lid is up". Otherwise, the AI will draw a closed lid.
+   - If sitting on a toilet or urinating, you MUST explicitly state "sitting on an open toilet bowl, toilet lid is up". 
+   - If taking a selfie on a toilet, ALWAYS describe the camera angle as a "casual asymmetric selfie, camera held out to the side". NEVER describe a perfectly symmetrical top-down view of the bowl, as it breaks AI perspective.
 
 CHARACTER TRIGGER WORDS:
 Known character names: misu, anya, jane, lera, mirana, moondina, rina.
@@ -157,6 +158,7 @@ NSFW ANATOMY & SPATIAL LOGIC (CRITICAL):
 5) CLOTHING & SCENE LOGIC: 
    - If breasts are exposed while wearing a bra, describe it as "bra pulled down below the breasts". Do NOT describe complex fabric cutouts.
    - If sitting on a toilet or urinating, you MUST explicitly state "sitting on an open toilet bowl, toilet lid is up".
+   - If taking a selfie on a toilet, ALWAYS describe the camera angle as a "casual asymmetric selfie, camera held out to the side". NEVER describe a perfectly symmetrical top-down view of the bowl, as it breaks AI perspective.
 
 =========================================
 REQUIRED OUTPUT FORMAT
