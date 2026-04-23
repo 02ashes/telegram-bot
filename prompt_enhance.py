@@ -447,8 +447,8 @@ async def classify_and_enhance(
     """
     import json as _json
 
-    api_key = config.SILICONFLOW_API_KEY
-    api_url = config.SILICONFLOW_API_URL
+    api_key = config.XAI_API_KEY
+    api_url = config.XAI_API_URL
 
     # Fallback: keyword-based classification (still runs step 2 enhancement!)
     def _keyword_classify():
@@ -496,7 +496,7 @@ async def classify_and_enhance(
         return _intent, _nsfw, _denoise, ""  # intent, nsfw, denoise, body_desc
 
     if not api_key:
-        logger.warning("SILICONFLOW_API_KEY not set — using keyword classify + enhance")
+        logger.warning("XAI_API_KEY not set — using keyword classify + enhance")
         intent, nsfw, denoise, body_desc = _keyword_classify()
         classify_ms = 0
 
