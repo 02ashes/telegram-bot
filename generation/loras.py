@@ -19,12 +19,15 @@ CHARACTER_LORAS = {
 }
 
 
+import re
+
 def detect_character_loras(prompt: str) -> list[dict]:
     """Detect character trigger words in prompt, return list of LoRA configs."""
     prompt_lower = prompt.lower()
     found = []
     for trigger, cfg in CHARACTER_LORAS.items():
-        if trigger in prompt_lower:
+        # Use regex word boundaries to prevent 'urinating' from triggering 'rina'
+        if re.search(rf'\b{re.escape(trigger)}\b', prompt_lower):
             found.append({"trigger": trigger, **cfg})
             logger.info("Detected character LoRA: %s → %s", trigger, cfg["lora_name"])
     return found
