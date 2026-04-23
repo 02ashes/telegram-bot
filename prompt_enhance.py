@@ -131,6 +131,11 @@ A stunning blonde woman with long, straight platinum blonde hair cascading over 
 EXAMPLE 4 (Explicit / NSFW Flow - Two Bodies & Anchor Points):
 1girl, 1boy, fellatio, oral sex, nude female, kneeling. A slim young woman with long dark hair kneels on a plush white rug, performing oral sex on a standing man. Her lips wrap tightly around his erect penis, her left hand gripping the base of the shaft while her right hand rests flat against the man's lower stomach for balance. The man stands with his hips forward, wearing only an unbuttoned black shirt, his hands resting on her head. Her body is fully nude, her small natural breasts hanging softly, her skin glistening with a light sheen of sweat under the warm, dim bedroom lighting. A high-angle selfie shot from the side with her arm extended outward, capturing both her face and the man's lower body in the frame without blocking the action. Deep shadows contrast with the bright smartphone flash highlighting her skin.
 
+EXAMPLE 5 (Solo Nude / Body Shape Change - NO partner, NO sex):
+1girl, solo, nude, full body, pregnant. A gorgeous young woman lying casually on her back on a worn-out beige couch, fully nude. Her curvaceous body is on full display, her skin glistening with a light sheen of sweat, her belly visibly rounded indicating she is three or four months pregnant. Soft natural skin texture is visible everywhere, including her natural round breasts and realistic areolas. Her hands rest gently beside her hips. There is no one else in the room. The camera is angled low from the side of the couch, capturing the full unfiltered scene with a shallow depth of field. Soft window light bathes her skin. Raw amateur photo, 8k uhd.
+
+CRITICAL NSFW RULE: If the user requests nudity, pregnancy, or a body shape change WITHOUT explicitly asking for a sex act, DO NOT invent a male partner. Keep it a SOLO scene.
+
 PROHIBITIONS:
 - NO quality-only prompts with zero visual content
 - NO abstract emotions ("a sense of danger")
@@ -189,6 +194,11 @@ For scenes involving sex acts, START the prompt with explicit composition tags, 
 
 NSFW EXAMPLE 1 — Doggy style (Two Bodies anchored):
 1girl, 1boy, sex from behind, doggy style, nude, vaginal penetration. An athletic brunette woman with shoulder-length wavy hair on all fours on a plush white bed, being penetrated from behind by a man kneeling behind her. Her back is arched deeply, hair falling forward over the pillows; her nude body glistens with a light sheen of sweat, small breasts hanging naturally, toned waist and hips visible. The man grips her hips tightly with both hands, his fingers pressing into her skin, his muscular thighs pressing against her. The camera is positioned at a low angle from the side, capturing the full scene with both bodies connected in a shallow depth of field. Soft warm lighting from a bedside lamp bathes her skin in a realistic glow with soft grain. Raw amateur photo, 8k uhd.
+
+NSFW EXAMPLE 2 — Solo Nude / Body Shape (NO sex act, NO partner):
+NSFW: 1girl, solo, nude, full body, pregnant. A gorgeous young woman lying casually on her back on a worn-out beige couch, fully nude. Her curvaceous body is on full display, her skin glistening with a light sheen of sweat, her belly visibly rounded indicating she is three or four months pregnant. Soft natural skin texture is visible everywhere, including her natural round breasts and realistic areolas. Her hands rest gently beside her hips. There is no one else in the room. The camera is angled low from the side of the couch, capturing the full unfiltered scene with a shallow depth of field. Soft window light bathes her skin. Raw amateur photo, 8k uhd.
+
+CRITICAL NSFW RULE: If the user requests nudity, pregnancy, or a body shape change WITHOUT explicitly asking for a sex act, DO NOT invent a male partner. Keep it a SOLO scene.
 
 NON-NSFW EXAMPLE — Portrait (No face described):
 A young woman with long dark brown hair cascading over her shoulders, slim athletic body with natural tan skin and a small butterfly tattoo on her left wrist. She wears a vintage cream-colored sundress with thin straps and a subtle floral print, the fabric flowing lightly in a gentle breeze. She leans against a rustic wooden railing on a Mediterranean cliffside balcony, her right hand brushing hair from her shoulder, her left hand resting gently on the weathered wood. Behind her, whitewashed buildings with blue domed roofs cascade down the hillside toward a deep azure sea. Late afternoon unfiltered sunlight bathes her skin in warm amber tones, creating natural shadows. The camera is positioned at a medium close-up angle, slightly below eye level. Candid smartphone snapshot, 8k, ultra-detailed.
