@@ -646,13 +646,9 @@
                     <!-- DARK: Quality -->
                     <div class="section dark-only" id="darkQualitySection" style="display:none;">
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Quality</p>
-                        <div class="quality-toggle flex gap-2">
-                            <button
-                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
-                                id="qualityFast" data-quality="fast">Fast</button>
-                            <button
-                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
-                                id="qualityDetailed" data-quality="detailed">Detailed</button>
+                        <div class="t2i-pill-toggle" id="darkQualityToggle">
+                            <button class="t2i-pill active" id="qualityFast" data-quality="fast">Fast</button>
+                            <button class="t2i-pill" id="qualityDetailed" data-quality="detailed">Detailed</button>
                         </div>
                     </div>
 
@@ -717,13 +713,9 @@
                     <!-- T2I: Pipeline Sub-mode -->
                     <div class="section test-only" id="t2iSubmodeSection" style="display:none;">
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Pipeline</p>
-                        <div class="quality-toggle flex gap-2" id="t2iSubmodeToggle">
-                            <button
-                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
-                                data-submode="t2i">T2I</button>
-                            <button
-                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
-                                data-submode="bfs">BFS</button>
+                        <div class="t2i-pill-toggle" id="t2iSubmodeToggle">
+                            <button class="t2i-pill active" data-submode="t2i">T2I</button>
+                            <button class="t2i-pill" data-submode="bfs">BFS</button>
                         </div>
                     </div>
 

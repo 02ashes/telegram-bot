@@ -462,6 +462,16 @@ function switchMode(mode) {
         el.style.display = mode === 'test' ? '' : 'none';
     });
 
+    // AFTER test-only loop: override T2I/BFS submode visibility
+    if (mode === 'test') {
+        const faceSection = document.getElementById('t2iFaceUploadSection');
+        const detailersSection = document.getElementById('t2iDetailersSection');
+        const extrasSection = document.getElementById('t2iExtrasSection');
+        if (faceSection) faceSection.style.display = t2iSubmode === 'bfs' ? '' : 'none';
+        if (detailersSection) detailersSection.style.display = t2iSubmode === 't2i' ? '' : 'none';
+        if (extrasSection) extrasSection.style.display = t2iSubmode === 't2i' ? '' : 'none';
+    }
+
     // AFTER dark-only loop: override darkImage2Section for Edit mode too
     if (mode === 'image') {
         // Bug #2: Only show image2 slot in Default mode (Depth doesn't need it)
@@ -863,9 +873,9 @@ if (testLoraStrengthSlider) {
 }
 
 // Quality toggle (Fast / Detailed)
-document.querySelectorAll('#darkQualitySection .quality-btn').forEach(btn => {
+document.querySelectorAll('#darkQualitySection .t2i-pill').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('#darkQualitySection .quality-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#darkQualitySection .t2i-pill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         darkQuality = btn.dataset.quality;
     });
@@ -908,9 +918,9 @@ document.querySelectorAll('#t2iNsfwToggle .t2i-pill').forEach(pill => {
 });
 
 // T2I: Pipeline Sub-mode toggle (T2I / BFS)
-document.querySelectorAll('#t2iSubmodeToggle .quality-btn').forEach(btn => {
+document.querySelectorAll('#t2iSubmodeToggle .t2i-pill').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('#t2iSubmodeToggle .quality-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#t2iSubmodeToggle .t2i-pill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         t2iSubmode = btn.dataset.submode;
 
