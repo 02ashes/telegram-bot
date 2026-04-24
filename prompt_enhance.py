@@ -110,7 +110,13 @@ ANATOMICAL REALISM — MANDATORY:
 - All body parts MUST have realistic, proportional sizes. Do NOT exaggerate.
 - Penis: ALWAYS describe as "average-sized" or "realistic proportions" unless the user explicitly asks otherwise. NEVER describe as huge, massive, or oversized by default.
 - Breasts, buttocks, genitals: natural proportions matching the described body type. No cartoonish exaggeration.
-- Hands must have exactly 5 fingers. Limbs must be anatomically correct length."""
+- Hands must have exactly 5 fingers. Limbs must be anatomically correct length.
+
+MULTI-BODY SCENES (sex acts, blowjobs, etc.):
+- Keep the MALE body description MINIMAL — the less detail on the male, the less the model can corrupt. Describe only what is strictly visible in the frame (e.g., "lower abdomen and thighs visible at the top of the frame").
+- Do NOT describe the male's full body, face, or detailed anatomy beyond the bare minimum needed for the scene.
+- Focus 90% of detail on the FEMALE subject — her pose, expression, hands, skin.
+- For POV shots: the male body is mostly out of frame. Only describe the small visible portion (thighs, lower torso). Keep it to ONE short sentence."""
 
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
@@ -203,9 +209,9 @@ Example 2 (NSFW Kneeling Selfie):
 ---
 
 Example 3 (NSFW — Blowjob POV):
-[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman performing oral sex, framed vertically from the male's lower abdomen to the woman's head and shoulders. Camera at the standing male's chest height, angled sharply downward. Her face is centered in the lower two-thirds of the frame, with the male's bare lower torso occupying the top of the frame.
+[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman performing oral sex. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. Minimal male body visible — only a sliver of bare lower abdomen at the very top edge of the frame.
 
-[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, her knees apart for stability. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of the average-sized erect penis, fingers wrapped around the shaft with realistic proportions. Her lips are stretched around the glans, mouth open with the tip visible between her lips, saliva glistening on the skin. Her left hand rests on his bare thigh for balance. Her eyes look upward directly toward the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
+[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of an average-sized erect penis, her lips wrapped around the glans with saliva glistening on the skin. Her left hand rests on his thigh. Her eyes look upward directly at the camera with a focused gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
 
 [ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
 
@@ -455,16 +461,48 @@ def _fallback(user_prompt: str, time_ms: int = 0, mode: str = "") -> dict:
     """Return prompt with basic template enhancement when API fails."""
     enhanced = user_prompt
 
+    # Basic Russian → English translation for common keywords
+    # (Z-Image Turbo only understands English)
+    _ru_to_en = {
+        "сосёт член": "blowjob, mouth on average-sized penis",
+        "сосет член": "blowjob, mouth on average-sized penis",
+        "минет": "blowjob, mouth on average-sized penis",
+        "показывает киску": "showing spread pussy, visible labia",
+        "показывает анус": "showing anus, bent over rear view",
+        "показывает попу": "showing butt, rear view",
+        "голая": "fully nude, naked",
+        "раздевается": "undressing, pulling off clothes",
+        "на кровати": "lying on bed",
+        "в ванной": "in bathroom",
+        "селфи": "selfie, smartphone mirror photo",
+        "у зеркала": "mirror selfie",
+        "на пляже": "on the beach, swimsuit",
+        "сверху": "POV from above, looking down",
+        "снизу": "POV from below, looking up",
+        "раком": "doggy style, on all fours",
+        "секс": "sex, intercourse",
+        "трахает": "fucking, sex",
+        "девушка": "young woman",
+        "красивая": "beautiful",
+    }
+    prompt_lower = enhanced.lower()
+    for ru, en in _ru_to_en.items():
+        if ru in prompt_lower:
+            enhanced = enhanced.replace(ru, en, 1)
+            # Also try with case from original
+            import re as _re
+            enhanced = _re.sub(_re.escape(ru), en, enhanced, count=1, flags=_re.IGNORECASE)
+
     # For T2I/BFS/generate modes, append Z-Image Turbo friendly tags
     if mode in ("t2i", "generate", "bfs"):
         quality_tags = "candid smartphone photograph, natural lighting, realistic skin texture, sharp focus, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"
-        if not any(tag in user_prompt.lower() for tag in ["masterpiece", "detailed", "smartphone"]):
-            enhanced = f"{user_prompt}. {quality_tags}"
+        if not any(tag in enhanced.lower() for tag in ["masterpiece", "detailed", "smartphone"]):
+            enhanced = f"{enhanced}. {quality_tags}"
     elif mode in ("edit", "dark"):
-        if not user_prompt.lower().startswith("same face"):
-            enhanced = f"same face, keep face unchanged. {user_prompt}. candid photo, natural skin, sharp detail, Extremely Detailed, Real, Beautiful"
+        if not enhanced.lower().startswith("same face"):
+            enhanced = f"same face, keep face unchanged. {enhanced}. candid photo, natural skin, sharp detail, Extremely Detailed, Real, Beautiful"
 
-    logger.warning("Using template fallback for mode=%s: '%s'", mode, enhanced[:80])
+    logger.warning("Using template fallback for mode=%s: '%s'", mode, enhanced[:120])
 
     return {
         "enhanced": enhanced,
