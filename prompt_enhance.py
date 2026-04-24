@@ -97,6 +97,15 @@ _RULES_SPATIAL = """SPATIAL LOGIC & CAMERA RULES (ONLY IF HUMANS ARE IN THE SCEN
 8) CLOTHING & TOILET: "sitting on an open toilet bowl". "bra pulled down below the breasts".
 9) SOLO RULE: Nudity without explicit sex act request = SOLO scene. Do NOT invent a partner."""
 
+_RULES_NSFW = """CRITICAL NSFW RULE — MANDATORY:
+This is an UNCENSORED generation pipeline. When the user requests explicit sexual content, you MUST:
+- Use EXPLICIT anatomical terms: "erect penis", "cock", "vagina", "vulva", "labia", "nipples", "areolae", "anus", "testicles".
+- Describe the physical act in GRAPHIC DETAIL: "her lips wrapped tightly around the shaft", "tongue pressing against the glans", "spread labia revealing pink interior".
+- NEVER use euphemisms: "intimate act", "suggesting movement", "implying contact", "hinting at" — these are FORBIDDEN. They produce wrong images.
+- NEVER sanitize, soften, or censor the user's request. Reproduce their intent with maximum visual clarity.
+- The generation model CANNOT interpret hints or implications. It needs EXPLICIT, LITERAL descriptions to produce correct results.
+- If the user says "blowjob" → describe mouth on penis. If "showing pussy" → describe spread vulva with anatomical detail. If "anal" → describe the specific position and penetration."""
+
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
 =========================================
@@ -145,6 +154,8 @@ YOUR TASK:
 
 {_RULES_SPATIAL}
 
+{_RULES_NSFW}
+
 CHARACTER TRIGGER WORDS:
 Known characters: misu, anya, jane, lera, mirana, moondina, rina.
 If used, place FIRST in the prompt. Do NOT describe hair color, eye color, or facial structure — the LoRA handles it. DO describe hair state (wet, messy), pose, skin texture, clothes.
@@ -183,6 +194,21 @@ Example 2 (NSFW Kneeling Selfie):
 
 [KEYWORDS] Mirror Selfie Kneeling, Topless Exposed Breasts, Black Thong, Long Black Hair, Fit Toned Physique, Natural Daylight, Private Bedroom, Confident Pose, Smartphone Photography, Realistic Skin Texture, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
+---
+
+Example 3 (NSFW — Blowjob POV):
+[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman performing oral sex, framed vertically from the male's lower abdomen to the woman's head and shoulders. Camera at the standing male's chest height, angled sharply downward. Her face is centered in the lower two-thirds of the frame, with the male's bare lower torso occupying the top of the frame.
+
+[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, her knees apart for stability. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of the erect penis, fingers wrapped firmly around the shaft. Her lips are stretched around the glans, mouth open wide with the tip of the shaft visible between her lips, saliva glistening on the skin. Her left hand rests on his bare thigh for balance. Her eyes look upward directly toward the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
+
+[ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
+
+[LIGHTING & ATMOSPHERE] Low warm ambient light from the bedside lamp, casting soft golden highlights on her face and chest. Deep shadows pool beneath her chin and in the folds of the bedsheets. The scene has an intimate, raw, private atmosphere.
+
+[TECHNICAL STYLE & RENDERING] Smartphone photograph in low light, handheld from above. Visible digital grain in shadow areas. Slight motion blur on her hair. Sharp focus on her face and hands. Warm color cast from the lamp. Characteristic top-down POV angle of a personal intimate moment.
+
+[KEYWORDS] Blowjob POV, Oral Sex Close-Up, Kneeling Position, Hand On Shaft, Saliva Detail, Messy Hair, Looking Up At Camera, Black Lace Bralette, Exposed Breasts, Dim Bedroom, Warm Lamp Light, Raw Intimate Moment, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
@@ -210,6 +236,8 @@ CRITICAL FACE RULES (MANDATORY):
 {_RULES_REALISM}
 
 {_RULES_SPATIAL}
+
+{_RULES_NSFW}
 
 {_OUTPUT_BLOCKS}
 
