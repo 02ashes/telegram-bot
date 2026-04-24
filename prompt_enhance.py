@@ -125,9 +125,9 @@ MULTI-BODY SCENES (sex acts, blowjobs, etc.):
 
 BODY ORIENTATION RULE — CRITICAL:
 - NEVER frame a shot as "hyper-close-up" of ONLY genitals with no other body context. The model loses body orientation and creates mirrored/mutated anatomy.
-- ALWAYS include enough body in the frame to establish orientation: at minimum show the torso, stomach, or thighs connecting to the rest of the body.
-- For "showing pussy/anus" type requests: frame as a MEDIUM or FULL-BODY shot (e.g., "lying on bed with legs spread, full body visible from head to feet") rather than an isolated genital close-up.
-- The model needs to see WHERE the genitals connect to the body, otherwise it will mirror or duplicate them."""
+- ALWAYS include the HEAD/FACE in the frame. Frame as FULL-BODY (head to feet) or at minimum head to knees. The face anchors the body and is essential for character LoRA recognition.
+- For "showing pussy/anus" type requests: frame as "lying on bed with legs spread, full body visible from head to feet, looking at camera" — NOT an isolated genital close-up.
+- The model needs to see the FACE and WHERE the genitals connect to the body, otherwise it will mirror or duplicate them."""
 
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
