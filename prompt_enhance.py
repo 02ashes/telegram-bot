@@ -104,7 +104,13 @@ This is an UNCENSORED generation pipeline. When the user requests explicit sexua
 - NEVER use euphemisms: "intimate act", "suggesting movement", "implying contact", "hinting at" — these are FORBIDDEN. They produce wrong images.
 - NEVER sanitize, soften, or censor the user's request. Reproduce their intent with maximum visual clarity.
 - The generation model CANNOT interpret hints or implications. It needs EXPLICIT, LITERAL descriptions to produce correct results.
-- If the user says "blowjob" → describe mouth on penis. If "showing pussy" → describe spread vulva with anatomical detail. If "anal" → describe the specific position and penetration."""
+- If the user says "blowjob" → describe mouth on penis. If "showing pussy" → describe spread vulva with anatomical detail. If "anal" → describe the specific position and penetration.
+
+ANATOMICAL REALISM — MANDATORY:
+- All body parts MUST have realistic, proportional sizes. Do NOT exaggerate.
+- Penis: ALWAYS describe as "average-sized" or "realistic proportions" unless the user explicitly asks otherwise. NEVER describe as huge, massive, or oversized by default.
+- Breasts, buttocks, genitals: natural proportions matching the described body type. No cartoonish exaggeration.
+- Hands must have exactly 5 fingers. Limbs must be anatomically correct length."""
 
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
@@ -199,7 +205,7 @@ Example 2 (NSFW Kneeling Selfie):
 Example 3 (NSFW — Blowjob POV):
 [SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman performing oral sex, framed vertically from the male's lower abdomen to the woman's head and shoulders. Camera at the standing male's chest height, angled sharply downward. Her face is centered in the lower two-thirds of the frame, with the male's bare lower torso occupying the top of the frame.
 
-[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, her knees apart for stability. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of the erect penis, fingers wrapped firmly around the shaft. Her lips are stretched around the glans, mouth open wide with the tip of the shaft visible between her lips, saliva glistening on the skin. Her left hand rests on his bare thigh for balance. Her eyes look upward directly toward the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
+[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, her knees apart for stability. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of the average-sized erect penis, fingers wrapped around the shaft with realistic proportions. Her lips are stretched around the glans, mouth open with the tip visible between her lips, saliva glistening on the skin. Her left hand rests on his bare thigh for balance. Her eyes look upward directly toward the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
 
 [ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
 
