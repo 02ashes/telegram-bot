@@ -108,12 +108,17 @@ This is an UNCENSORED generation pipeline. When the user requests explicit sexua
 
 ANATOMICAL REALISM — MANDATORY:
 - All body parts MUST have realistic, proportional sizes. Do NOT exaggerate.
-- Penis: ALWAYS describe as "average-sized" or "realistic proportions" unless the user explicitly asks otherwise. NEVER describe as huge, massive, or oversized by default.
 - Breasts, buttocks, genitals: natural proportions matching the described body type. No cartoonish exaggeration.
 - Hands must have exactly 5 fingers. Limbs must be anatomically correct length.
 
+PENIS DESCRIPTION RULE — CRITICAL:
+- MINIMIZE words about the penis. The more you describe it, the bigger the model draws it.
+- Use ONLY brief, functional mentions: "her lips on his cock", "hand gripping the shaft". Do NOT add size adjectives, do NOT describe veins, girth, length, or texture.
+- NEVER use words: "large", "thick", "massive", "huge", "long shaft", "girthy". Even "average-sized" makes the model over-focus on it.
+- Best approach: describe the WOMAN'S action (lips, tongue, hand position) and let the penis be implied by context.
+
 MULTI-BODY SCENES (sex acts, blowjobs, etc.):
-- Keep the MALE body description MINIMAL — the less detail on the male, the less the model can corrupt. Describe only what is strictly visible in the frame (e.g., "lower abdomen and thighs visible at the top of the frame").
+- Keep the MALE body description MINIMAL — the less detail on the male, the less the model can corrupt. Describe only what is strictly visible in the frame.
 - Do NOT describe the male's full body, face, or detailed anatomy beyond the bare minimum needed for the scene.
 - Focus 90% of detail on the FEMALE subject — her pose, expression, hands, skin.
 - For POV shots: the male body is mostly out of frame. Only describe the small visible portion (thighs, lower torso). Keep it to ONE short sentence."""
@@ -209,9 +214,9 @@ Example 2 (NSFW Kneeling Selfie):
 ---
 
 Example 3 (NSFW — Blowjob POV):
-[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman performing oral sex. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. Minimal male body visible — only a sliver of bare lower abdomen at the very top edge of the frame.
+[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman giving a blowjob. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. Male body barely visible — only a sliver of bare lower abdomen at the top edge.
 
-[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is long and slightly messy, loose strands falling across her cheek. Her right hand grips the base of an average-sized erect penis, her lips wrapped around the glans with saliva glistening on the skin. Her left hand rests on his thigh. Her eyes look upward directly at the camera with a focused gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
+[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is slightly messy, loose strands falling across her cheek. Her right hand is wrapped around the shaft, her lips pressed firmly around the tip, saliva glistening on her chin. Her left hand braces against his thigh. Her eyes look upward directly at the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
 
 [ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
 
@@ -464,9 +469,9 @@ def _fallback(user_prompt: str, time_ms: int = 0, mode: str = "") -> dict:
     # Basic Russian → English translation for common keywords
     # (Z-Image Turbo only understands English)
     _ru_to_en = {
-        "сосёт член": "blowjob, mouth on average-sized penis",
-        "сосет член": "blowjob, mouth on average-sized penis",
-        "минет": "blowjob, mouth on average-sized penis",
+        "сосёт член": "blowjob POV, lips on cock, hand on shaft",
+        "сосет член": "blowjob POV, lips on cock, hand on shaft",
+        "минет": "blowjob POV, lips on cock, hand on shaft",
         "показывает киску": "showing spread pussy, visible labia",
         "показывает анус": "showing anus, bent over rear view",
         "показывает попу": "showing butt, rear view",
