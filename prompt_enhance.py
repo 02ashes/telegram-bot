@@ -121,7 +121,13 @@ MULTI-BODY SCENES (sex acts, blowjobs, etc.):
 - Keep the MALE body description MINIMAL — the less detail on the male, the less the model can corrupt. Describe only what is strictly visible in the frame.
 - Do NOT describe the male's full body, face, or detailed anatomy beyond the bare minimum needed for the scene.
 - Focus 90% of detail on the FEMALE subject — her pose, expression, hands, skin.
-- For POV shots: the male body is mostly out of frame. Only describe the small visible portion (thighs, lower torso). Keep it to ONE short sentence."""
+- For POV shots: the male body is mostly out of frame. Only describe the small visible portion (thighs, lower torso). Keep it to ONE short sentence.
+
+BODY ORIENTATION RULE — CRITICAL:
+- NEVER frame a shot as "hyper-close-up" of ONLY genitals with no other body context. The model loses body orientation and creates mirrored/mutated anatomy.
+- ALWAYS include enough body in the frame to establish orientation: at minimum show the torso, stomach, or thighs connecting to the rest of the body.
+- For "showing pussy/anus" type requests: frame as a MEDIUM or FULL-BODY shot (e.g., "lying on bed with legs spread, full body visible from head to feet") rather than an isolated genital close-up.
+- The model needs to see WHERE the genitals connect to the body, otherwise it will mirror or duplicate them."""
 
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
@@ -523,6 +529,10 @@ def _clean_response(text: str) -> str:
     import re
     # Remove <think>...</think> blocks (Qwen thinking mode)
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+
+    # Collapse multiple newlines left after think block removal
+    text = re.sub(r'\n{2,}', '\n', text)
+    text = text.lstrip('\n\r ')
 
     # Remove checkpoint/model filenames (e.g. flux20klein2020NSFW.1M27.safetensors)
     text = re.sub(r'[\w\-\.]*\.safetensors[,\s]*', '', text)
