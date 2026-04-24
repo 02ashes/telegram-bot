@@ -943,6 +943,9 @@ async def api_image_test(request: Request):
         redefine = body.get("redefine", False)
         upscale = body.get("upscale", False)
         auto_prompt = body.get("auto_prompt", False)
+        pipeline_mode = body.get("pipeline_mode", "t2i")
+        shift = float(body.get("shift", 3.0))
+        face_image_b64 = body.get("face_image")
         detailers = body.get("detailers", {
             "face": True, "eyes": True, "hands": True,
             "foot": False, "nipples": False, "pussy": False, "penis": False,
@@ -950,6 +953,9 @@ async def api_image_test(request: Request):
 
         if not prompt:
             return JSONResponse(status_code=400, content={"error": "Missing prompt"})
+            
+        if pipeline_mode == "bfs" and not face_image_b64:
+            return JSONResponse(status_code=400, content={"error": "Missing face image for BFS pipeline"})
 
         # Auto-prompt enhancement
         original_prompt = prompt
@@ -975,19 +981,31 @@ async def api_image_test(request: Request):
                 tokens_deducted = True
 
         logger.info(
-            "T2I request: prompt=%s, aspect=%s, nsfw=%s, redefine=%s, upscale=%s",
-            prompt[:60], aspect_ratio, nsfw, redefine, upscale,
+            "T2I request: prompt=%s, pipeline=%s, aspect=%s, nsfw=%s, redefine=%s, upscale=%s, shift=%.2f",
+            prompt[:60], pipeline_mode, aspect_ratio, nsfw, redefine, upscale, shift,
         )
 
-        result_bytes = await comfyui_api.run_t2i_generate(
-            prompt=prompt,
-            negative=negative,
-            aspect_ratio=aspect_ratio,
-            nsfw=nsfw,
-            redefine=redefine,
-            upscale=upscale,
-            detailers=detailers,
-        )
+        if pipeline_mode == "bfs":
+            import base64
+            face_bytes = base64.b64decode(face_image_b64)
+            result_bytes = await comfyui_api.run_t2i_bfs(
+                face_image_bytes=face_bytes,
+                prompt=prompt,
+                negative=negative,
+                aspect_ratio=aspect_ratio,
+                shift=shift,
+            )
+        else:
+            result_bytes = await comfyui_api.run_t2i_generate(
+                prompt=prompt,
+                negative=negative,
+                aspect_ratio=aspect_ratio,
+                nsfw=nsfw,
+                redefine=redefine,
+                upscale=upscale,
+                detailers=detailers,
+                shift=shift,
+            )
 
         if result_bytes is None:
             if tokens_deducted and db.is_enabled():

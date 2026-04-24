@@ -377,6 +377,7 @@ def build_t2i_bfs_workflow(
     negative: str = "blurry image",
     aspect_ratio: str = "5:7 (Balanced Portrait)",
     seed: int | None = None,
+    shift: float = 3.0,
 ) -> dict:
     """Build T2I+BFS workflow from template JSON.
 
@@ -427,6 +428,12 @@ def build_t2i_bfs_workflow(
     wf["370"]["inputs"]["image"] = ["8", 0]     # Denoiser ← VAEDecode
     wf["373"]["inputs"]["image"] = ["370", 0]   # CameraForensic ← Denoiser
 
+    # ── Aura Flow Shift ──
+    if "225" in wf:
+        wf["225"]["inputs"]["shift"] = shift
+    if "401" in wf:
+        wf["401"]["inputs"]["shift"] = shift
+
     return wf
 
 
@@ -435,6 +442,7 @@ async def run_t2i_bfs(
     prompt: str,
     negative: str = "blurry image",
     aspect_ratio: str = "5:7 (Balanced Portrait)",
+    shift: float = 3.0,
 ) -> bytes | None:
     """Run Final T2I + BFS v5 pipeline on RunPod V9 endpoint.
 
@@ -451,6 +459,7 @@ async def run_t2i_bfs(
         prompt=prompt,
         negative=negative,
         aspect_ratio=aspect_ratio,
+        shift=shift,
     )
     images = [{"name": "face_ref.png", "image": face_b64}]
 

@@ -138,6 +138,7 @@ let darkQuality = 'fast'; // 'fast' or 'detailed'
 let darkMode = 'edit'; // 'edit' or 'generate'
 let darkResolution = '768x1344'; // resolution for Generate mode (9:16)
 let darkGenSubmode = 'default'; // 'default' or 'faceswap'
+let t2iSubmode = 't2i'; // 't2i' or 'bfs'
 let faceImageB64 = null; // base64 face photo for BFS
 let batchCount = 1; // 1-4
 let currentTool = 'brush';
@@ -906,7 +907,62 @@ document.querySelectorAll('#t2iNsfwToggle .t2i-pill').forEach(pill => {
     });
 });
 
-// Face photo upload for BFS face swap
+// T2I: Pipeline Sub-mode toggle (T2I / BFS)
+document.querySelectorAll('#t2iSubmodeToggle .quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#t2iSubmodeToggle .quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        t2iSubmode = btn.dataset.submode;
+
+        // Toggle visibility of Face Upload, Detailers, Extras
+        const faceSection = document.getElementById('t2iFaceUploadSection');
+        const detailersSection = document.getElementById('t2iDetailersSection');
+        const extrasSection = document.getElementById('t2iExtrasSection');
+        
+        if (faceSection) faceSection.style.display = t2iSubmode === 'bfs' ? '' : 'none';
+        if (detailersSection) detailersSection.style.display = t2iSubmode === 't2i' ? '' : 'none';
+        if (extrasSection) extrasSection.style.display = t2iSubmode === 't2i' ? '' : 'none';
+    });
+});
+
+// T2I: Shift Slider
+const t2iShiftSlider = document.getElementById('t2iShiftSlider');
+const t2iShiftLabel = document.getElementById('t2iShiftLabel');
+if (t2iShiftSlider) {
+    t2iShiftSlider.addEventListener('input', (e) => {
+        t2iShiftLabel.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+}
+
+// Face photo upload for T2I BFS face swap
+const t2iFaceUploadArea = document.getElementById('t2iFaceUploadArea');
+const t2iFaceFileInput = document.getElementById('t2iFaceFileInput');
+const t2iFaceUploadPlaceholder = document.getElementById('t2iFaceUploadPlaceholder');
+
+if (t2iFaceUploadArea && t2iFaceFileInput) {
+    t2iFaceUploadArea.addEventListener('click', () => t2iFaceFileInput.click());
+    t2iFaceFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            faceImageB64 = ev.target.result.split(',')[1]; // store raw base64 (reuse faceImageB64)
+            // Show preview
+            t2iFaceUploadPlaceholder.style.display = 'none';
+            let preview = t2iFaceUploadArea.querySelector('img');
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.style.maxHeight = '80px';
+                preview.style.borderRadius = '8px';
+                t2iFaceUploadArea.appendChild(preview);
+            }
+            preview.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Face photo upload for Dark BFS face swap
 const faceUploadArea = document.getElementById('faceUploadArea');
 const faceFileInput = document.getElementById('faceFileInput');
 const faceUploadPlaceholder = document.getElementById('faceUploadPlaceholder');
@@ -1499,6 +1555,14 @@ async function generateTest(prompt) {
     const aspectSelect = document.getElementById('t2iAspectSelect');
     const aspectRatio = aspectSelect ? aspectSelect.value : '5:7 (Balanced Portrait)';
 
+    const shiftSlider = document.getElementById('t2iShiftSlider');
+    const shift = shiftSlider ? parseFloat(shiftSlider.value) : 3.00;
+
+    if (t2iSubmode === 'bfs' && !faceImageB64) {
+        alert('Please upload a face photo for BFS mode.');
+        return;
+    }
+
     // SFW/NSFW
     const nsfwPill = document.querySelector('#t2iNsfwToggle .t2i-pill.active');
     const nsfw = nsfwPill ? nsfwPill.dataset.val === 'nsfw' : false;
@@ -1556,6 +1620,9 @@ async function generateTest(prompt) {
                 upscale: upscale,
                 detailers: detailers,
                 auto_prompt: false,
+                pipeline_mode: t2iSubmode,
+                shift: shift,
+                face_image: t2iSubmode === 'bfs' ? faceImageB64 : null,
             }),
             signal: currentVideoController.signal,
         });

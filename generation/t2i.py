@@ -177,6 +177,7 @@ def build_t2i_workflow(
     upscale: bool = False,
     detailers: dict | None = None,
     character_loras: list[dict] | None = None,
+    shift: float = 3.0,
 ) -> dict:
     """Build Final T2I workflow by deep-copying template and patching.
 
@@ -354,12 +355,18 @@ def build_t2i_workflow(
         for nid in ["290", "291", "292", "293"]:
             wf.pop(nid, None)
 
+    # ── Aura Flow Shift ──
+    if "225" in wf:
+        wf["225"]["inputs"]["shift"] = shift
+    if "401" in wf:
+        wf["401"]["inputs"]["shift"] = shift
+
     logger.info(
         "T2I workflow built: checkpoint=%s, aspect=%s, char=%s, lora=%s, "
-        "redefine=%s, upscale=%s, detailers=%s",
+        "redefine=%s, upscale=%s, detailers=%s, shift=%.2f",
         "NSFW" if nsfw else "SFW", aspect_ratio,
         trigger if has_character else "(none)", lora_name,
-        redefine, upscale, active_zones,
+        redefine, upscale, active_zones, shift,
     )
     return wf
 
@@ -372,6 +379,7 @@ async def run_t2i_generate(
     redefine: bool = False,
     upscale: bool = False,
     detailers: dict | None = None,
+    shift: float = 3.0,
 ) -> bytes | None:
     """Generate image via Final T2I pipeline on dedicated endpoint.
 
@@ -391,6 +399,7 @@ async def run_t2i_generate(
         upscale=upscale,
         detailers=detailers,
         character_loras=char_loras,
+        shift=shift,
     )
 
     logger.info(

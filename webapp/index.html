@@ -714,6 +714,48 @@
                         </div>
                     </div>
 
+                    <!-- T2I: Pipeline Sub-mode -->
+                    <div class="section test-only" id="t2iSubmodeSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Pipeline</p>
+                        <div class="quality-toggle flex gap-2" id="t2iSubmodeToggle">
+                            <button
+                                class="quality-btn active flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                data-submode="t2i">T2I</button>
+                            <button
+                                class="quality-btn flex-1 py-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-white/30 text-[11px] font-bold uppercase tracking-wider transition-all"
+                                data-submode="bfs">BFS</button>
+                        </div>
+                    </div>
+
+                    <!-- T2I: Face Upload (BFS Only) -->
+                    <div class="section test-only" id="t2iFaceUploadSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Upload Face (Reference)</p>
+                        <div class="upload-area flex flex-col items-center justify-center border-2 border-dashed border-white/[0.08] rounded-2xl bg-white/[0.02] cursor-pointer hover:bg-white/[0.04] transition-all p-4 min-h-[100px]"
+                            id="t2iFaceUploadArea">
+                            <input type="file" id="t2iFaceFileInput" accept="image/*" class="hidden">
+                            <div id="t2iFaceUploadPlaceholder" class="text-center">
+                                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-[#ff2d95]/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-[#ff2d95]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-white/40 text-[11px] font-bold tracking-wider block">TAP TO UPLOAD FACE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- T2I: Shift Slider -->
+                    <div class="section test-only" id="t2iShiftSection" style="display:none;">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                                <span>Aura Flow Shift</span><span class="text-[#ff2d95]" id="t2iShiftLabel">3.00</span>
+                            </div>
+                            <input type="range" id="t2iShiftSlider" min="1.0" max="5.0" step="0.05" value="3.00" class="slider-input">
+                        </div>
+                    </div>
+
                     <!-- T2I: SFW/NSFW Toggle -->
                     <div class="section test-only" id="t2iNsfwSection" style="display:none;">
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Mode</p>
