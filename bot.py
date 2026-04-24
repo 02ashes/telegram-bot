@@ -986,7 +986,6 @@ async def api_image_test(request: Request):
         )
 
         if pipeline_mode == "bfs":
-            import base64
             face_bytes = base64.b64decode(face_image_b64)
             result_bytes = await comfyui_api.run_t2i_bfs(
                 face_image_bytes=face_bytes,
