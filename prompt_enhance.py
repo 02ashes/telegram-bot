@@ -130,6 +130,50 @@ BODY ORIENTATION RULE — CRITICAL:
 - Do NOT use a top-down angle for these shots — it makes the face tiny and distant. The low-angle looking UP gives both a prominent face AND visible intimate areas.
 - The model needs to see the FACE and WHERE the genitals connect to the body, otherwise it will mirror or duplicate them."""
 
+_RULES_SEX_POSITIONS = """SEX POSITION → CAMERA MAPPING (MANDATORY FOR ALL SEX ACTS):
+When the user requests a sex position, you MUST follow this exact mapping. Do NOT invent your own camera angle.
+
+MISSIONARY:
+- Camera: MALE POV looking down at her face
+- Visible: her face (looking up at camera), her shoulders, her breasts, her hands (gripping sheets/his arms), her spread thighs framing the sides
+- NOT visible: his face, his torso (camera IS his eyes), her feet/lower legs (behind him, out of frame)
+- Male body: ONLY his forearms/hands visible at frame edges. ONE short sentence max.
+- Genital contact: "bodies joined at the hips" or "penetration visible between her thighs". Do NOT describe the penis separately.
+
+DOGGY STYLE:
+- Camera: MALE POV from behind, slightly above
+- Visible: her back, her ass, her arched spine, her hair falling forward, her hands gripping sheets/ground
+- NOT visible: her face (facing away unless looking back), his full body
+- Male body: ONLY his hands visible gripping her hips. ONE short sentence.
+- Her face: turned to look back over shoulder for LoRA recognition
+
+COWGIRL / RIDING:
+- Camera: MALE POV looking up at her from below
+- Visible: her face looking down, her torso, her breasts, her hands on his chest/her own thighs
+- NOT visible: his face, their legs (below frame)
+- Male body: ONLY his bare chest/abdomen visible beneath her. ONE short sentence.
+
+BLOWJOB / ORAL:
+- Camera: MALE POV looking down
+- Visible: her face, her hands, her shoulders/upper chest
+- NOT visible: his body except a sliver of lower abdomen at top edge
+
+STANDING / AGAINST WALL:
+- Camera: THIRD PERSON slightly to the side, or HER SELFIE looking at camera
+- Visible: her face, her body pressed against wall/tree, one leg wrapped around him
+- Male body: seen from behind, only back/shoulders. ONE sentence.
+
+DEFAULT RULE FOR ANY UNLISTED POSITION:
+- ALWAYS use MALE POV (camera = his eyes) as default
+- This minimizes visible male body parts and reduces limb confusion
+
+CRITICAL — LIMB BUDGET:
+- The model can reliably render AT MOST 6 limbs total in one frame
+- For sex scenes: aim for 4 visible limbs (2 of hers clearly + 2 partial of his)
+- HIDE excess limbs: behind bodies, under blankets, cropped by frame edges, obscured by clothing
+- Every additional visible limb EXPONENTIALLY increases mutation risk
+- NEVER describe all 4 of her limbs AND all 4 of his limbs — pick which ones are visible and HIDE the rest"""
+
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
 =========================================
@@ -160,7 +204,7 @@ Exact light sources (ceiling fixture, window, LED strip, flash), color temperatu
 Camera/device characteristics matching the scene context. Vary this naturally — NOT every image needs "ISO noise and chromatic aberration". Match the device and conditions: bright outdoor = clean sharp photo; dim indoor = noise and grain; neon lighting = color cast. 2-4 sentences.
 
 [KEYWORDS]
-15-25 comma-separated descriptive tags capturing the scene essence. Mix specific details with mood/atmosphere tags. End with: Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"""
+15-25 comma-separated descriptive tags capturing the scene essence. Mix specific details with mood/atmosphere tags. End with: 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"""
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -179,6 +223,8 @@ YOUR TASK:
 {_RULES_SPATIAL}
 
 {_RULES_NSFW}
+
+{_RULES_SEX_POSITIONS}
 
 CHARACTER TRIGGER WORDS:
 Known characters: misu, anya, jane, lera, mirana, moondina, rina.
@@ -201,7 +247,7 @@ Example 1 (SFW Mirror Selfie):
 
 [TECHNICAL STYLE & RENDERING] Standard smartphone mirror photograph. Moderate sharpness with slight wide-angle perspective distortion from close distance. Deep depth of field keeps both subject and background in focus. Warm, slightly saturated color reproduction. Minor compression artifacts in shadow areas.
 
-[KEYWORDS] Kneeling Mirror Selfie, Blush Pink Cat Ears, White Fishnet Thigh Highs, Satin Bow Detail, Charcoal Corduroy Sectional, Belly Piercing, Warm Pink Glow, Cosplay Lingerie, Smartphone Candid, Cozy Living Room, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[KEYWORDS] Kneeling Mirror Selfie, Blush Pink Cat Ears, White Fishnet Thigh Highs, Satin Bow Detail, Charcoal Corduroy Sectional, Belly Piercing, Warm Pink Glow, Cosplay Lingerie, Smartphone Candid, Cozy Living Room, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
@@ -216,7 +262,7 @@ Example 2 (NSFW Kneeling Selfie):
 
 [TECHNICAL STYLE & RENDERING] High-resolution smartphone mirror photograph with accurate color and sharp focus. Depth of field keeps subject and surroundings in clear detail. Characteristic slight wide-angle distortion of a close mirror selfie. Light blue phone case with triple-lens camera visible.
 
-[KEYWORDS] Mirror Selfie Kneeling, Topless Exposed Breasts, Black Thong, Long Black Hair, Fit Toned Physique, Natural Daylight, Private Bedroom, Confident Pose, Smartphone Photography, Realistic Skin Texture, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[KEYWORDS] Mirror Selfie Kneeling, Topless Exposed Breasts, Black Thong, Long Black Hair, Fit Toned Physique, Natural Daylight, Private Bedroom, Confident Pose, Smartphone Photography, Realistic Skin Texture, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
@@ -231,7 +277,22 @@ Example 3 (NSFW — Blowjob POV):
 
 [TECHNICAL STYLE & RENDERING] Smartphone photograph in low light, handheld from above. Visible digital grain in shadow areas. Slight motion blur on her hair. Sharp focus on her face and hands. Warm color cast from the lamp. Characteristic top-down POV angle of a personal intimate moment.
 
-[KEYWORDS] Blowjob POV, Oral Sex Close-Up, Kneeling Position, Hand On Shaft, Saliva Detail, Messy Hair, Looking Up At Camera, Black Lace Bralette, Exposed Breasts, Dim Bedroom, Warm Lamp Light, Raw Intimate Moment, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[KEYWORDS] Blowjob POV, Oral Sex Close-Up, Kneeling Position, Hand On Shaft, Saliva Detail, Messy Hair, Looking Up At Camera, Black Lace Bralette, Exposed Breasts, Dim Bedroom, Warm Lamp Light, Raw Intimate Moment, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+
+---
+
+Example 4 (NSFW — Missionary Sex POV):
+[SUBJECT & COMPOSITION] A male POV shot looking down during missionary sex outdoors. Camera angled sharply downward from his chest height. Her face and upper body fill the center of the frame. Her bent knees are visible at the far left and right edges, framing the scene symmetrically. His body is almost entirely out of frame — only his forearms bracing on the ground are visible at the bottom corners.
+
+[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. Bodies joined at the hips, penetration visible between her spread thighs. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
+
+[ENVIRONMENT & BACKGROUND] Pine forest floor. Dry brown pine needles, scattered small twigs, patches of green moss and sparse grass. Tall pine tree trunks rise in soft focus behind her head. A fallen log partially visible at the far edge. Late afternoon golden sunlight filters through the canopy above.
+
+[LIGHTING & ATMOSPHERE] Warm golden-hour sunlight filtering through pine branches, creating dappled light patches across her body and the ground. Natural outdoor lighting with warm color temperature. Soft shadows from tree trunks. Raw, intimate, outdoor atmosphere.
+
+[TECHNICAL STYLE & RENDERING] Handheld smartphone photo taken from above during the act. Slightly shaky framing. Natural outdoor light, moderate depth of field. Sharp focus on her face and chest, background trees softly blurred. Slight overexposure where direct sunlight hits bare skin.
+
+[KEYWORDS] Missionary POV, Outdoor Forest Sex, Pine Needles Ground, Male Gaze Down, Pushed Up Crop Top, Denim Shorts Pulled Down, Natural Sweat Sheen, Golden Hour Dappled Light, Raw Amateur Moment, Intimate Eye Contact, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 =========================================
 PROHIBITIONS:
@@ -263,6 +324,8 @@ CRITICAL FACE RULES (MANDATORY):
 
 {_RULES_NSFW}
 
+{_RULES_SEX_POSITIONS}
+
 {_OUTPUT_BLOCKS}
 
 ADDITIONAL BFS RULE FOR [CHARACTER / OBJECT DETAILS] BLOCK:
@@ -283,7 +346,7 @@ Example 1 (SFW — Poolside Back View):
 
 [TECHNICAL STYLE & RENDERING] High-resolution smartphone photograph with natural color and sharp detail. Crisp focus on subject capturing fine tattoo linework and fabric pattern. Background slightly softer but clear. Well-balanced exposure between bright sky and water.
 
-[KEYWORDS] Poolside Back View, Blue Gingham Bikini, Thong Bottom, Kneeling By Pool, Multiple Tattoos, Resort Hotel, Tanned Athletic Build, Sunny Vacation, Late Afternoon Light, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[KEYWORDS] Poolside Back View, Blue Gingham Bikini, Thong Bottom, Kneeling By Pool, Multiple Tattoos, Resort Hotel, Tanned Athletic Build, Sunny Vacation, Late Afternoon Light, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
@@ -298,7 +361,7 @@ Example 2 (NSFW — Nude Torso Study):
 
 [TECHNICAL STYLE & RENDERING] Straightforward smartphone photograph at close range. Sharp focus across torso with fine detail in skin texture, pores and moles. Minimal depth separation due to flat background. Slight digital noise in shadows. Desaturated natural color, no filters or retouching.
 
-[KEYWORDS] Nude Torso Study, Minimalist Body Portrait, Natural Light, Slender Figure, Standing Pose, Plain Wall, Intimate Self Documentation, Neutral Skin Texture, Close-Cropped Composition, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[KEYWORDS] Nude Torso Study, Minimalist Body Portrait, Natural Light, Slender Figure, Standing Pose, Plain Wall, Intimate Self Documentation, Neutral Skin Texture, Close-Cropped Composition, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 =========================================
 PROHIBITIONS:
@@ -507,7 +570,7 @@ def _fallback(user_prompt: str, time_ms: int = 0, mode: str = "") -> dict:
 
     # For T2I/BFS/generate modes, append Z-Image Turbo friendly tags
     if mode in ("t2i", "generate", "bfs"):
-        quality_tags = "candid smartphone photograph, natural lighting, realistic skin texture, sharp focus, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"
+        quality_tags = "candid smartphone photograph, natural lighting, realistic skin texture, sharp focus, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"
         if not any(tag in enhanced.lower() for tag in ["masterpiece", "detailed", "smartphone"]):
             enhanced = f"{enhanced}. {quality_tags}"
     elif mode in ("edit", "dark"):
@@ -531,7 +594,15 @@ def _clean_response(text: str) -> str:
     # Remove <think>...</think> blocks (Qwen thinking mode)
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
 
-    # Collapse multiple newlines left after think block removal
+    # Remove structural block headers (noise for Z-Image Turbo Qwen3-4B encoder)
+    text = re.sub(
+        r'\[(?:SUBJECT & COMPOSITION|CHARACTER / OBJECT DETAILS|'
+        r'ENVIRONMENT & BACKGROUND|LIGHTING & ATMOSPHERE|'
+        r'TECHNICAL STYLE & RENDERING|KEYWORDS)\]\s*',
+        '', text
+    )
+
+    # Collapse multiple newlines left after think block / header removal
     text = re.sub(r'\n{2,}', '\n', text)
     text = text.lstrip('\n\r ')
 
