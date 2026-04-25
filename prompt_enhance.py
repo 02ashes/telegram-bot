@@ -133,39 +133,49 @@ BODY ORIENTATION RULE — CRITICAL:
 _RULES_SEX_POSITIONS = """SEX POSITION → CAMERA MAPPING (MANDATORY FOR ALL SEX ACTS):
 When the user requests a sex position, you MUST follow this exact mapping. Do NOT invent your own camera angle.
 
+MANDATORY FOR ALL POSITIONS — THE SEX MUST BE VISIBLE:
+- You MUST describe the physical CONNECTION between the two bodies — where his hips meet her body, penetration visible at the junction.
+- Without the connection point, it's just a nude pose, NOT a sex scene. The user asked for SEX — show it.
+- Keep the male body minimal EXCEPT at the contact zone. His hips/lower abdomen pressing against her is REQUIRED.
+
 MISSIONARY:
 - Camera: MALE POV looking down at her face
 - Visible: her face (looking up at camera), her shoulders, her breasts, her hands (gripping sheets/his arms), her spread thighs framing the sides
-- NOT visible: his face, his torso (camera IS his eyes), her feet/lower legs (behind him, out of frame)
-- Male body: ONLY his forearms/hands visible at frame edges. ONE short sentence max.
-- Genital contact: "bodies joined at the hips" or "penetration visible between her thighs". Do NOT describe the penis separately.
+- NOT visible: his face, his upper torso (camera IS his eyes), her feet/lower legs (behind him, out of frame)
+- Male body: his hips between her spread thighs, penetration visible at the junction. His forearms bracing at frame edges. TWO short sentences max.
+- Connection: "his hips pressed between her spread thighs, penetration visible at the junction of their bodies"
 
 DOGGY STYLE:
 - Camera: MALE POV from behind, slightly above
 - Visible: her back, her ass, her arched spine, her hair falling forward, her hands gripping sheets/ground
-- NOT visible: her face (facing away unless looking back), his full body
-- Male body: ONLY his hands visible gripping her hips. ONE short sentence.
+- NOT visible: her face (facing away unless looking back), his upper body/face
+- Male body: his hips pressed against her ass from behind, his hands gripping her hips. Penetration visible where their bodies meet. TWO short sentences max.
 - Her face: turned to look back over shoulder for LoRA recognition
+- Connection: "his hips flush against her ass, cock buried inside her from behind"
 
 COWGIRL / RIDING:
 - Camera: MALE POV looking up at her from below
 - Visible: her face looking down, her torso, her breasts, her hands on his chest/her own thighs
-- NOT visible: his face, their legs (below frame)
-- Male body: ONLY his bare chest/abdomen visible beneath her. ONE short sentence.
+- NOT visible: his face, their lower legs (below frame)
+- Male body: his bare chest/abdomen visible beneath her, her hips straddling him with penetration visible. TWO short sentences max.
+- Connection: "she straddles his hips, bodies joined where she sits on him"
 
 BLOWJOB / ORAL:
 - Camera: MALE POV looking down
 - Visible: her face, her hands, her shoulders/upper chest
 - NOT visible: his body except a sliver of lower abdomen at top edge
+- Connection: "her lips wrapped around his cock, hand gripping the shaft" — this IS the contact point
 
 STANDING / AGAINST WALL:
 - Camera: THIRD PERSON slightly to the side, or HER SELFIE looking at camera
 - Visible: her face, her body pressed against wall/tree, one leg wrapped around him
-- Male body: seen from behind, only back/shoulders. ONE sentence.
+- Male body: seen from behind, only back/shoulders and hips pressed against her. ONE sentence.
+- Connection: "his hips pressed against hers, her leg wrapped around his waist"
 
 DEFAULT RULE FOR ANY UNLISTED POSITION:
 - ALWAYS use MALE POV (camera = his eyes) as default
-- This minimizes visible male body parts and reduces limb confusion
+- ALWAYS describe the physical connection point where bodies join
+- This minimizes visible male body parts while still showing the sex act
 
 CRITICAL — LIMB BUDGET:
 - The model can reliably render AT MOST 6 limbs total in one frame
@@ -173,6 +183,7 @@ CRITICAL — LIMB BUDGET:
 - HIDE excess limbs: behind bodies, under blankets, cropped by frame edges, obscured by clothing
 - Every additional visible limb EXPONENTIALLY increases mutation risk
 - NEVER describe all 4 of her limbs AND all 4 of his limbs — pick which ones are visible and HIDE the rest"""
+
 
 _OUTPUT_BLOCKS = """=========================================
 REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
