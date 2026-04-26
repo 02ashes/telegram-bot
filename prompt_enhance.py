@@ -191,7 +191,7 @@ COWGIRL / RIDING:
 BLOWJOB / ORAL:
 - Camera: first-person POV looking sharply down
 - Describe ONLY: her face, her hands, her upper chest. Do NOT describe ANY male body.
-- Chinese act phrase: 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性张开双腿让自己的双腿小腿和双脚超出框架
+- Chinese act phrase: 她跪着给男人口交，双手握住，嘴部含住前端，阴茎尺寸正常不夸张，男性张开双腿让自己的双腿小腿和双脚超出框架
 - Her reaction: eyes looking up at camera, saliva on chin, focused expression
 
 STANDING / AGAINST WALL:
@@ -306,7 +306,7 @@ Example 3 (NSFW — Blowjob POV):
 
 [SHOT] First-person POV looking sharply down from chest height, her face fills lower two-thirds of frame.
 
-[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性张开双腿让自己的双腿小腿和双脚超出框架, her left hand gripping shaft, eyes looking up intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, beige carpet
+[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着给男人口交，双手握住，嘴部含住前端，阴茎尺寸正常不夸张，男性张开双腿让自己的双腿小腿和双脚超出框架, her hands gripping, eyes looking up intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, beige carpet
 
 [STYLE] low warm amber lamplight, golden highlights on face and chest, deep shadows beneath chin, intimate raw private atmosphere, smartphone low-light handheld from above, visible grain in shadows, warm color cast, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
