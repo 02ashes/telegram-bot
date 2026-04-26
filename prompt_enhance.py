@@ -1,5 +1,5 @@
 """
-Auto-Prompt Enhancement via SiliconFlow API (Qwen2.5-VL-72B-Instruct).
+Auto-Prompt Enhancement via xAI Grok-3 API.
 
 Analyzes uploaded images and rewrites short user prompts into detailed,
 photorealistic descriptions optimized for Z-Image Turbo / Dark Beast Klein.
@@ -78,7 +78,12 @@ PROHIBITIONS:
 _RULES_EXPANSION = """INTELLIGENT EXPANSION & DYNAMIC AESTHETICS:
 1) If the user's request is short (e.g., "girl on beach"), INVENT a compelling, vivid scene. Add time of day, atmosphere, specific clothing with brand/pattern details, accessories, and environmental details.
 2) DYNAMIC STYLE: If the user explicitly asks for a specific style (e.g., "anime", "3d render", "oil painting"), ADAPT entirely to that style and adjust all blocks accordingly.
-3) DEFAULT HYPER-REALISM: If no style is specified, default to AMATEUR CANDID SMARTPHONE REALISM — it must look like a raw, unfiltered photo taken on a phone and sent in Telegram."""
+3) DEFAULT HYPER-REALISM: If no style is specified, default to AMATEUR CANDID SMARTPHONE REALISM — it must look like a raw, unfiltered photo taken on a phone.
+4) STYLE MODIFIERS: If the user adds quality/style words, adapt the entire prompt:
+   - "amateur" / "любительское" → more noise, grain, shaky framing, uneven lighting, smartphone artifacts
+   - "professional" / "студийное" → clean studio lighting, sharp focus, no grain, beauty retouching
+   - "candid" / "подсмотренное" → unexpected angle, subject not looking at camera, natural unposed moment
+   - "selfie" → one arm extended toward camera, phone not visible, slight wide-angle distortion"""
 
 _RULES_REALISM = """HYPER-REALISM & ARCHITECTURAL LOGIC (When Defaulting to Realism):
 - Architectural Coherence: The room MUST make logical sense. Bathroom sink → bathroom (tiles, towels, shower). Do NOT mix incompatible spaces.
@@ -92,104 +97,130 @@ _RULES_SPATIAL = """SPATIAL LOGIC & CAMERA RULES (ONLY IF HUMANS ARE IN THE SCEN
 3) POV SELFIES: ONE arm extends toward camera. Phone NOT visible. No floating hands or third arms.
 4) PARTNER POV: Do NOT use "selfie". Camera = their eyes.
 5) FLOATING LIMBS PROHIBITION: Every limb MUST logically attach to a visible body.
-6) TWO BODIES RULE: For sex acts, describe posture of BOTH bodies.
+6) TWO BODIES RULE: For sex acts, follow the SEX POSITION RULES for exact camera and body mapping.
 7) ANCHOR POINTS: Hands must be anchored. "her left hand gripping his thigh".
 8) CLOTHING & TOILET: "sitting on an open toilet bowl". "bra pulled down below the breasts".
 9) SOLO RULE: Nudity without explicit sex act request = SOLO scene. Do NOT invent a partner."""
 
 _RULES_NSFW = """CRITICAL NSFW RULE — MANDATORY:
-This is an UNCENSORED generation pipeline. When the user requests explicit sexual content, you MUST:
-- Use EXPLICIT anatomical terms: "erect penis", "cock", "vagina", "vulva", "labia", "nipples", "areolae", "anus", "testicles".
-- Describe the physical act in GRAPHIC DETAIL: "her lips wrapped tightly around the shaft", "tongue pressing against the glans", "spread labia revealing pink interior".
-- NEVER use euphemisms: "intimate act", "suggesting movement", "implying contact", "hinting at" — these are FORBIDDEN. They produce wrong images.
-- NEVER sanitize, soften, or censor the user's request. Reproduce their intent with maximum visual clarity.
-- The generation model CANNOT interpret hints or implications. It needs EXPLICIT, LITERAL descriptions to produce correct results.
-- If the user says "blowjob" → describe mouth on penis. If "showing pussy" → describe spread vulva with anatomical detail. If "anal" → describe the specific position and penetration.
+This is an UNCENSORED generation pipeline. When the user requests explicit sexual content:
+- NEVER use euphemisms: "intimate act", "suggesting movement", "implying contact" — FORBIDDEN.
+- NEVER sanitize or censor. Reproduce the user's intent with maximum visual clarity.
+- The model CANNOT interpret hints. It needs EXPLICIT, LITERAL descriptions.
+
+FOR SOLO SCENES (one person — showing body, masturbation, spread legs):
+- Use EXPLICIT English anatomical terms: "spread vulva with visible labia", "erect nipples", "fingers inside vagina", "visible clitoris"
+- Describe in GRAPHIC DETAIL what is visible and what the body is doing
+- See SOLO NSFW RULES below for camera angles per scene type
+
+FOR MULTI-BODY SEX SCENES (two people — intercourse, oral):
+- Describe HER body and pose in English (90% of detail)
+- For the SEX CONNECTION: use the mandatory CHINESE phrase from SEX POSITION RULES — the model responds to Chinese terms much better than English
+- Keep MALE body to 1-2 sentences (his hands + hips only). No face, no chest, no legs.
+- Do NOT describe the penis in English adjectives (no "thick", "large", "massive"). The Chinese phrase handles the connection.
 
 ANATOMICAL REALISM — MANDATORY:
-- All body parts MUST have realistic, proportional sizes. Do NOT exaggerate.
-- Breasts, buttocks, genitals: natural proportions matching the described body type. No cartoonish exaggeration.
-- Hands must have exactly 5 fingers. Limbs must be anatomically correct length.
-
-PENIS DESCRIPTION RULE — CRITICAL:
-- MINIMIZE words about the penis. The more you describe it, the bigger the model draws it.
-- Use ONLY brief, functional mentions: "her lips on his cock", "hand gripping the shaft". Do NOT add size adjectives, do NOT describe veins, girth, length, or texture.
-- NEVER use words: "large", "thick", "massive", "huge", "long shaft", "girthy". Even "average-sized" makes the model over-focus on it.
-- Best approach: describe the WOMAN'S action (lips, tongue, hand position) and let the penis be implied by context.
-
-MULTI-BODY SCENES (sex acts, blowjobs, etc.):
-- Keep the MALE body description MINIMAL — the less detail on the male, the less the model can corrupt. Describe only what is strictly visible in the frame.
-- Do NOT describe the male's full body, face, or detailed anatomy beyond the bare minimum needed for the scene.
-- Focus 90% of detail on the FEMALE subject — her pose, expression, hands, skin.
-- For POV shots: the male body is mostly out of frame. Only describe the small visible portion (thighs, lower torso). Keep it to ONE short sentence.
+- All body parts MUST have realistic, proportional sizes. No cartoonish exaggeration.
+- Hands: exactly 5 fingers. Limbs: anatomically correct length.
 
 BODY ORIENTATION RULE — CRITICAL:
-- NEVER frame a shot as "hyper-close-up" of ONLY genitals with no other body context. The model loses body orientation and creates mirrored/mutated anatomy.
-- ALWAYS include the HEAD/FACE in the frame. The face anchors the body and is essential for character LoRA recognition.
-- For "showing pussy/anus" type requests: use a LOW-ANGLE selfie perspective — camera positioned between or below the spread legs, pointing UPWARD toward the face. This naturally frames: thighs/genitals in the foreground (large, close to lens), torso and breasts in the midground, and her face looking down at the camera in the background. This angle produces the most realistic amateur self-shot composition.
-- Do NOT use a top-down angle for these shots — it makes the face tiny and distant. The low-angle looking UP gives both a prominent face AND visible intimate areas.
-- The model needs to see the FACE and WHERE the genitals connect to the body, otherwise it will mirror or duplicate them."""
+- NEVER frame a "hyper-close-up" of ONLY genitals with no body context — creates mirrored/mutated anatomy.
+- ALWAYS include the HEAD/FACE in the frame. It anchors the body and enables LoRA recognition.
+- The model needs to see the FACE and WHERE genitals connect to the body."""
+
+_RULES_SOLO_NSFW = """SOLO NSFW SCENES — CAMERA & POSE MAPPING:
+
+SHOWING PUSSY / SPREAD LEGS ("покажи киску", "spread legs", "showing pussy"):
+- Camera: LOW-ANGLE SELFIE — phone between/below spread legs, pointing UPWARD toward her face
+- Frame: thighs + vulva large in foreground, torso midground, face looking down at camera in background
+- Describe: "spread labia revealing pink interior, visible clitoris"
+- Do NOT use top-down angle — low-angle UP gives both prominent face AND visible intimate areas
+- Chinese: 张开双腿，阴唇湿润
+
+MASTURBATION ("мастурбация", "дрочит", "touching herself", "fingering"):
+- Describe EXACTLY what fingers do: "middle finger circling clitoris, index finger inside vaginal opening"
+- Details: wetness, arousal fluid on fingers, flushed skin, expression (mouth open, eyes half-closed)
+- Chinese: 手指在阴道内抽插
+
+BATHROOM / MIRROR NUDE SELFIE:
+- One hand holds phone (visible in mirror reflection), other hand natural or touching body
+- Phone partially obscures face (realistic selfie)
+- Describe bathroom: tile color, towel rack, shower glass, toiletries, mirror fog
+
+UPSKIRT / LOW ANGLE:
+- Camera: extreme low angle from front, looking up under skirt
+- Describe: skirt shadow on thighs, visible panties or bare pussy, standing location
+
+CAR SELFIE / CAR NUDE:
+- Camera: selfie from seat, or low angle from footwell
+- Describe: leather seats, steering wheel, window reflections, parking lot lights
+
+BED / LYING DOWN:
+- Camera: selfie from above (she holds phone over herself) or partner POV looking down
+- Describe: rumpled sheets, pillow, bedside lamp, scattered clothes"""
 
 _RULES_SEX_POSITIONS = """SEX POSITION → CAMERA MAPPING (MANDATORY FOR ALL SEX ACTS):
-When the user requests a sex position, you MUST follow this exact mapping. Do NOT invent your own camera angle.
+When the user requests a sex position, you MUST follow this exact mapping.
 
-MANDATORY FOR ALL POSITIONS — THE SEX MUST BE VISIBLE:
-- You MUST show TWO BODIES in the frame — the woman AND at least part of the man (his hips/thighs/hands).
-- The sex act is conveyed by BODY POSITIONING: his hips pressed firmly against hers, bodies flush together.
-- Do NOT describe genitals at the contact point. The model will infer sex from body positions. Describing "cock" or "penetration" causes the model to render genitals on the WRONG body.
-- The CONNECTION is shown by: his visible hips/thighs TOUCHING her body. That's enough.
+MANDATORY — HOW TO MAKE SEX VISIBLE:
+- The model needs EXPLICIT instruction that sex is happening. Vague phrases like "bodies locked together" or "pressed flush" produce a nude pose, NOT sex.
+- Use brief CHINESE anatomical phrases for the contact point — the model (Qwen3-4B) responds to Chinese explicit terms much more reliably than English.
+- After describing her body in English, add ONE Chinese connection phrase from the list below.
+- Keep the male body minimal (hands + hips only), but the CONNECTION must be explicit.
 
-CRITICAL — GENITAL WORD PLACEMENT:
-- NEVER write "cock", "penis", "penetration", "shaft" in the same sentence that describes HER body or pose.
-- If you mention male genitals at all, put them in a SEPARATE sentence that starts with "He/His".
-- Best approach: do NOT mention genitals at the contact point. Just describe "his hips flush against her" — the model understands this means sex.
-- The PENIS DESCRIPTION RULE still applies: fewer genital words = better results.
+CHINESE CONNECTION PHRASES (pick ONE per scene, place it after describing her pose):
+- Missionary/Cowgirl: 男性阴茎插入阴道 (penis inserted in vagina)
+- Doggy style: 从后方插入，阴茎在她体内 (penetrating from behind, penis inside her)
+- Blowjob: 她的嘴含住阴茎 (her mouth around the penis)
+- Anal: 从后方肛交 (anal from behind)
+- General sex: 两人性交中 (two people having sex)
+
+MALE BODY VISIBILITY RULE:
+- Show the man's HANDS and HIPS/LOWER ABDOMEN only — enough to prove two bodies are present.
+- Do NOT describe his face, chest, full arms, or legs.
+- Describe the female's REACTION to show intimacy: her expression (mouth open, intense gaze, flushed cheeks), her body response (arched back, gripping, sweating).
 
 MISSIONARY:
 - Camera: MALE POV looking down at her face
-- Visible: her face (looking up at camera), her shoulders, her breasts, her hands gripping his arms, her spread thighs framing the sides
-- NOT visible: his face, his upper torso (camera IS his eyes), her feet (behind him, out of frame)
-- Male body: his hips visible between her spread thighs, his forearms bracing at frame edges. TWO short sentences max.
-- Connection shown by: "his hips between her spread thighs, their lower bodies pressed tightly together"
+- Visible: her face looking up, her breasts, her spread thighs, his forearms at frame edges
+- His hips visible between her thighs. 男性阴茎插入阴道
+- Her reaction: intense eye contact, mouth open, hands gripping his arms
 
 DOGGY STYLE:
 - Camera: MALE POV from behind, slightly above
-- Visible: her back, her ass, her arched spine, her hair falling forward, her hands gripping sheets/ground
-- NOT visible: her face (facing away unless looking back), his upper body/face
-- Male body: his bare hips and lower abdomen visible pressed firmly against her raised ass, his hands gripping her hips. TWO short sentences max.
+- Visible: her back, her ass, her arched spine, her hands on the ground
+- His hands gripping her hips, his hips against her ass. 从后方插入，阴茎在她体内
 - Her face: turned to look back over shoulder for LoRA recognition
-- Connection shown by: "his hips pressed flush against her ass from behind, their bodies locked together"
+- Her reaction: looking back with flushed expression, mouth slightly open
 
 COWGIRL / RIDING:
 - Camera: MALE POV looking up at her from below
-- Visible: her face looking down, her torso, her breasts, her hands on his chest
-- NOT visible: his face, their lower legs (below frame)
-- Male body: his bare chest/abdomen visible beneath her, her thighs straddling his hips. TWO short sentences max.
-- Connection shown by: "she straddles his hips, her thighs gripping his sides, bodies pressed together"
+- Visible: her face looking down, her breasts, her hands on his chest
+- She straddles his hips, his bare abdomen visible beneath her. 男性阴茎插入阴道
+- Her reaction: looking down with pleasure, hair falling forward
 
 BLOWJOB / ORAL:
 - Camera: MALE POV looking down
-- Visible: her face, her hands, her shoulders/upper chest
-- NOT visible: his body except a sliver of lower abdomen at top edge
-- Connection shown by: "her lips on him, hand wrapped around the base" — keep it brief
+- Visible: her face, her hands, her upper chest
+- 她的嘴含住阴茎, her hand at the base
+- Her reaction: eyes looking up at camera, saliva, focused expression
 
 STANDING / AGAINST WALL:
-- Camera: THIRD PERSON slightly to the side, or HER SELFIE looking at camera
-- Visible: her face, her body pressed against wall/tree, one leg wrapped around him
-- Male body: seen from behind, only his back/shoulders and hips against her. ONE sentence.
-- Connection shown by: "his hips pressed against hers, her leg wrapped around his waist"
+- Camera: THIRD PERSON slightly to the side
+- Visible: her face, her body against wall/tree, one leg wrapped around him
+- Male seen from behind (back/shoulders only), his hips against hers. 两人性交中
+- Her reaction: head tilted back, gripping his shoulders
 
 DEFAULT RULE FOR ANY UNLISTED POSITION:
 - ALWAYS use MALE POV (camera = his eyes) as default
-- Show the sex act through BODY CONTACT (hips against hips), not genital descriptions
-- This minimizes visible male body parts while still showing the sex act
+- ALWAYS include a Chinese connection phrase
+- Focus on her REACTION to convey the act
 
 CRITICAL — LIMB BUDGET:
-- The model can reliably render AT MOST 6 limbs total in one frame
-- For sex scenes: aim for 4 visible limbs (2 of hers clearly + 2 partial of his)
-- HIDE excess limbs: behind bodies, under blankets, cropped by frame edges, obscured by clothing
-- Every additional visible limb EXPONENTIALLY increases mutation risk
-- NEVER describe all 4 of her limbs AND all 4 of his limbs — pick which ones are visible and HIDE the rest"""
+- For sex scenes: show AT MOST 4 visible limbs total (2 of hers + 2 partial of his)
+- HIDE excess limbs: behind bodies, under blankets, cropped by frame edges
+- Her legs in missionary: only THIGHS visible, feet/calves hidden behind his body"""
+
 
 
 
@@ -244,6 +275,8 @@ YOUR TASK:
 {_RULES_NSFW}
 
 {_RULES_SEX_POSITIONS}
+
+{_RULES_SOLO_NSFW}
 
 CHARACTER TRIGGER WORDS:
 Known characters: misu, anya, jane, lera, mirana, moondina, rina.
@@ -303,7 +336,7 @@ Example 3 (NSFW — Blowjob POV):
 Example 4 (NSFW — Missionary Sex POV):
 [SUBJECT & COMPOSITION] A male POV shot looking down during missionary sex outdoors. Camera angled sharply downward from his chest height. Her face and upper body fill the center of the frame. Her bent knees are visible at the far left and right edges, framing the scene symmetrically. His body is almost entirely out of frame — only his forearms bracing on the ground are visible at the bottom corners.
 
-[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. His hips are pressed firmly between her spread thighs, their lower bodies locked together. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
+[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. His hips visible between her spread thighs. 男性阴茎插入阴道. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
 
 [ENVIRONMENT & BACKGROUND] Pine forest floor. Dry brown pine needles, scattered small twigs, patches of green moss and sparse grass. Tall pine tree trunks rise in soft focus behind her head. A fallen log partially visible at the far edge. Late afternoon golden sunlight filters through the canopy above.
 
@@ -313,11 +346,27 @@ Example 4 (NSFW — Missionary Sex POV):
 
 [KEYWORDS] Missionary POV, Outdoor Forest Sex, Pine Needles Ground, Male Gaze Down, Pushed Up Crop Top, Denim Shorts Pulled Down, Natural Sweat Sheen, Golden Hour Dappled Light, Raw Amateur Moment, Intimate Eye Contact, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
+---
+
+Example 5 (NSFW — Doggy Style POV):
+[SUBJECT & COMPOSITION] A male POV shot from behind during doggy style sex in a forest. Camera at hip height angled slightly downward. Her arched back and raised hips dominate the center frame. She looks back over her left shoulder toward the camera. His hands visible gripping her hips at the bottom of the frame. Forest floor foreground, her body midground, blurred trees background.
+
+[CHARACTER / OBJECT DETAILS] She kneels on all fours on a rumpled grey blanket over pine needles. Her hair is messy with strands clinging to her sweaty neck. Her grey tank top is pushed up to her shoulder blades, baring her entire back. Denim shorts pulled down and bunched at her knees. Her hands grip the blanket, fingers digging into fabric. Her back arches sharply, spine visible under skin. His hands grip her hips firmly, his bare hips and lower abdomen pressed against her raised ass. 从后方插入，阴茎在她体内. Her skin shows natural flush and sheen of sweat across her back. She looks back with mouth slightly open, flushed cheeks.
+
+[ENVIRONMENT & BACKGROUND] Dense pine forest. Dry brown pine needles, scattered twigs, moss patches on ground. Tall pine trunks in soft focus. A fallen log to the left covered in lichen. Late afternoon golden light filtering through canopy.
+
+[LIGHTING & ATMOSPHERE] Golden-hour dappled sunlight through pine branches. Warm amber highlights on her sweaty skin. Soft natural shadows from surrounding trees. Raw, primal, outdoor atmosphere.
+
+[TECHNICAL STYLE & RENDERING] Handheld smartphone from behind, male POV. Slight wide-angle distortion at close range. Sharp focus on her back and hips, trees softly blurred. Minor overexposure on sunlit skin patches. Subtle digital noise in shadows.
+
+[KEYWORDS] Doggy Style POV, Forest Sex, Pine Needles, Arched Back, Sweaty Skin, Tank Top Pushed Up, Shorts Down, Golden Hour, Amateur Outdoor, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
 - NO disembodied genitals.
-- Write in ENGLISH regardless of input language.
+- Write the prompt body in ENGLISH regardless of input language.
+- EXCEPTION: Chinese connection phrases (男性阴茎插入阴道, 从后方插入, 她的嘴含住阴茎, etc.) and quality tags (杰作, 光影, 氛围感, 细腻) MUST remain in Chinese. Do NOT translate them.
 """
 
 
@@ -331,9 +380,10 @@ YOUR TASK:
 2. Output the final prompt using EXACTLY the structural block format shown below.
 
 CRITICAL FACE RULES (MANDATORY):
-- Do NOT describe eyes, nose, lips, facial expression, makeup, eyeliner, eyebrows.
+- Do NOT describe: eye color, nose shape, lip color, facial expression, makeup, eyeliner, eyebrows.
+- You MAY describe: HEAD POSITION (turned, tilted back) and MOUTH STATE (open, closed) — these affect body pose generation.
 - DO describe: body type, skin tone, hair color/length/style, tattoos, piercings (body only).
-- The face in the generated image WILL be replaced — any facial description is wasted and will cause swap artifacts.
+- The face WILL be replaced by face swap — any facial detail is wasted and causes swap artifacts.
 
 {_RULES_EXPANSION}
 
@@ -344,6 +394,8 @@ CRITICAL FACE RULES (MANDATORY):
 {_RULES_NSFW}
 
 {_RULES_SEX_POSITIONS}
+
+{_RULES_SOLO_NSFW}
 
 {_OUTPUT_BLOCKS}
 
@@ -382,12 +434,28 @@ Example 2 (NSFW — Nude Torso Study):
 
 [KEYWORDS] Nude Torso Study, Minimalist Body Portrait, Natural Light, Slender Figure, Standing Pose, Plain Wall, Intimate Self Documentation, Neutral Skin Texture, Close-Cropped Composition, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
+---
+
+Example 3 (NSFW — Doggy Style POV, no face description):
+[SUBJECT & COMPOSITION] A male POV shot from behind during doggy style sex indoors. Camera at hip height looking down at her arched back. Her hips raised in center frame, hands gripping sheets in foreground. Bedroom background softly blurred.
+
+[CHARACTER / OBJECT DETAILS] Slim build with fair skin and a light sheen of sweat on her back. Long dark hair falling forward, damp at the nape. Black lace bralette pushed up to shoulder blades. Cotton shorts pulled down to knees. Her hands grip grey rumpled sheets, knuckles white. His hands grip her hips firmly, his bare hips pressed against her ass. 从后方插入，阴茎在她体内. Her head is turned to the side, mouth slightly open. Skin flushed pink on her back and shoulders.
+
+[ENVIRONMENT & BACKGROUND] Dim bedroom at night. Low platform bed with rumpled grey sheets. Warm bedside lamp casting amber glow from the right. Phone charging on nightstand. Clothes scattered on the floor.
+
+[LIGHTING & ATMOSPHERE] Warm amber lamplight from the side. Soft shadows on her curves. Digital grain in dark areas. Intimate, raw, private atmosphere.
+
+[TECHNICAL STYLE & RENDERING] Smartphone photo in low light, male POV from behind. Visible grain, warm color cast. Sharp focus on her back, soft focus on background. Slight motion blur.
+
+[KEYWORDS] Doggy Style POV, Bedroom Sex, Low Light, Arched Back, Sweaty Skin, Lace Bralette, Shorts Down, Amber Lamp, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
 - NO disembodied genitals.
-- NO facial features (eyes, lips, nose, expression, makeup).
-- Write in ENGLISH regardless of input language.
+- NO facial features (eye color, nose shape, lip color, expression, makeup).
+- You MAY describe head position (turned, tilted) and mouth state (open, closed).
+- Write the prompt body in ENGLISH. EXCEPTION: Chinese phrases (男性阴茎插入阴道, 从后方插入, 杰作, 光影, etc.) MUST stay in Chinese.
 """
 
 
@@ -556,35 +624,66 @@ def _fallback(user_prompt: str, time_ms: int = 0, mode: str = "") -> dict:
     enhanced = user_prompt
 
     # Basic Russian → English translation for common keywords
-    # (Z-Image Turbo only understands English)
+    # (Z-Image Turbo understands English + Chinese)
+    import re as _re
     _ru_to_en = {
-        "сосёт член": "blowjob POV, lips on cock, hand on shaft",
-        "сосет член": "blowjob POV, lips on cock, hand on shaft",
-        "минет": "blowjob POV, lips on cock, hand on shaft",
-        "показывает киску": "showing spread pussy, visible labia",
+        # Sex acts
+        "сосёт член": "blowjob POV, 她的嘴含住阴茎, hand at base",
+        "сосет член": "blowjob POV, 她的嘴含住阴茎, hand at base",
+        "минет": "blowjob POV, 她的嘴含住阴茎, hand at base",
+        "секс в миссионерской": "missionary sex POV, 男性阴茎插入阴道",
+        "миссионерская поза": "missionary sex POV, 男性阴茎插入阴道",
+        "миссионерская": "missionary sex POV, 男性阴茎插入阴道",
+        "секс в позе догги": "doggy style sex POV, 从后方插入，阴茎在她体内",
+        "догги": "doggy style sex, 从后方插入，阴茎在她体内",
+        "ковгёрл": "cowgirl riding POV, 男性阴茎插入阴道",
+        "наездница": "cowgirl riding POV, 男性阴茎插入阴道",
+        "анал": "anal sex from behind, 从后方肛交",
+        "футджоб": "footjob, feet on cock",
+        "ножками": "footjob, feet pressing against cock",
+        "камшот": "cumshot on face",
+        # Solo NSFW
+        "показывает киску": "showing spread pussy, visible labia, 张开双腿，阴唇湿润",
+        "киска": "pussy, vulva, spread labia",
+        "пизда": "pussy, vulva, spread labia",
         "показывает анус": "showing anus, bent over rear view",
-        "показывает попу": "showing butt, rear view",
+        "показывает попу": "showing butt, rear view, round ass",
+        "мастурбация": "masturbation, fingers in pussy, 手指在阴道内抽插",
+        "дрочит": "masturbating, rubbing pussy, 手指在阴道内抽插",
+        "теребит": "rubbing clitoris, masturbating",
+        "сиськи": "breasts, tits, nipples",
+        "грудь": "breasts, natural nipples",
+        "соски": "nipples, erect nipples",
+        # Body state
         "голая": "fully nude, naked",
         "раздевается": "undressing, pulling off clothes",
-        "на кровати": "lying on bed",
-        "в ванной": "in bathroom",
+        "раздвинутые ноги": "spread legs, open thighs",
+        "на коленях": "on her knees, kneeling",
+        "стоит раком": "bent over, ass up, on all fours",
+        "раком": "doggy style, on all fours, ass up",
+        # Locations
+        "на кровати": "lying on bed, rumpled sheets",
+        "в ванной": "in bathroom, tiles, mirror",
+        "в лесу": "in the forest, pine trees, outdoor",
+        "в машине": "in a car, car interior, leather seats",
+        "на пляже": "on the beach, sand, swimsuit",
+        "в душе": "in shower, wet skin, water droplets",
+        "в школе": "in school, classroom, uniform",
+        # Camera / style
         "селфи": "selfie, smartphone mirror photo",
-        "у зеркала": "mirror selfie",
-        "на пляже": "on the beach, swimsuit",
+        "у зеркала": "mirror selfie, reflection",
         "сверху": "POV from above, looking down",
-        "снизу": "POV from below, looking up",
-        "раком": "doggy style, on all fours",
-        "секс": "sex, intercourse",
-        "трахает": "fucking, sex",
+        "снизу": "POV from below, looking up, low angle",
+        "любительское": "amateur quality, phone photo, grain, noise",
+        # General
+        "секс": "sex, 两人性交中",
+        "трахает": "fucking, sex, 两人性交中",
         "девушка": "young woman",
         "красивая": "beautiful",
     }
     prompt_lower = enhanced.lower()
     for ru, en in _ru_to_en.items():
         if ru in prompt_lower:
-            enhanced = enhanced.replace(ru, en, 1)
-            # Also try with case from original
-            import re as _re
             enhanced = _re.sub(_re.escape(ru), en, enhanced, count=1, flags=_re.IGNORECASE)
 
     # For T2I/BFS/generate modes, append Z-Image Turbo friendly tags
@@ -629,6 +728,8 @@ def _clean_response(text: str) -> str:
     text = re.sub(r'[\w\-\.]*\.safetensors[,\s]*', '', text)
     text = re.sub(r'[\w\-\.]*\.ckpt[,\s]*', '', text)
     text = re.sub(r'[\w\-\.]*\.pt[,\s]*', '', text)
+    # Catch hallucinated model names without extension (flux20klein, pornmaster, zImage, etc.)
+    text = re.sub(r'\b(?:flux\d*\w*|pornmaster\w*|zImage\w*|lustify\w*|darkBeast\w*|sdxl\w*|SD1\.?5|SD3\w*|comfyui\w*|checkpoint\w*|LoRA:\w+)[.,\s]*', '', text, flags=re.IGNORECASE)
 
     # Remove GLM/LLM special tokens (<|begin_of_box|>, <|end_of_box|>, etc.)
     text = re.sub(r'<\|[^|]*\|>', '', text)
