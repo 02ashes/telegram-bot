@@ -206,7 +206,7 @@ BLOWJOB / ORAL:
 - Camera: MALE POV looking down from chest height
 - Visible: ONLY her face, her hands, her upper chest. The penis enters from BOTTOM of frame (camera holder's body).
 - CRITICAL — MALE BODY RULE: Do NOT describe male body parts at specific frame positions (no 'thighs on left and right', no 'abdomen at top'). The male body is the CAMERA HOLDER — it is MOSTLY OUT OF FRAME. Only his hands on her head/shoulders may be visible.
-- Chinese: 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，男性身体大部分超出框架
+- Chinese: 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性身体大部分超出框架
 - Her reaction: eyes looking up at camera, saliva on chin, focused expression
 - 男性张开双腿让自己的双腿小腿和双脚超出框架 (his legs extend BEYOND the frame edges)
 
@@ -249,7 +249,7 @@ CRITICAL FORMAT RULE — MANDATORY:
 - Every phrase must be a VISUAL INSTRUCTION, not artistic prose.
 
 MANDATORY CHINESE ANATOMY PREFIX — ALWAYS START THE PROMPT WITH:
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，正常比例生殖器，
 (For NSFW multi-body scenes, ALSO add: 只有两个人一男一女，男性身体大部分超出框架，只露出手和胯部)
 
 Write using EXACTLY these structural blocks:
@@ -322,7 +322,7 @@ Example 3 (NSFW — Blowjob POV):
 
 [SHOT] First-person male POV sharply down from chest height, her face fills lower two-thirds of frame, penis enters from bottom of frame, male body mostly out of frame.
 
-[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，男性身体大部分超出框架，男性张开双腿让自己的双腿小腿和双脚超出框架, left hand gripping base, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
+[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性身体大部分超出框架，男性张开双腿让自己的双腿小腿和双脚超出框架, left hand gripping base, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
 
 [STYLE] low warm amber lamplight, golden highlights on face and chest, deep shadows beneath chin, intimate raw private atmosphere, smartphone low-light handheld from above, visible grain in shadows, warm color cast, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
