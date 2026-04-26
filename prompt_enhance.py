@@ -228,36 +228,38 @@ CRITICAL — LIMB BUDGET:
 
 
 _OUTPUT_BLOCKS = """=========================================
-REQUIRED OUTPUT FORMAT — STRUCTURAL BLOCKS
+REQUIRED OUTPUT FORMAT — COMPACT BLOCKS
 =========================================
 
 <think>
-1. Scene Analysis: What room/location? What objects MUST be in the background?
-2. Camera: What type of shot? Where is the camera? Who holds it?
-3. Body Geometry: How many limbs visible? Where are they anchored?
-4. Lighting: Exact light sources and color temperatures?
-5. Micro-Details: What clutter/stains/textures make this real?
+1. Scene: What location? What objects in background?
+2. Camera: Shot type? Where is camera? Who holds it?
+3. Body: How many limbs visible? Where anchored?
+4. Lighting: Light sources? Color temperature?
+5. NSFW check: Is there a sex act? → use Chinese connection phrase + describe male body attachment
 </think>
+
+CRITICAL FORMAT RULE — MANDATORY:
+- Write in SHORT, COMMA-SEPARATED PHRASES. NOT full sentences or paragraphs.
+- WRONG: "The young woman has long, slightly messy blonde hair with strands clinging to her cheeks from the humid night air."
+- RIGHT: "long messy blonde hair, strands clinging to cheeks, humid night air"
+- The model processes TOKENS, not narrative. Fewer filler words = clearer signal to the model.
+- Every phrase must be a VISUAL INSTRUCTION, not artistic prose.
+
+MANDATORY CHINESE ANATOMY PREFIX — ALWAYS START THE PROMPT WITH:
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，
+(For NSFW multi-body scenes, ALSO add: 两个独立完整身体，无浮空生殖器，阴茎连接男性身体)
 
 Write using EXACTLY these structural blocks:
 
-[SUBJECT & COMPOSITION]
-Shot type, framing (vertical/horizontal, body parts visible), camera angle and height, composition (centered/asymmetrical), spatial layering (foreground/midground/background), leading lines. 3-5 sentences.
+[SHOT]
+Shot type, camera angle, camera height, camera device, POV type, framing. 1-2 short sentences max.
 
-[CHARACTER / OBJECT DETAILS]
-Hair (color, length, style, state — wet, messy, braided), skin (tone, texture, sheen), body type, clothing (fabric, pattern, brand, how it sits on the body), accessories (jewelry, piercings with descriptions, tattoos with designs), nail polish, phone case details. Be EXTREMELY specific about materials and textures. 5-8 sentences.
+[SCENE]
+ALL visual content as comma-separated phrases: subject appearance, hair, skin, body type, clothing details, pose, action, environment, furniture, objects, background. Use Chinese for explicit anatomy and sex acts. Mix English + Chinese naturally.
 
-[ENVIRONMENT & BACKGROUND]
-Specific room/location, furniture (material, color), wall color/material, floor type, visible objects (door handles, artwork, plants), clutter, spatial depth. Make the space feel real and logical. 3-5 sentences.
-
-[LIGHTING & ATMOSPHERE]
-Exact light sources (ceiling fixture, window, LED strip, flash), color temperature (warm/cool/mixed), how light interacts with skin and materials, shadow quality, mood/atmosphere. 3-5 sentences.
-
-[TECHNICAL STYLE & RENDERING]
-Camera/device characteristics matching the scene context. Vary this naturally — NOT every image needs "ISO noise and chromatic aberration". Match the device and conditions: bright outdoor = clean sharp photo; dim indoor = noise and grain; neon lighting = color cast. 2-4 sentences.
-
-[KEYWORDS]
-15-25 comma-separated descriptive tags capturing the scene essence. Mix specific details with mood/atmosphere tags. End with: 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"""
+[STYLE]
+Lighting sources, color temperature, mood, technical camera quality, then ALWAYS end with quality tags: 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece"""
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -291,86 +293,68 @@ If used, place FIRST in the prompt. Do NOT describe hair color, eye color, or fa
 EXAMPLES OF PERFECT PROMPTS:
 =========================================
 
-Example 1 (SFW Mirror Selfie):
-[SUBJECT & COMPOSITION] The image depicts a full-length mirror selfie of a woman kneeling on the floor in a domestic interior, framed vertically from her knees to the top of her head. The camera is the smartphone she holds in her left hand, which obscures the lower half of her face. The composition centers her body in the middle third of the frame, with her knees pressed together on a dark rug in the foreground and her torso rising vertically.
+Example 1 (SFW — Mirror Selfie):
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，
 
-[CHARACTER / OBJECT DETAILS] The woman has long, straight hair in a deep espresso brown, parted in the center and falling past her shoulders. Her skin is a warm medium tan with a smooth matte finish. She wears a white micro triangle halter top with thin spaghetti straps, each cup decorated with a small embroidered paw print in tan-brown. The matching bottom is a white string thong with side-tie bows at each hip. Her legs are covered in white fishnet thigh-high stockings with a wide diamond mesh, each topped with a large structured bow in optic white satin. On her head sits a plush headband with upright cat ears in pale blush pink with deeper rose-pink inner lining. She has a silver navel piercing with a dangling sword-shaped charm.
+[SHOT] Full-length vertical mirror selfie, smartphone in left hand obscuring lower face, kneeling on floor, domestic interior.
 
-[ENVIRONMENT & BACKGROUND] A contemporary living room. Behind her is a large L-shaped sectional sofa upholstered in charcoal grey corduroy with vertical ribbing and matching square pillows. A soft throw blanket in pale blush pink is draped over the chaise. The floor is light oak-toned laminate, partially covered by a thick off-white area rug. A white interior door with a brushed nickel lever handle stands slightly ajar.
+[SCENE] long straight espresso-brown hair center-parted past shoulders, warm medium-tan skin smooth matte finish, white micro triangle halter top with embroidered paw prints, white string thong with side-tie bows, white fishnet thigh-high stockings wide diamond mesh topped with optic white satin bows, plush blush-pink cat ear headband rose-pink inner lining, silver navel piercing dangling sword charm, knees together on dark woven rug, contemporary living room, charcoal grey corduroy L-sectional sofa square pillows, blush-pink throw blanket on chaise, light oak laminate floor, thick off-white area rug, white interior door slightly ajar
 
-[LIGHTING & ATMOSPHERE] Warm, diffused artificial interior light from overhead. A subtle pinkish color cast tints skin and textiles, suggesting ambient LED lighting. Soft open shadows fall beneath her arms and along the sofa folds. Intimate, playful, cozy atmosphere.
-
-[TECHNICAL STYLE & RENDERING] Standard smartphone mirror photograph. Moderate sharpness with slight wide-angle perspective distortion from close distance. Deep depth of field keeps both subject and background in focus. Warm, slightly saturated color reproduction. Minor compression artifacts in shadow areas.
-
-[KEYWORDS] Kneeling Mirror Selfie, Blush Pink Cat Ears, White Fishnet Thigh Highs, Satin Bow Detail, Charcoal Corduroy Sectional, Belly Piercing, Warm Pink Glow, Cosplay Lingerie, Smartphone Candid, Cozy Living Room, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] warm diffused overhead light, subtle pink LED color cast on skin, soft open shadows, intimate playful cozy atmosphere, smartphone mirror photo, slight wide-angle distortion, deep depth of field, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
-Example 2 (NSFW Kneeling Selfie):
-[SUBJECT & COMPOSITION] A vertical mirror selfie of a woman kneeling on the floor, captured from head to knees. Phone in her left hand partially obscures her eyes. Centered composition emphasizing the torso. Woven rug foreground, kneeling figure midground, hallway background.
+Example 2 (NSFW — Kneeling Topless Selfie):
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，
 
-[CHARACTER / OBJECT DETAILS] Warm brown complexion, long straight black hair center-parted falling over shoulders. Fit, athletic build with toned arms and defined abdomen. Wearing only a black thong bikini bottom with thin side straps. Her black crop top is pulled down with her right hand, fully exposing round full breasts with dark areolae. Smooth skin with natural highlights from indoor light. Light pink manicured nails. Poised upright kneeling posture with back straight.
+[SHOT] Vertical mirror selfie, kneeling, head to knees, phone in left hand obscuring eyes.
 
-[ENVIRONMENT & BACKGROUND] Bright, modern home interior. Light beige woven rug with subtle geometric pattern and fringed edge on light wood laminate flooring. White interior door with visible hinges to the left. Open doorway leading to a hallway with warm beige walls. Light-colored upholstered sofa with dark clothing draped over it.
+[SCENE] warm brown complexion, long straight black hair center-parted over shoulders, fit athletic build toned arms defined abdomen, black thong bikini bottom thin side straps, black crop top pulled down by right hand, 胸部完全露出，乳头深色饱满凸出, smooth skin natural highlights, light pink manicured nails, upright kneeling posture back straight, bright modern home interior, light beige woven rug geometric pattern on light wood floor, white door, hallway warm beige walls, light sofa with dark clothes draped
 
-[LIGHTING & ATMOSPHERE] Soft natural daylight from an unseen window, creating even warm illumination. No harsh shadows, light highlights muscle definition and skin texture. Private, casual atmosphere of personal self-documentation. Confident and direct mood.
-
-[TECHNICAL STYLE & RENDERING] High-resolution smartphone mirror photograph with accurate color and sharp focus. Depth of field keeps subject and surroundings in clear detail. Characteristic slight wide-angle distortion of a close mirror selfie. Light blue phone case with triple-lens camera visible.
-
-[KEYWORDS] Mirror Selfie Kneeling, Topless Exposed Breasts, Black Thong, Long Black Hair, Fit Toned Physique, Natural Daylight, Private Bedroom, Confident Pose, Smartphone Photography, Realistic Skin Texture, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] soft natural daylight from window, even warm illumination, no harsh shadows, light on muscle definition and skin texture, private casual confident atmosphere, high-resolution smartphone sharp focus, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 3 (NSFW — Blowjob POV):
-[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman giving a blowjob. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. His bare thighs are visible on the left and right edges of the frame, framing her head. His lower abdomen visible at the top edge of the frame.
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
 
-[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is slightly messy, loose strands falling across her cheek. 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛. Her left hand braces against his bare thigh. Her eyes look upward directly at the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Saliva glistening on her chin. 男性张开双腿, his thighs framing the shot on both sides.
+[SHOT] First-person male POV sharply down from chest height, her face fills lower two-thirds, his bare thighs on left and right edges framing her head, his lower abdomen at top.
 
-[ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
+[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛，男性张开双腿, his bare thighs framing shot both sides, left hand on his bare thigh, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
 
-[LIGHTING & ATMOSPHERE] Low warm ambient light from the bedside lamp, casting soft golden highlights on her face and chest. Deep shadows pool beneath her chin and in the folds of the bedsheets. The scene has an intimate, raw, private atmosphere.
-
-[TECHNICAL STYLE & RENDERING] Smartphone photograph in low light, handheld from above. Visible digital grain in shadow areas. Slight motion blur on her hair. Sharp focus on her face and hands. Warm color cast from the lamp. Characteristic top-down POV angle of a personal intimate moment.
-
-[KEYWORDS] Blowjob POV, Oral Sex Close-Up, Kneeling Position, Hand On Shaft, Saliva Detail, Messy Hair, Looking Up At Camera, Black Lace Bralette, Exposed Breasts, Dim Bedroom, Warm Lamp Light, Raw Intimate Moment, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] low warm amber lamplight, golden highlights on face and chest, deep shadows beneath chin, intimate raw private atmosphere, smartphone low-light handheld from above, visible grain in shadows, warm color cast, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 4 (NSFW — Missionary Sex POV):
-[SUBJECT & COMPOSITION] A male POV shot looking down during missionary sex outdoors. Camera angled sharply downward from his chest height. Her face and upper body fill the center of the frame. Her bent knees are visible at the far left and right edges, framing the scene symmetrically. His body is almost entirely out of frame — only his forearms bracing on the ground are visible at the bottom corners.
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
 
-[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. His hips visible between her spread thighs. 男性阴茎插入阴道. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
+[SHOT] Male POV looking down during missionary sex outdoors, camera from chest height sharply down, her face and body fill center, her bent knees at far left and right, only his forearms at bottom corners.
 
-[ENVIRONMENT & BACKGROUND] Pine forest floor. Dry brown pine needles, scattered small twigs, patches of green moss and sparse grass. Tall pine tree trunks rise in soft focus behind her head. A fallen log partially visible at the far edge. Late afternoon golden sunlight filters through the canopy above.
+[SCENE] she lies on back on pine needles forest floor, dark messy hair fanned out, olive green crop top pushed above breasts, 乳房露出自然乳头，皮肤泛红有汗珠, denim shorts pulled down bunched mid-thighs, hands gripping his forearms fingers pressing skin, his hips between her spread thighs, 男性阴茎插入阴道, mouth slightly open looking up at camera intense expression, pine forest floor dry brown needles twigs green moss, tall pine trunks soft focus, fallen log far edge, late afternoon golden sunlight through canopy
 
-[LIGHTING & ATMOSPHERE] Warm golden-hour sunlight filtering through pine branches, creating dappled light patches across her body and the ground. Natural outdoor lighting with warm color temperature. Soft shadows from tree trunks. Raw, intimate, outdoor atmosphere.
-
-[TECHNICAL STYLE & RENDERING] Handheld smartphone photo taken from above during the act. Slightly shaky framing. Natural outdoor light, moderate depth of field. Sharp focus on her face and chest, background trees softly blurred. Slight overexposure where direct sunlight hits bare skin.
-
-[KEYWORDS] Missionary POV, Outdoor Forest Sex, Pine Needles Ground, Male Gaze Down, Pushed Up Crop Top, Denim Shorts Pulled Down, Natural Sweat Sheen, Golden Hour Dappled Light, Raw Amateur Moment, Intimate Eye Contact, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] warm golden-hour dappled sunlight through pine branches, soft shadows from trunks, raw intimate outdoor atmosphere, handheld smartphone slightly shaky, sharp focus on face background blurred, slight overexposure on sunlit skin, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 5 (NSFW — Doggy Style POV):
-[SUBJECT & COMPOSITION] A male POV shot from behind during doggy style sex in a forest. Camera at hip height angled slightly downward. Her arched back and raised hips dominate the center frame. She looks back over her left shoulder toward the camera. His hands visible gripping her hips at the bottom of the frame. Forest floor foreground, her body midground, blurred trees background.
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
 
-[CHARACTER / OBJECT DETAILS] She kneels on all fours on a rumpled grey blanket over pine needles. Her hair is messy with strands clinging to her sweaty neck. Her grey tank top is pushed up to her shoulder blades, baring her entire back. Denim shorts pulled down and bunched at her knees. Her hands grip the blanket, fingers digging into fabric. Her back arches sharply, spine visible under skin. His hands grip her hips firmly, his bare hips and lower abdomen pressed against her raised ass. 从后方插入，阴茎在她体内. Her skin shows natural flush and sheen of sweat across her back. She looks back with mouth slightly open, flushed cheeks.
+[SHOT] Male POV from behind during doggy style sex in forest, camera at hip height angled slightly down, her arched back and raised hips dominate center, she looks back over left shoulder.
 
-[ENVIRONMENT & BACKGROUND] Dense pine forest. Dry brown pine needles, scattered twigs, moss patches on ground. Tall pine trunks in soft focus. A fallen log to the left covered in lichen. Late afternoon golden light filtering through canopy.
+[SCENE] she kneels on all fours on rumpled grey blanket over pine needles, messy hair strands clinging to sweaty neck, grey tank top pushed up to shoulder blades baring back, denim shorts pulled down bunched at knees, hands grip blanket fingers digging fabric, back arches sharply spine visible under skin, his hands grip her hips firmly, his bare hips and lower abdomen pressed against her raised ass, 从后方插入，阴茎在她体内, skin flush sheen of sweat across back, she looks back mouth open flushed cheeks, dense pine forest dry brown needles twigs moss, tall pine trunks soft focus, fallen log lichen, golden light through canopy
 
-[LIGHTING & ATMOSPHERE] Golden-hour dappled sunlight through pine branches. Warm amber highlights on her sweaty skin. Soft natural shadows from surrounding trees. Raw, primal, outdoor atmosphere.
-
-[TECHNICAL STYLE & RENDERING] Handheld smartphone from behind, male POV. Slight wide-angle distortion at close range. Sharp focus on her back and hips, trees softly blurred. Minor overexposure on sunlit skin patches. Subtle digital noise in shadows.
-
-[KEYWORDS] Doggy Style POV, Forest Sex, Pine Needles, Arched Back, Sweaty Skin, Tank Top Pushed Up, Shorts Down, Golden Hour, Amateur Outdoor, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] golden-hour dappled sunlight through pines, warm amber highlights on sweaty skin, soft natural tree shadows, raw primal outdoor atmosphere, handheld smartphone from behind, slight wide-angle distortion, sharp focus on back and hips trees blurred, subtle noise in shadows, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
-- NO disembodied genitals.
-- Write the prompt body in ENGLISH regardless of input language.
-- EXCEPTION: Chinese connection phrases (男性阴茎插入阴道, 从后方插入, 她的嘴含住阴茎, etc.) and quality tags (杰作, 光影, 氛围感, 细腻) MUST remain in Chinese. Do NOT translate them.
+- NO disembodied genitals or floating body parts.
+- NO full sentences or paragraphs — use comma-separated phrases ONLY.
+- Use bilingual English + Chinese. Body descriptions in English, sex acts and anatomy constraints in Chinese.
+- ALWAYS start with the Chinese anatomy prefix (完美解剖结构...).
 """
+
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -406,59 +390,49 @@ ADDITIONAL BFS RULE FOR [CHARACTER / OBJECT DETAILS] BLOCK:
 In this block, describe hair, body, skin, clothing, accessories in full detail but SKIP all facial features. The face swap handles the face.
 
 =========================================
-EXAMPLES OF PERFECT PROMPTS:
+EXAMPLES OF PERFECT PROMPTS (no face features!):
 =========================================
 
 Example 1 (SFW — Poolside Back View):
-[SUBJECT & COMPOSITION] A young woman kneeling at the edge of a swimming pool, captured from behind in a vertical full-body frame. Camera at a low angle, slightly behind and below her. Her body faces away toward the pool and a large hotel building. Upright posture with knees together on the pool deck, elbows bent outward, hands on her hips adjusting bikini straps.
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，
 
-[CHARACTER / OBJECT DETAILS] Tanned, athletic build with long straight dark brown hair falling down her back, slightly damp. Light blue and white gingham two-piece bikini with thong-style bottom and tie-back top. Bottom features thin side straps with small metal rings. Multiple tattoos: large black snake on right shoulder, script text across lower back, mandala on left thigh, floral design on right thigh. Light wristband on left wrist. Fingernails painted with light base and dark tips.
+[SHOT] Young woman kneeling at pool edge, captured from behind, vertical full-body, low angle slightly behind and below.
 
-[ENVIRONMENT & BACKGROUND] Outdoor resort pool area during daylight. Light beige concrete deck at the edge of a large blue pool with calm rippling water. Modern white multi-story hotel with balconies and glass railings behind. Bright blue sky with scattered clouds. Low green landscaping with palm plants along the far pool edge.
+[SCENE] tanned athletic build, long straight dark brown hair down back slightly damp, light blue white gingham two-piece bikini thong-style bottom tie-back top, thin side straps small metal rings, large black snake tattoo right shoulder, script text lower back, mandala left thigh, floral right thigh, light wristband left wrist, dark-tipped nails, knees together on beige concrete pool deck, large blue pool calm rippling water, modern white multi-story hotel with balconies and glass railings, bright blue sky scattered clouds, green landscaping palm plants
 
-[LIGHTING & ATMOSPHERE] Natural late-afternoon sunlight from the side, creating soft warm highlights on skin and hair. Bright, even light with minimal harsh shadows. Blue water and bikini tones contrast against her tan. Relaxed, summery, confident atmosphere.
-
-[TECHNICAL STYLE & RENDERING] High-resolution smartphone photograph with natural color and sharp detail. Crisp focus on subject capturing fine tattoo linework and fabric pattern. Background slightly softer but clear. Well-balanced exposure between bright sky and water.
-
-[KEYWORDS] Poolside Back View, Blue Gingham Bikini, Thong Bottom, Kneeling By Pool, Multiple Tattoos, Resort Hotel, Tanned Athletic Build, Sunny Vacation, Late Afternoon Light, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] natural late-afternoon sunlight from side, soft warm highlights on skin and hair, bright even light minimal harsh shadows, relaxed summery confident atmosphere, high-resolution smartphone sharp focus capturing tattoo linework and fabric pattern, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 2 (NSFW — Nude Torso Study):
-[SUBJECT & COMPOSITION] A nude woman standing upright against a wall, captured in a vertical tight crop from below collarbones to upper thighs. Camera at chest height, straight-on centered perspective. Symmetrical minimalist composition with torso filling nearly the entire frame. Arms hanging relaxed at sides.
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，
 
-[CHARACTER / OBJECT DETAILS] Slender lean build with fair skin and cool undertone. Narrow slightly sloped shoulders with visible collarbones. Small naturally shaped breasts with round pigmented areolae. Natural skin texture with a few small moles on upper chest and near hip. Flat abdomen with defined navel, waist tapering to hips. Thin black string bracelet on right wrist. Delicate gold chain necklace at base of neck. Naturally groomed pubic region at bottom of frame.
+[SHOT] Nude woman standing against wall, vertical tight crop from collarbones to upper thighs, camera chest height straight-on centered.
 
-[ENVIRONMENT & BACKGROUND] Interior space with plain off-white wall. Slightly textured surface with a soft shadow cast to her right. No furniture, props or decorative elements. Stark, studio-like isolation placing full emphasis on the body.
+[SCENE] slender lean build fair skin cool undertone, narrow slightly sloped shoulders visible collarbones, 小巧自然形状乳房，圆形色素乳晕, natural skin texture few small moles on upper chest and near hip, flat abdomen defined navel waist tapering to hips, thin black string bracelet right wrist, delicate gold chain necklace, 自然修剪阴毛区域 at bottom of frame, plain off-white wall slightly textured, soft shadow to her right, no furniture or props
 
-[LIGHTING & ATMOSPHERE] Soft diffuse indoor light from a single source to the left and slightly in front. Gentle modeling across curves without harsh shadows. Even, slightly cool temperature with muted natural tone. Quiet, intimate atmosphere of body-neutral documentation.
-
-[TECHNICAL STYLE & RENDERING] Straightforward smartphone photograph at close range. Sharp focus across torso with fine detail in skin texture, pores and moles. Minimal depth separation due to flat background. Slight digital noise in shadows. Desaturated natural color, no filters or retouching.
-
-[KEYWORDS] Nude Torso Study, Minimalist Body Portrait, Natural Light, Slender Figure, Standing Pose, Plain Wall, Intimate Self Documentation, Neutral Skin Texture, Close-Cropped Composition, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] soft diffuse indoor light from single source left and slightly front, gentle modeling across curves no harsh shadows, even slightly cool temperature muted natural tone, quiet intimate atmosphere, smartphone close range sharp focus skin texture pores moles, minimal depth separation, slight digital noise in shadows, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
-Example 3 (NSFW — Doggy Style POV, no face description):
-[SUBJECT & COMPOSITION] A male POV shot from behind during doggy style sex indoors. Camera at hip height looking down at her arched back. Her hips raised in center frame, hands gripping sheets in foreground. Bedroom background softly blurred.
+Example 3 (NSFW — Doggy Style POV, no face):
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
 
-[CHARACTER / OBJECT DETAILS] Slim build with fair skin and a light sheen of sweat on her back. Long dark hair falling forward, damp at the nape. Black lace bralette pushed up to shoulder blades. Cotton shorts pulled down to knees. Her hands grip grey rumpled sheets, knuckles white. His hands grip her hips firmly, his bare hips pressed against her ass. 从后方插入，阴茎在她体内. Her head is turned to the side, mouth slightly open. Skin flushed pink on her back and shoulders.
+[SHOT] Male POV from behind during doggy style sex indoors, camera at hip height looking down at her arched back, her hips raised center frame.
 
-[ENVIRONMENT & BACKGROUND] Dim bedroom at night. Low platform bed with rumpled grey sheets. Warm bedside lamp casting amber glow from the right. Phone charging on nightstand. Clothes scattered on the floor.
+[SCENE] slim build fair skin light sheen of sweat on back, long dark hair falling forward damp at nape, black lace bralette pushed up to shoulder blades, cotton shorts pulled down to knees, hands grip grey rumpled sheets knuckles white, his hands grip her hips firmly, his bare hips pressed against her ass, 从后方插入，阴茎在她体内, head turned to side mouth slightly open, skin flushed pink on back and shoulders, dim bedroom night, low platform bed rumpled grey sheets, warm bedside lamp amber glow right, phone on nightstand, clothes scattered floor
 
-[LIGHTING & ATMOSPHERE] Warm amber lamplight from the side. Soft shadows on her curves. Digital grain in dark areas. Intimate, raw, private atmosphere.
-
-[TECHNICAL STYLE & RENDERING] Smartphone photo in low light, male POV from behind. Visible grain, warm color cast. Sharp focus on her back, soft focus on background. Slight motion blur.
-
-[KEYWORDS] Doggy Style POV, Bedroom Sex, Low Light, Arched Back, Sweaty Skin, Lace Bralette, Shorts Down, Amber Lamp, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
+[STYLE] warm amber lamplight from side, soft shadows on curves, digital grain in dark areas, intimate raw private atmosphere, smartphone low light male POV from behind, warm color cast, sharp focus on back soft focus background, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 =========================================
 PROHIBITIONS:
 - NO model/checkpoint names (.safetensors, flux, sdxl).
-- NO disembodied genitals.
+- NO disembodied genitals or floating body parts.
 - NO facial features (eye color, nose shape, lip color, expression, makeup).
 - You MAY describe head position (turned, tilted) and mouth state (open, closed).
-- Write the prompt body in ENGLISH. EXCEPTION: Chinese phrases (男性阴茎插入阴道, 从后方插入, 杰作, 光影, etc.) MUST stay in Chinese.
+- NO full sentences or paragraphs — use comma-separated phrases ONLY.
+- Use bilingual English + Chinese. Body in English, sex acts and anatomy in Chinese.
+- ALWAYS start with the Chinese anatomy prefix (完美解剖结构...).
 """
 
 
@@ -719,7 +693,8 @@ def _clean_response(text: str) -> str:
     text = re.sub(
         r'\[(?:SUBJECT & COMPOSITION|CHARACTER / OBJECT DETAILS|'
         r'ENVIRONMENT & BACKGROUND|LIGHTING & ATMOSPHERE|'
-        r'TECHNICAL STYLE & RENDERING|KEYWORDS)\]\s*',
+        r'TECHNICAL STYLE & RENDERING|KEYWORDS|'
+        r'SHOT|SCENE|STYLE)\]\s*',
         '', text
     )
 
