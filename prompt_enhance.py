@@ -98,7 +98,7 @@ _RULES_SPATIAL = """SPATIAL LOGIC & CAMERA RULES (ONLY IF HUMANS ARE IN THE SCEN
 4) PARTNER POV: Do NOT use "selfie". Camera = their eyes.
 5) FLOATING LIMBS PROHIBITION: Every limb MUST logically attach to a visible body.
 6) TWO BODIES RULE: For sex acts, follow the SEX POSITION RULES for exact camera and body mapping.
-7) ANCHOR POINTS: Hands must be anchored. "her left hand gripping his thigh".
+7) ANCHOR POINTS: Hands must be anchored to something. "her left hand gripping the blanket", "her right hand on the ground".
 8) CLOTHING & TOILET: "sitting on an open toilet bowl". "bra pulled down below the breasts".
 9) SOLO RULE: Nudity without explicit sex act request = SOLO scene. Do NOT invent a partner."""
 
@@ -162,64 +162,48 @@ BED / LYING DOWN:
 _RULES_SEX_POSITIONS = """SEX POSITION → CAMERA MAPPING (MANDATORY FOR ALL SEX ACTS):
 When the user requests a sex position, you MUST follow this exact mapping.
 
-MANDATORY — HOW TO MAKE SEX VISIBLE:
-- The model needs EXPLICIT instruction that sex is happening. Vague phrases like "bodies locked together" or "pressed flush" produce a nude pose, NOT sex.
-- Use brief CHINESE anatomical phrases for the contact point — the model (Qwen3-4B) responds to Chinese explicit terms much more reliably than English.
-- After describing her body in English, add ONE Chinese connection phrase from the list below.
-- Keep the male body minimal (hands + hips only), but the CONNECTION must be explicit.
-
-CHINESE CONNECTION PHRASES (pick ONE per scene, place it after describing her pose):
-- Missionary/Cowgirl: 男性阴茎插入阴道 (penis inserted in vagina)
-- Doggy style: 从后方插入，阴茎在她体内 (penetrating from behind, penis inside her)
-- Blowjob: 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛 (she kneels, grips erect penis, mouth on head, pubic hair at base)
-- Anal: 从后方肛交 (anal from behind)
-- General sex: 两人性交中 (two people having sex)
-
-MALE BODY VISIBILITY RULE:
-- The male is the CAMERA HOLDER. His body is MOSTLY OUT OF FRAME.
-- Show ONLY: his hands (on her body) and optionally his hips pressed against her.
-- Do NOT describe his face, chest, arms, thighs, or legs as visible in the frame.
-- Do NOT place his body parts at specific frame positions ("thighs on left and right", "abdomen at top") — this causes the model to draw extra bodies.
-- Use Chinese: 男性身体大部分超出框架 (male body mostly beyond frame)
-- Describe the female's REACTION to show intimacy: her expression (mouth open, intense gaze, flushed cheeks), her body response (arched back, gripping, sweating).
+MALE BODY RULE — CRITICAL:
+- The male is the camera holder. Do NOT describe his body in English AT ALL.
+- Do NOT mention: his thighs, his abdomen, his chest, his arms, his hands, his legs.
+- Every English word describing a male body part = the model draws an extra body.
+- The ONLY male reference is the Chinese sex act phrase. Nothing else.
+- Focus 100% on describing HER: her face, body, pose, reaction, expression, clothing.
 
 MISSIONARY:
-- Camera: MALE POV looking down at her face
-- Visible: her face looking up, her breasts, her spread thighs, his forearms at frame edges
-- His hips visible between her thighs. 男性阴茎插入阴道
-- Her reaction: intense eye contact, mouth open, hands gripping his arms
+- Camera: first-person POV looking down at her
+- Describe ONLY: her face looking up, her breasts, her spread thighs, her hands gripping
+- Chinese act phrase: 男性阴茎插入阴道
+- Her reaction: intense eye contact, mouth open, flushed
 
 DOGGY STYLE:
-- Camera: MALE POV from behind, slightly above
-- Visible: her back, her ass, her arched spine, her hands on the ground
-- His hands gripping her hips, his hips against her ass. 从后方插入，阴茎在她体内
-- Her face: turned to look back over shoulder for LoRA recognition
-- Her reaction: looking back with flushed expression, mouth slightly open
+- Camera: first-person POV from behind, slightly above
+- Describe ONLY: her back, her ass, her arched spine, her hands on the ground
+- Chinese act phrase: 从后方插入，阴茎在她体内
+- Her face: turned to look back over shoulder
+- Her reaction: flushed, mouth slightly open
 
 COWGIRL / RIDING:
-- Camera: MALE POV looking up at her from below
-- Visible: her face looking down, her breasts, her hands on his chest
-- She straddles his hips, his bare abdomen visible beneath her. 男性阴茎插入阴道
+- Camera: first-person POV looking up at her from below
+- Describe ONLY: her face looking down, her breasts, her hips
+- Chinese act phrase: 她骑坐在男性身上，阴茎插入阴道
 - Her reaction: looking down with pleasure, hair falling forward
 
 BLOWJOB / ORAL:
-- Camera: MALE POV looking down from chest height
-- Visible: ONLY her face, her hands, her upper chest. The penis enters from BOTTOM of frame (camera holder's body).
-- CRITICAL — MALE BODY RULE: Do NOT describe male body parts at specific frame positions (no 'thighs on left and right', no 'abdomen at top'). The male body is the CAMERA HOLDER — it is MOSTLY OUT OF FRAME. Only his hands on her head/shoulders may be visible.
-- Chinese: 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性身体大部分超出框架
+- Camera: first-person POV looking sharply down
+- Describe ONLY: her face, her hands, her upper chest. Do NOT describe ANY male body.
+- Chinese act phrase: 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性张开双腿让自己的双腿小腿和双脚超出框架
 - Her reaction: eyes looking up at camera, saliva on chin, focused expression
-- 男性张开双腿让自己的双腿小腿和双脚超出框架 (his legs extend BEYOND the frame edges)
 
 STANDING / AGAINST WALL:
 - Camera: THIRD PERSON slightly to the side
-- Visible: her face, her body against wall/tree, one leg wrapped around him
-- Male seen from behind (back/shoulders only), his hips against hers. 两人性交中
-- Her reaction: head tilted back, gripping his shoulders
+- Describe ONLY: her face, her body against wall/tree, her legs
+- Chinese act phrase: 两人性交中
+- Her reaction: head tilted back, gripping
 
 DEFAULT RULE FOR ANY UNLISTED POSITION:
-- ALWAYS use MALE POV (camera = his eyes) as default
-- ALWAYS include a Chinese connection phrase
-- Focus on her REACTION to convey the act
+- ALWAYS use first-person POV (camera = his eyes) as default
+- ALWAYS include a Chinese sex act phrase
+- Focus 100% on describing HER. Do NOT describe male body in English.
 
 CRITICAL — LIMB BUDGET:
 - For sex scenes: show AT MOST 4 visible limbs total (2 of hers + 2 partial of his)
@@ -250,7 +234,7 @@ CRITICAL FORMAT RULE — MANDATORY:
 
 MANDATORY CHINESE ANATOMY PREFIX — ALWAYS START THE PROMPT WITH:
 完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，正常比例生殖器，
-(For NSFW multi-body scenes, ALSO add: 只有两个人一男一女，男性身体大部分超出框架，只露出手和胯部)
+(For NSFW multi-body scenes, ALSO add: 第一人称视角俑视构图)
 
 Write using EXACTLY these structural blocks:
 
@@ -318,33 +302,33 @@ Example 2 (NSFW — Kneeling Topless Selfie):
 ---
 
 Example 3 (NSFW — Blowjob POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，正常比例生殖器，第一人称视角俑视构图，
 
-[SHOT] First-person male POV sharply down from chest height, her face fills lower two-thirds of frame, penis enters from bottom of frame, male body mostly out of frame.
+[SHOT] First-person POV looking sharply down from chest height, her face fills lower two-thirds of frame.
 
-[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性身体大部分超出框架，男性张开双腿让自己的双腿小腿和双脚超出框架, left hand gripping base, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
+[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人正常大小勃起的阴茎中部，她的嘴含住阴茎头，男性张开双腿让自己的双腿小腿和双脚超出框架, her left hand gripping shaft, eyes looking up intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, beige carpet
 
 [STYLE] low warm amber lamplight, golden highlights on face and chest, deep shadows beneath chin, intimate raw private atmosphere, smartphone low-light handheld from above, visible grain in shadows, warm color cast, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 4 (NSFW — Missionary Sex POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，正常比例生殖器，第一人称视角俑视构图，
 
-[SHOT] Male POV looking down during missionary sex outdoors, camera from chest height sharply down, her face and body fill center, male body mostly out of frame, only his forearms at bottom corners.
+[SHOT] First-person POV looking down during missionary sex outdoors, camera from chest height sharply down, her face and body fill center.
 
-[SCENE] she lies on back on pine needles forest floor, dark messy hair fanned out, olive green crop top pushed above breasts, 乳房露出自然乳头，皮肤泛红有汗珠, denim shorts pulled down bunched mid-thighs, hands gripping his forearms fingers pressing skin, his hips between her spread thighs, 男性阴茎插入阴道, mouth slightly open looking up at camera intense expression, pine forest floor dry brown needles twigs green moss, tall pine trunks soft focus, fallen log far edge, late afternoon golden sunlight through canopy
+[SCENE] she lies on back on pine needles forest floor, dark messy hair fanned out, olive green crop top pushed above breasts, 乳房露出自然乳头，皮肤泛红有汗珠, denim shorts pulled down bunched mid-thighs, her hands gripping, 男性阴茎插入阴道, mouth slightly open looking up at camera intense expression, pine forest floor dry brown needles twigs green moss, tall pine trunks soft focus, fallen log far edge, late afternoon golden sunlight through canopy
 
 [STYLE] warm golden-hour dappled sunlight through pine branches, soft shadows from trunks, raw intimate outdoor atmosphere, handheld smartphone slightly shaky, sharp focus on face background blurred, slight overexposure on sunlit skin, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 5 (NSFW — Doggy Style POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，正常比例生殖器，第一人称视角俑视构图，
 
-[SHOT] Male POV from behind during doggy style sex in forest, camera at hip height angled slightly down, her arched back and raised hips dominate center, she looks back over left shoulder.
+[SHOT] First-person POV from behind during doggy style sex in forest, camera at hip height angled slightly down, her arched back and raised hips dominate center, she looks back over left shoulder.
 
-[SCENE] she kneels on all fours on rumpled grey blanket over pine needles, messy hair strands clinging to sweaty neck, grey tank top pushed up to shoulder blades baring back, denim shorts pulled down bunched at knees, hands grip blanket fingers digging fabric, back arches sharply spine visible under skin, his hands grip her hips firmly, his bare hips and lower abdomen pressed against her raised ass, 从后方插入，阴茎在她体内, skin flush sheen of sweat across back, she looks back mouth open flushed cheeks, dense pine forest dry brown needles twigs moss, tall pine trunks soft focus, fallen log lichen, golden light through canopy
+[SCENE] she kneels on all fours on rumpled grey blanket over pine needles, messy hair strands clinging to sweaty neck, grey tank top pushed up to shoulder blades baring back, denim shorts pulled down bunched at knees, hands grip blanket fingers digging fabric, back arches sharply spine visible under skin, 从后方插入，阴茎在她体内, skin flush sheen of sweat across back, she looks back mouth open flushed cheeks, dense pine forest dry brown needles twigs moss, tall pine trunks soft focus, fallen log lichen, golden light through canopy
 
 [STYLE] golden-hour dappled sunlight through pines, warm amber highlights on sweaty skin, soft natural tree shadows, raw primal outdoor atmosphere, handheld smartphone from behind, slight wide-angle distortion, sharp focus on back and hips trees blurred, subtle noise in shadows, 从后方插入, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
