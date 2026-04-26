@@ -134,47 +134,54 @@ _RULES_SEX_POSITIONS = """SEX POSITION → CAMERA MAPPING (MANDATORY FOR ALL SEX
 When the user requests a sex position, you MUST follow this exact mapping. Do NOT invent your own camera angle.
 
 MANDATORY FOR ALL POSITIONS — THE SEX MUST BE VISIBLE:
-- You MUST describe the physical CONNECTION between the two bodies — where his hips meet her body, penetration visible at the junction.
-- Without the connection point, it's just a nude pose, NOT a sex scene. The user asked for SEX — show it.
-- Keep the male body minimal EXCEPT at the contact zone. His hips/lower abdomen pressing against her is REQUIRED.
+- You MUST show TWO BODIES in the frame — the woman AND at least part of the man (his hips/thighs/hands).
+- The sex act is conveyed by BODY POSITIONING: his hips pressed firmly against hers, bodies flush together.
+- Do NOT describe genitals at the contact point. The model will infer sex from body positions. Describing "cock" or "penetration" causes the model to render genitals on the WRONG body.
+- The CONNECTION is shown by: his visible hips/thighs TOUCHING her body. That's enough.
+
+CRITICAL — GENITAL WORD PLACEMENT:
+- NEVER write "cock", "penis", "penetration", "shaft" in the same sentence that describes HER body or pose.
+- If you mention male genitals at all, put them in a SEPARATE sentence that starts with "He/His".
+- Best approach: do NOT mention genitals at the contact point. Just describe "his hips flush against her" — the model understands this means sex.
+- The PENIS DESCRIPTION RULE still applies: fewer genital words = better results.
 
 MISSIONARY:
 - Camera: MALE POV looking down at her face
-- Visible: her face (looking up at camera), her shoulders, her breasts, her hands (gripping sheets/his arms), her spread thighs framing the sides
-- NOT visible: his face, his upper torso (camera IS his eyes), her feet/lower legs (behind him, out of frame)
-- Male body: his hips between her spread thighs, penetration visible at the junction. His forearms bracing at frame edges. TWO short sentences max.
-- Connection: "his hips pressed between her spread thighs, penetration visible at the junction of their bodies"
+- Visible: her face (looking up at camera), her shoulders, her breasts, her hands gripping his arms, her spread thighs framing the sides
+- NOT visible: his face, his upper torso (camera IS his eyes), her feet (behind him, out of frame)
+- Male body: his hips visible between her spread thighs, his forearms bracing at frame edges. TWO short sentences max.
+- Connection shown by: "his hips between her spread thighs, their lower bodies pressed tightly together"
 
 DOGGY STYLE:
 - Camera: MALE POV from behind, slightly above
 - Visible: her back, her ass, her arched spine, her hair falling forward, her hands gripping sheets/ground
 - NOT visible: her face (facing away unless looking back), his upper body/face
-- Male body: his hips pressed against her ass from behind, his hands gripping her hips. Penetration visible where their bodies meet. TWO short sentences max.
+- Male body: his bare hips and lower abdomen visible pressed firmly against her raised ass, his hands gripping her hips. TWO short sentences max.
 - Her face: turned to look back over shoulder for LoRA recognition
-- Connection: "his hips flush against her ass, cock buried inside her from behind"
+- Connection shown by: "his hips pressed flush against her ass from behind, their bodies locked together"
 
 COWGIRL / RIDING:
 - Camera: MALE POV looking up at her from below
-- Visible: her face looking down, her torso, her breasts, her hands on his chest/her own thighs
+- Visible: her face looking down, her torso, her breasts, her hands on his chest
 - NOT visible: his face, their lower legs (below frame)
-- Male body: his bare chest/abdomen visible beneath her, her hips straddling him with penetration visible. TWO short sentences max.
-- Connection: "she straddles his hips, bodies joined where she sits on him"
+- Male body: his bare chest/abdomen visible beneath her, her thighs straddling his hips. TWO short sentences max.
+- Connection shown by: "she straddles his hips, her thighs gripping his sides, bodies pressed together"
 
 BLOWJOB / ORAL:
 - Camera: MALE POV looking down
 - Visible: her face, her hands, her shoulders/upper chest
 - NOT visible: his body except a sliver of lower abdomen at top edge
-- Connection: "her lips wrapped around his cock, hand gripping the shaft" — this IS the contact point
+- Connection shown by: "her lips on him, hand wrapped around the base" — keep it brief
 
 STANDING / AGAINST WALL:
 - Camera: THIRD PERSON slightly to the side, or HER SELFIE looking at camera
 - Visible: her face, her body pressed against wall/tree, one leg wrapped around him
-- Male body: seen from behind, only back/shoulders and hips pressed against her. ONE sentence.
-- Connection: "his hips pressed against hers, her leg wrapped around his waist"
+- Male body: seen from behind, only his back/shoulders and hips against her. ONE sentence.
+- Connection shown by: "his hips pressed against hers, her leg wrapped around his waist"
 
 DEFAULT RULE FOR ANY UNLISTED POSITION:
 - ALWAYS use MALE POV (camera = his eyes) as default
-- ALWAYS describe the physical connection point where bodies join
+- Show the sex act through BODY CONTACT (hips against hips), not genital descriptions
 - This minimizes visible male body parts while still showing the sex act
 
 CRITICAL — LIMB BUDGET:
@@ -183,6 +190,7 @@ CRITICAL — LIMB BUDGET:
 - HIDE excess limbs: behind bodies, under blankets, cropped by frame edges, obscured by clothing
 - Every additional visible limb EXPONENTIALLY increases mutation risk
 - NEVER describe all 4 of her limbs AND all 4 of his limbs — pick which ones are visible and HIDE the rest"""
+
 
 
 _OUTPUT_BLOCKS = """=========================================
@@ -295,7 +303,7 @@ Example 3 (NSFW — Blowjob POV):
 Example 4 (NSFW — Missionary Sex POV):
 [SUBJECT & COMPOSITION] A male POV shot looking down during missionary sex outdoors. Camera angled sharply downward from his chest height. Her face and upper body fill the center of the frame. Her bent knees are visible at the far left and right edges, framing the scene symmetrically. His body is almost entirely out of frame — only his forearms bracing on the ground are visible at the bottom corners.
 
-[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. Bodies joined at the hips, penetration visible between her spread thighs. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
+[CHARACTER / OBJECT DETAILS] She lies on her back on dry pine needles and forest floor debris. Her dark hair is messy and fanned out beneath her head. Her olive green crop top is pushed up above her breasts, exposing bare breasts with natural nipples and a light sheen of sweat. Her denim shorts are pulled down and bunched around her mid-thighs. Her hands grip his forearms tightly, fingers pressing into skin. His hips are pressed firmly between her spread thighs, their lower bodies locked together. Her skin shows natural flush across her chest and neck. Her mouth is slightly open, looking directly up at the camera with an intense, unguarded expression.
 
 [ENVIRONMENT & BACKGROUND] Pine forest floor. Dry brown pine needles, scattered small twigs, patches of green moss and sparse grass. Tall pine tree trunks rise in soft focus behind her head. A fallen log partially visible at the far edge. Late afternoon golden sunlight filters through the canopy above.
 
