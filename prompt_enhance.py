@@ -176,9 +176,11 @@ CHINESE CONNECTION PHRASES (pick ONE per scene, place it after describing her po
 - General sex: 两人性交中 (two people having sex)
 
 MALE BODY VISIBILITY RULE:
-- Show the man's HANDS and HIPS/LOWER ABDOMEN only — enough to prove two bodies are present.
-- Do NOT describe his face, chest, or full arms.
-- EXCEPTION — BLOWJOB: his THIGHS must be visible on either side of her head (framing the shot). His lower abdomen and pubic area visible above. Without this, the model draws a floating disembodied penis.
+- The male is the CAMERA HOLDER. His body is MOSTLY OUT OF FRAME.
+- Show ONLY: his hands (on her body) and optionally his hips pressed against her.
+- Do NOT describe his face, chest, arms, thighs, or legs as visible in the frame.
+- Do NOT place his body parts at specific frame positions ("thighs on left and right", "abdomen at top") — this causes the model to draw extra bodies.
+- Use Chinese: 男性身体大部分超出框架 (male body mostly beyond frame)
 - Describe the female's REACTION to show intimacy: her expression (mouth open, intense gaze, flushed cheeks), her body response (arched back, gripping, sweating).
 
 MISSIONARY:
@@ -201,12 +203,12 @@ COWGIRL / RIDING:
 - Her reaction: looking down with pleasure, hair falling forward
 
 BLOWJOB / ORAL:
-- Camera: MALE POV looking down
-- Visible: her face, her hands, her upper chest, AND his thighs on either side of her head
-- CRITICAL: The penis MUST connect to a visible male body. Describe: his bare thighs framing the shot on left and right, his lower abdomen visible above, pubic hair at the base of the penis.
-- Chinese (USE THIS FULL PHRASE): 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛
+- Camera: MALE POV looking down from chest height
+- Visible: ONLY her face, her hands, her upper chest. The penis enters from BOTTOM of frame (camera holder's body).
+- CRITICAL — MALE BODY RULE: Do NOT describe male body parts at specific frame positions (no 'thighs on left and right', no 'abdomen at top'). The male body is the CAMERA HOLDER — it is MOSTLY OUT OF FRAME. Only his hands on her head/shoulders may be visible.
+- Chinese: 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，男性身体大部分超出框架
 - Her reaction: eyes looking up at camera, saliva on chin, focused expression
-- Male body: 男性张开双腿 (his legs spread apart, framing the shot)
+- 男性张开双腿让自己的双腿小腿和双脚超出框架 (his legs extend BEYOND the frame edges)
 
 STANDING / AGAINST WALL:
 - Camera: THIRD PERSON slightly to the side
@@ -248,7 +250,7 @@ CRITICAL FORMAT RULE — MANDATORY:
 
 MANDATORY CHINESE ANATOMY PREFIX — ALWAYS START THE PROMPT WITH:
 完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，
-(For NSFW multi-body scenes, ALSO add: 两个独立完整身体，无浮空生殖器，阴茎连接男性身体)
+(For NSFW multi-body scenes, ALSO add: 只有两个人一男一女，男性身体大部分超出框架，只露出手和胯部)
 
 Write using EXACTLY these structural blocks:
 
@@ -316,20 +318,20 @@ Example 2 (NSFW — Kneeling Topless Selfie):
 ---
 
 Example 3 (NSFW — Blowjob POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
 
-[SHOT] First-person male POV sharply down from chest height, her face fills lower two-thirds, his bare thighs on left and right edges framing her head, his lower abdomen at top.
+[SHOT] First-person male POV sharply down from chest height, her face fills lower two-thirds of frame, penis enters from bottom of frame, male body mostly out of frame.
 
-[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛，男性张开双腿, his bare thighs framing shot both sides, left hand on his bare thigh, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
+[SCENE] 她跪在地毯上双膝分开, slightly messy hair loose strands on cheek, 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，男性身体大部分超出框架，男性张开双腿让自己的双腿小腿和双脚超出框架, left hand gripping base, eyes looking up at camera intense focused gaze, black lace bralette pulled below breasts, 乳房露出乳头挺立, saliva on chin, dim bedroom night, rumpled dark grey bedsheets low bed frame, warm bedside lamp amber glow right side, jeans t-shirt scattered floor, beige carpet
 
 [STYLE] low warm amber lamplight, golden highlights on face and chest, deep shadows beneath chin, intimate raw private atmosphere, smartphone low-light handheld from above, visible grain in shadows, warm color cast, 杰作, 光影, 氛围感, 细腻, Extremely Detailed, Real, Beautiful, 8k Resolution, Masterpiece
 
 ---
 
 Example 4 (NSFW — Missionary Sex POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
 
-[SHOT] Male POV looking down during missionary sex outdoors, camera from chest height sharply down, her face and body fill center, her bent knees at far left and right, only his forearms at bottom corners.
+[SHOT] Male POV looking down during missionary sex outdoors, camera from chest height sharply down, her face and body fill center, male body mostly out of frame, only his forearms at bottom corners.
 
 [SCENE] she lies on back on pine needles forest floor, dark messy hair fanned out, olive green crop top pushed above breasts, 乳房露出自然乳头，皮肤泛红有汗珠, denim shorts pulled down bunched mid-thighs, hands gripping his forearms fingers pressing skin, his hips between her spread thighs, 男性阴茎插入阴道, mouth slightly open looking up at camera intense expression, pine forest floor dry brown needles twigs green moss, tall pine trunks soft focus, fallen log far edge, late afternoon golden sunlight through canopy
 
@@ -338,7 +340,7 @@ Example 4 (NSFW — Missionary Sex POV):
 ---
 
 Example 5 (NSFW — Doggy Style POV):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和肯部，
 
 [SHOT] Male POV from behind during doggy style sex in forest, camera at hip height angled slightly down, her arched back and raised hips dominate center, she looks back over left shoulder.
 
@@ -416,7 +418,7 @@ Example 2 (NSFW — Nude Torso Study):
 ---
 
 Example 3 (NSFW — Doggy Style POV, no face):
-完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，两个独立完整身体，无浮空生殖器，阴茎连接男性身体，
+完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无畸形手，无额外手指，只有两个人一男一女，男性身体大部分超出框架，只露出手和胯部，
 
 [SHOT] Male POV from behind during doggy style sex indoors, camera at hip height looking down at her arched back, her hips raised center frame.
 
