@@ -171,13 +171,14 @@ MANDATORY — HOW TO MAKE SEX VISIBLE:
 CHINESE CONNECTION PHRASES (pick ONE per scene, place it after describing her pose):
 - Missionary/Cowgirl: 男性阴茎插入阴道 (penis inserted in vagina)
 - Doggy style: 从后方插入，阴茎在她体内 (penetrating from behind, penis inside her)
-- Blowjob: 她的嘴含住阴茎 (her mouth around the penis)
+- Blowjob: 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛 (she kneels, grips erect penis, mouth on head, pubic hair at base)
 - Anal: 从后方肛交 (anal from behind)
 - General sex: 两人性交中 (two people having sex)
 
 MALE BODY VISIBILITY RULE:
 - Show the man's HANDS and HIPS/LOWER ABDOMEN only — enough to prove two bodies are present.
-- Do NOT describe his face, chest, full arms, or legs.
+- Do NOT describe his face, chest, or full arms.
+- EXCEPTION — BLOWJOB: his THIGHS must be visible on either side of her head (framing the shot). His lower abdomen and pubic area visible above. Without this, the model draws a floating disembodied penis.
 - Describe the female's REACTION to show intimacy: her expression (mouth open, intense gaze, flushed cheeks), her body response (arched back, gripping, sweating).
 
 MISSIONARY:
@@ -201,9 +202,11 @@ COWGIRL / RIDING:
 
 BLOWJOB / ORAL:
 - Camera: MALE POV looking down
-- Visible: her face, her hands, her upper chest
-- 她的嘴含住阴茎, her hand at the base
-- Her reaction: eyes looking up at camera, saliva, focused expression
+- Visible: her face, her hands, her upper chest, AND his thighs on either side of her head
+- CRITICAL: The penis MUST connect to a visible male body. Describe: his bare thighs framing the shot on left and right, his lower abdomen visible above, pubic hair at the base of the penis.
+- Chinese (USE THIS FULL PHRASE): 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛
+- Her reaction: eyes looking up at camera, saliva on chin, focused expression
+- Male body: 男性张开双腿 (his legs spread apart, framing the shot)
 
 STANDING / AGAINST WALL:
 - Camera: THIRD PERSON slightly to the side
@@ -319,9 +322,9 @@ Example 2 (NSFW Kneeling Selfie):
 ---
 
 Example 3 (NSFW — Blowjob POV):
-[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman giving a blowjob. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. Male body barely visible — only a sliver of bare lower abdomen at the top edge.
+[SUBJECT & COMPOSITION] A first-person POV shot looking downward at a woman giving a blowjob. Camera angled sharply downward from chest height. Her face and shoulders fill the lower two-thirds of the frame. His bare thighs are visible on the left and right edges of the frame, framing her head. His lower abdomen visible at the top edge of the frame.
 
-[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is slightly messy, loose strands falling across her cheek. Her right hand is wrapped around the shaft, her lips pressed firmly around the tip, saliva glistening on her chin. Her left hand braces against his thigh. Her eyes look upward directly at the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Warm skin tone with a light sheen of sweat on her chest.
+[CHARACTER / OBJECT DETAILS] She kneels on the carpeted floor, knees apart. Her hair is slightly messy, loose strands falling across her cheek. 她跪着，紧紧握住男人勃起的阴茎，她的嘴含住阴茎头，阴茎根部带有少量阴毛. Her left hand braces against his bare thigh. Her eyes look upward directly at the camera with a focused, intense gaze. She wears a thin-strap black lace bralette pulled down below her breasts, exposing bare breasts with erect nipples. Saliva glistening on her chin. 男性张开双腿, his thighs framing the shot on both sides.
 
 [ENVIRONMENT & BACKGROUND] A dim bedroom at night. Rumpled dark grey bedsheets visible behind her on a low bed frame. Warm-toned bedside lamp casting amber light from the right. Clothes scattered on the floor — a pair of jeans, a discarded t-shirt. Beige carpet beneath her knees.
 
@@ -729,7 +732,12 @@ def _clean_response(text: str) -> str:
     text = re.sub(r'[\w\-\.]*\.ckpt[,\s]*', '', text)
     text = re.sub(r'[\w\-\.]*\.pt[,\s]*', '', text)
     # Catch hallucinated model names without extension (flux20klein, pornmaster, zImage, etc.)
-    text = re.sub(r'\b(?:flux\d*\w*|pornmaster\w*|zImage\w*|lustify\w*|darkBeast\w*|sdxl\w*|SD1\.?5|SD3\w*|comfyui\w*|checkpoint\w*|LoRA:\w+)[.,\s]*', '', text, flags=re.IGNORECASE)
+    # Also consume dot-separated version suffixes like .1M27
+    text = re.sub(r'\b(?:flux\d*[\w.]*|pornmaster[\w.]*|zImage[\w.]*|lustify[\w.]*|darkBeast[\w.]*|sdxl[\w.]*|SD1\.?5|SD3[\w.]*|comfyui[\w.]*|checkpoint[\w.]*|LoRA:\w+)[\w.]*[.,\s]*', '', text, flags=re.IGNORECASE)
+    # Remove "Starting with " prefix (artifact of trigger instruction hallucination)
+    text = re.sub(r'^Starting with\s+', '', text)
+    # Clean orphaned version fragments left at prompt boundaries (e.g. "1M27," at start)
+    text = re.sub(r'^[\d]+[A-Z]\d+[,.\s]+', '', text)
 
     # Remove GLM/LLM special tokens (<|begin_of_box|>, <|end_of_box|>, etc.)
     text = re.sub(r'<\|[^|]*\|>', '', text)
