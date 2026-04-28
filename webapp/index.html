@@ -48,12 +48,15 @@
                     </h1>
                     <p class="text-[10px] uppercase tracking-[0.4em] text-white/50 font-black">Arena</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl aurora-card flex items-center justify-center text-[#ff2d95] shadow-lg shadow-pink-500/20 hover-rotate"
-                    id="tokenCount">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                        <polygon
-                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
+                <div class="flex items-center gap-2">
+                    <span class="text-[8px] uppercase tracking-[0.15em] font-black text-[#4dffff]/50 earn-stars-hint cursor-pointer" id="earnStarsHint">Free<br>Premium ⭐</span>
+                    <div class="w-12 h-12 rounded-2xl aurora-card flex items-center justify-center text-[#ff2d95] shadow-lg shadow-pink-500/20 hover-rotate cursor-pointer"
+                        id="tokenCount">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
                 </div>
             </header>
 
@@ -1003,6 +1006,78 @@
         </div>
     </div>
 
+    <!-- Earn Stars Modal -->
+    <div id="earnStarsOverlay" class="fixed inset-0 z-[9998] bg-black/85 backdrop-blur-lg flex items-center justify-center" style="display:none;">
+        <div class="bg-[#12121a] border border-white/[0.08] rounded-[28px] max-w-[360px] w-[92%] max-h-[85vh] overflow-y-auto earn-stars-modal">
+            <!-- Header glow -->
+            <div class="relative overflow-hidden rounded-t-[28px]">
+                <div class="absolute inset-0 bg-gradient-to-b from-[#4dffff]/10 via-[#9d4dff]/5 to-transparent"></div>
+                <div class="relative px-6 pt-7 pb-4 text-center">
+                    <div class="text-4xl mb-3 earn-stars-icon">⭐</div>
+                    <h3 class="font-display text-xl font-bold text-white mb-1">Earn Stars</h3>
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-[#4dffff]/60 font-black">Affiliate Program</p>
+                </div>
+            </div>
+
+            <div class="px-6 pb-6 space-y-5">
+                <!-- What is it -->
+                <div class="space-y-2">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black">How it works</p>
+                    <p class="text-[13px] text-white/60 leading-relaxed">Share your unique referral link with friends. When they use Angel Arena and buy Stars — <span class="text-[#4dffff] font-semibold">you automatically earn a commission</span> on every purchase they make.</p>
+                </div>
+
+                <!-- Steps -->
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-[#4dffff]/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <span class="text-[11px] font-black text-[#4dffff]">1</span>
+                        </div>
+                        <div>
+                            <p class="text-[12px] text-white/80 font-semibold">Open Bot Profile</p>
+                            <p class="text-[11px] text-white/30">Tap the bot name at the top → scroll down to <span class="text-white/50">Affiliate Program</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-[#4dffff]/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <span class="text-[11px] font-black text-[#4dffff]">2</span>
+                        </div>
+                        <div>
+                            <p class="text-[12px] text-white/80 font-semibold">Join & Copy Link</p>
+                            <p class="text-[11px] text-white/30">Tap <span class="text-white/50">Affiliate Program</span> and get your unique referral link</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-[#4dffff]/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <span class="text-[11px] font-black text-[#4dffff]">3</span>
+                        </div>
+                        <div>
+                            <p class="text-[12px] text-white/80 font-semibold">Share & Earn 10%</p>
+                            <p class="text-[11px] text-white/30">Send the link to friends — earn <span class="text-[#4dffff]">10% of their spending</span> automatically</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Premium Bonus -->
+                <div class="rounded-2xl border border-[#ff2d95]/20 bg-[#ff2d95]/[0.04] p-4 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">🏆</span>
+                        <p class="text-[11px] uppercase tracking-[0.15em] text-[#ff2d95] font-black">Bonus: Free Premium</p>
+                    </div>
+                    <p class="text-[12px] text-white/50 leading-relaxed">Earn <span class="text-[#4dffff] font-bold">1,000 Stars</span> from referrals and get <span class="text-[#ff2d95] font-bold">3 months of Premium</span> for free — unlimited generations & priority queue.</p>
+                    <p class="text-[10px] text-white/20">Send a screenshot of your Stars balance to @vowofquiet to claim</p>
+                </div>
+
+                <!-- Quick tip -->
+                <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
+                    <p class="text-[10px] text-white/25 leading-relaxed">💡 <span class="text-white/40">Tip:</span> The program is powered by Telegram's official affiliate system. Your Stars are real — you can spend them on any Telegram app or withdraw.</p>
+                </div>
+
+                <!-- Close -->
+                <button id="earnStarsClose" class="w-full py-3.5 rounded-2xl border border-white/[0.08] bg-white/[0.04] text-white/40 text-[11px] font-bold uppercase tracking-widest cursor-pointer hover:bg-white/[0.08] hover:text-white/60 transition-all">Got it</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Video Tip Tooltip -->
     <div id="tipTooltip" class="tip-tooltip">
         <video id="tipVideo" autoplay loop muted playsinline></video>
@@ -1098,6 +1173,27 @@
                 if (isOpen && !tooltip.contains(e.target) && e.target !== dot && !dot.contains(e.target)) {
                     hideTip();
                 }
+            });
+        })();
+    </script>
+
+    <!-- Earn Stars modal logic -->
+    <script>
+        (function () {
+            const overlay = document.getElementById('earnStarsOverlay');
+            const tokenBtn = document.getElementById('tokenCount');
+            const hintBtn = document.getElementById('earnStarsHint');
+            const closeBtn = document.getElementById('earnStarsClose');
+            if (!overlay) return;
+
+            function openEarnStars() { overlay.style.display = 'flex'; }
+            function closeEarnStars() { overlay.style.display = 'none'; }
+
+            if (tokenBtn) tokenBtn.addEventListener('click', openEarnStars);
+            if (hintBtn) hintBtn.addEventListener('click', openEarnStars);
+            if (closeBtn) closeBtn.addEventListener('click', closeEarnStars);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeEarnStars();
             });
         })();
     </script>

@@ -778,3 +778,49 @@ select option, select optgroup {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
+
+/* ── Earn Stars Hint (header) ──────────────────────────── */
+.earn-stars-hint {
+  text-align: right;
+  line-height: 1.3;
+  animation: earnHintPulse 3s ease-in-out infinite;
+  transition: opacity 0.3s;
+}
+.earn-stars-hint:hover {
+  opacity: 1 !important;
+}
+
+@keyframes earnHintPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+/* ── Earn Stars Modal ──────────────────────────────────── */
+.earn-stars-modal {
+  animation: earnModalIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+  scrollbar-width: none;
+}
+.earn-stars-modal::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes earnModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.earn-stars-icon {
+  animation: earnStarFloat 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes earnStarFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.05); }
+}
