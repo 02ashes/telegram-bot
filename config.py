@@ -29,3 +29,6 @@ XAI_API_KEY = os.environ.get("XAI_API_KEY", "xai-d2Qw3J8Xjy0pTH6zuchwG0oioTKOMj5
 XAI_API_URL = os.environ.get("XAI_API_URL", "https://api.x.ai/v1")
 
 AUTOPROMPT_ENABLED = os.environ.get("AUTOPROMPT_ENABLED", "true").lower() == "true"
+
+# TTS (xAI Voice API)
+TTS_DEFAULT_VOICE_ID = os.environ.get("TTS_DEFAULT_VOICE_ID", "htep5zqnavbz")

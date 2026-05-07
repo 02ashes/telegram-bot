@@ -109,6 +109,7 @@ TOKEN_PACKAGES = {
 PREMIUM_PRICE = 1500  # Stars for 30 days
 TOKEN_COST_IMAGE = 1
 TOKEN_COST_KENPECHI = 37  # ~$0.47 cost + 60% margin
+TOKEN_COST_VOICE = 1
 
 # Quick-buy: single generation prices (Stars)
 QUICK_BUY_IMAGE_STARS = 15
@@ -1166,7 +1167,111 @@ async def api_magic(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-# ── Serve webapp static files ────────────────────────────────
+# ============================================================
+# 🎤 Voice Mode — Text to Speech (xAI TTS API)
+# ============================================================
+@app.post("/api/tts")
+async def api_tts(request: Request):
+    """Generate speech from text via xAI TTS, send as Telegram voice message."""
+    user = await require_auth(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+    tokens_deducted = False
+    try:
+        body = await request.json()
+        text = body.get("text", "").strip()
+        voice_id = body.get("voice_id", config.TTS_DEFAULT_VOICE_ID)
+        language = body.get("language", "en")
+
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "Text is required"})
+        if len(text) > 5000:
+            return JSONResponse(status_code=400, content={"error": "Text too long (max 5000 chars)"})
+
+        # Check tokens (premium/admin skip)
+        if db.is_enabled() and not is_admin(user["id"]) and not await db.is_premium(user["id"]):
+            if not await db.spend_tokens(user["id"], TOKEN_COST_VOICE):
+                if not await db.use_free_gen(user["id"]):
+                    return JSONResponse(status_code=402, content={
+                        "error": "Not enough tokens",
+                        "quick_buy": {"image": QUICK_BUY_IMAGE_STARS, "video": QUICK_BUY_VIDEO_STARS},
+                    })
+            else:
+                tokens_deducted = True
+
+        import aiohttp
+        import subprocess
+        import tempfile
+        import time
+
+        start = time.monotonic()
+
+        # Call xAI TTS API
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.x.ai/v1/tts",
+                headers={
+                    "Authorization": f"Bearer {config.XAI_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "text": text,
+                    "voice_id": voice_id,
+                    "language": language,
+                    "output_format": {"codec": "mp3", "sample_rate": 48000, "bit_rate": 128000},
+                },
+                timeout=aiohttp.ClientTimeout(total=30),
+            ) as resp:
+                if resp.status != 200:
+                    error_text = await resp.text()
+                    logger.error("TTS API error %d: %s", resp.status, error_text[:300])
+                    if tokens_deducted and db.is_enabled():
+                        await db.add_tokens(user["id"], TOKEN_COST_VOICE)
+                    return JSONResponse(status_code=502, content={"error": "TTS generation failed"})
+                mp3_bytes = await resp.read()
+
+        # Convert MP3 → OGG OPUS for Telegram voice message
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as mp3_f:
+                mp3_f.write(mp3_bytes)
+                mp3_path = mp3_f.name
+            ogg_path = mp3_path.replace(".mp3", ".ogg")
+
+            result = subprocess.run(
+                ["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", "-b:a", "64k", "-vn", ogg_path],
+                capture_output=True, timeout=15,
+            )
+            if result.returncode != 0:
+                logger.error("ffmpeg error: %s", result.stderr.decode()[:300])
+                # Fallback: send as audio (MP3) instead of voice
+                voice_file = BufferedInputFile(mp3_bytes, filename="voice.mp3")
+                await bot.send_audio(chat_id=user["id"], audio=voice_file, title="Voice")
+            else:
+                with open(ogg_path, "rb") as f:
+                    ogg_bytes = f.read()
+                voice_file = BufferedInputFile(ogg_bytes, filename="voice.ogg")
+                await bot.send_voice(chat_id=user["id"], voice=voice_file)
+        finally:
+            # Cleanup temp files
+            for p in [mp3_path, ogg_path]:
+                try:
+                    os.remove(p)
+                except OSError:
+                    pass
+
+        elapsed_ms = int((time.monotonic() - start) * 1000)
+        logger.info("TTS done in %dms: voice=%s, lang=%s, text='%s'", elapsed_ms, voice_id, language, text[:60])
+
+        return JSONResponse(content={"success": True, "duration_ms": elapsed_ms})
+
+    except Exception as e:
+        logger.exception("TTS error")
+        if tokens_deducted and db.is_enabled():
+            await db.add_tokens(user["id"], TOKEN_COST_VOICE)
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+# ── Serve webapp static files ────────────────────────────────────────
 # MUST be after all @app routes — catch-all mount at "/" intercepts everything
 app.mount("/", StaticFiles(directory=WEBAPP_DIR, html=True), name="webapp")
 

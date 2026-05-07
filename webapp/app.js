@@ -406,7 +406,7 @@ function switchMode(mode) {
     // Bug #2: Hide upload section in Dark Generate mode (text2img doesn't need photo)
     const uploadSection = document.getElementById('uploadSection');
     if (uploadSection) {
-        uploadSection.style.display = (darkGenNoImage || mode === 'test') ? 'none' : '';
+        uploadSection.style.display = (darkGenNoImage || mode === 'test' || mode === 'voice') ? 'none' : '';
     }
 
     // Show/hide mode-specific sections
@@ -462,6 +462,11 @@ function switchMode(mode) {
         el.style.display = mode === 'test' ? '' : 'none';
     });
 
+    // Voice mode sections
+    document.querySelectorAll('.voice-only').forEach(el => {
+        el.style.display = mode === 'voice' ? '' : 'none';
+    });
+
     // AFTER test-only loop: override T2I/BFS submode visibility
     if (mode === 'test') {
         const faceSection = document.getElementById('t2iFaceUploadSection');
@@ -508,8 +513,8 @@ function switchMode(mode) {
     // Show/hide shared sections (Prompt + Generate) when image is loaded
     // Video mode hides prompt section (Kenpechi has per-scene prompts)
     const hasContent = originalImage || darkGenNoImage || mode === 'test';
-    document.getElementById('promptSection').style.display = (hasContent && mode !== 'video') ? '' : 'none';
-    document.getElementById('generateSection').style.display = hasContent ? '' : 'none';
+    document.getElementById('promptSection').style.display = (hasContent && mode !== 'video' && mode !== 'voice') ? '' : 'none';
+    document.getElementById('generateSection').style.display = (hasContent && mode !== 'voice') ? '' : 'none';
 
     // Hide batch count for video (only 1 generation at a time)
     const batchRow = document.querySelector('.batch-row');
@@ -653,7 +658,7 @@ function removeMainPhoto() {
     document.getElementById('promptSection').style.display = 'none';
     document.getElementById('settingsSection').style.display = 'none';
     document.getElementById('generateSection').style.display = 'none';
-    document.querySelectorAll('.video-only, .inpaint-only, .image-only, .dark-only').forEach(el => {
+    document.querySelectorAll('.video-only, .inpaint-only, .image-only, .dark-only, .voice-only').forEach(el => {
         el.style.display = 'none';
     });
 
@@ -3225,5 +3230,147 @@ function showEnhancedPrompt(data) {
     document.getElementById('magicRetryBtn')?.addEventListener('click', () => {
         magicResultSection.style.display = 'none';
         magicGenerateBtn.click();
+    });
+})();
+
+// ============================================================
+// 🎤 Voice Mode — Text to Speech
+// ============================================================
+(function initVoiceMode() {
+    const voiceTextInput = document.getElementById('voiceTextInput');
+    const voiceCharCount = document.getElementById('voiceCharCount');
+    const voiceGenerateBtn = document.getElementById('voiceGenerateBtn');
+    const voiceResultInfo = document.getElementById('voiceResultInfo');
+    const voiceDuration = document.getElementById('voiceDuration');
+    const voiceVoiceSelector = document.getElementById('voiceVoiceSelector');
+
+    if (!voiceTextInput || !voiceGenerateBtn) return;
+
+    let selectedVoiceId = 'htep5zqnavbz'; // Default custom voice
+
+    // Character counter
+    voiceTextInput.addEventListener('input', () => {
+        voiceCharCount.textContent = voiceTextInput.value.length;
+    });
+
+    // Voice selector pills
+    voiceVoiceSelector.addEventListener('click', (e) => {
+        const btn = e.target.closest('.voice-pick');
+        if (!btn) return;
+        voiceVoiceSelector.querySelectorAll('.voice-pick').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedVoiceId = btn.dataset.voice;
+    });
+
+    // Inline speech tag buttons — insert at cursor position
+    document.getElementById('voiceInlineTags')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.voice-tag-btn');
+        if (!btn) return;
+        const tag = btn.dataset.tag;
+        const start = voiceTextInput.selectionStart;
+        const end = voiceTextInput.selectionEnd;
+        const text = voiceTextInput.value;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+        voiceTextInput.value = before + tag + ' ' + after;
+        voiceTextInput.focus();
+        const newPos = start + tag.length + 1;
+        voiceTextInput.setSelectionRange(newPos, newPos);
+        voiceCharCount.textContent = voiceTextInput.value.length;
+    });
+
+    // Wrapping speech tag buttons — wrap selected text or insert empty tags
+    document.getElementById('voiceWrapTags')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.voice-wrap-btn');
+        if (!btn) return;
+        const wrap = btn.dataset.wrap;
+        const start = voiceTextInput.selectionStart;
+        const end = voiceTextInput.selectionEnd;
+        const text = voiceTextInput.value;
+        const selected = text.substring(start, end);
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+        const openTag = `<${wrap}>`;
+        const closeTag = `</${wrap}>`;
+
+        if (selected) {
+            // Wrap selected text
+            voiceTextInput.value = before + openTag + selected + closeTag + after;
+            voiceTextInput.focus();
+            const newEnd = start + openTag.length + selected.length + closeTag.length;
+            voiceTextInput.setSelectionRange(start, newEnd);
+        } else {
+            // Insert empty tags with cursor between them
+            voiceTextInput.value = before + openTag + closeTag + after;
+            voiceTextInput.focus();
+            const cursorPos = start + openTag.length;
+            voiceTextInput.setSelectionRange(cursorPos, cursorPos);
+        }
+        voiceCharCount.textContent = voiceTextInput.value.length;
+    });
+
+    // Generate voice
+    voiceGenerateBtn.addEventListener('click', async () => {
+        const text = voiceTextInput.value.trim();
+        if (!text) {
+            alert('Please enter text first');
+            return;
+        }
+
+        const language = document.getElementById('voiceLangSelect')?.value || 'en';
+
+        // UI: loading state
+        voiceGenerateBtn.disabled = true;
+        voiceGenerateBtn.querySelector('.btn-text').style.display = 'none';
+        voiceGenerateBtn.querySelector('.btn-loader').style.display = '';
+        voiceResultInfo.style.display = 'none';
+
+        try {
+            const resp = await fetch('/api/tts', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    text: text,
+                    voice_id: selectedVoiceId,
+                    language: language,
+                }),
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                if (resp.status === 402) {
+                    alert('Not enough tokens! Buy more in the Profile tab.');
+                } else {
+                    alert(data.error || 'TTS failed');
+                }
+                return;
+            }
+
+            // Success
+            voiceResultInfo.style.display = '';
+            if (data.duration_ms) {
+                voiceDuration.textContent = `Generated in ${(data.duration_ms / 1000).toFixed(1)}s`;
+            }
+            alert('🎤 Voice sent to chat!');
+
+            // Refresh token count
+            try {
+                const profileResp = await fetch('/api/profile', { headers: authHeaders() });
+                if (profileResp.ok) {
+                    const profile = await profileResp.json();
+                    const tokenEl = document.getElementById('tokenCount');
+                    if (tokenEl) tokenEl.textContent = profile.tokens ?? '∞';
+                }
+            } catch (_) {}
+
+        } catch (err) {
+            console.error('TTS error:', err);
+            alert('Connection error');
+        } finally {
+            voiceGenerateBtn.disabled = false;
+            voiceGenerateBtn.querySelector('.btn-text').style.display = '';
+            voiceGenerateBtn.querySelector('.btn-loader').style.display = 'none';
+        }
     });
 })();

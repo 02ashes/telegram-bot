@@ -446,6 +446,22 @@
                                 <p class="text-[9px] text-white/30 font-medium">Animate scene</p>
                             </div>
                         </div>
+                        <div class="mode-card col-span-2" data-mode="voice">
+                            <div class="flex justify-between items-start mb-2">
+                                <svg class="mode-icon transition-all duration-500" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                    <line x1="12" x2="12" y1="19" y2="22" />
+                                </svg>
+                                <div class="mode-dot-placeholder"></div>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-xs font-bold uppercase tracking-wider">Voice</p>
+                                <p class="text-[9px] text-white/30 font-medium">Text to speech</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Hidden selects for app.js compat -->
@@ -812,6 +828,96 @@
                                         class="text-white/20">(SDXL)</span></span></label>
                             <label class="t2i-check"><input type="checkbox" id="t2iUpscale"><span>Upscale <span
                                         class="text-white/20">(+2 min)</span></span></label>
+                        </div>
+                    </div>
+
+
+                    <!-- ═══════════════════════════════════ -->
+                    <!-- VOICE: Text to Speech               -->
+                    <!-- ═══════════════════════════════════ -->
+
+                    <!-- VOICE: Text Input -->
+                    <div class="section voice-only" id="voiceTextSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">What to say</p>
+                        <div class="aurora-card p-1">
+                            <textarea id="voiceTextInput"
+                                class="w-full h-32 bg-transparent p-5 text-sm leading-relaxed outline-none resize-none placeholder:text-white/20"
+                                placeholder="Type your text here... Use [laugh], [pause], <whisper>secret</whisper> for effects"
+                                rows="4" maxlength="5000"></textarea>
+                        </div>
+                        <p class="text-[9px] text-white/15 mt-1.5 px-1"><span id="voiceCharCount">0</span>/5000 characters</p>
+                    </div>
+
+                    <!-- VOICE: Voice Selector -->
+                    <div class="section voice-only" id="voiceVoiceSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Voice</p>
+                        <div class="flex flex-wrap gap-2" id="voiceVoiceSelector">
+                            <button class="voice-pick active px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="htep5zqnavbz">🎤 Custom</button>
+                            <button class="voice-pick px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="eve">Eve</button>
+                            <button class="voice-pick px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="ara">Ara</button>
+                            <button class="voice-pick px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="rex">Rex</button>
+                            <button class="voice-pick px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="sal">Sal</button>
+                            <button class="voice-pick px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50 text-[10px] font-bold uppercase tracking-wider transition-all" data-voice="leo">Leo</button>
+                        </div>
+                    </div>
+
+                    <!-- VOICE: Speech Tags -->
+                    <div class="section voice-only" id="voiceTagsSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Speech Tags <span class="opacity-50 text-[0.7em] normal-case tracking-normal">(click to insert)</span></p>
+                        <div class="flex flex-wrap gap-1.5 mb-2" id="voiceInlineTags">
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[laugh]">😂 laugh</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[pause]">⏸ pause</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[long-pause]">⏸⏸ long</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[sigh]">😮‍💨 sigh</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[gasp]">😲 gasp</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[cough]">🤧 cough</button>
+                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[groan]">😩 groan</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5" id="voiceWrapTags">
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="whisper">🤫 whisper</button>
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="slow">🐌 slow</button>
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="fast">⚡ fast</button>
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="soft">🌙 soft</button>
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="loud">📢 loud</button>
+                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="sing">🎵 sing</button>
+                        </div>
+                    </div>
+
+                    <!-- VOICE: Language -->
+                    <div class="section voice-only" id="voiceLangSection" style="display:none;">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Language</p>
+                        <select id="voiceLangSelect"
+                            class="w-full p-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-xs outline-none cursor-pointer">
+                            <option value="en" selected>🇬🇧 English</option>
+                            <option value="ru">🇷🇺 Russian</option>
+                            <option value="auto">🌐 Auto-detect</option>
+                            <option value="zh">🇨🇳 Chinese</option>
+                            <option value="ja">🇯🇵 Japanese</option>
+                            <option value="ko">🇰🇷 Korean</option>
+                            <option value="de">🇩🇪 German</option>
+                            <option value="fr">🇫🇷 French</option>
+                            <option value="es-ES">🇪🇸 Spanish</option>
+                            <option value="it">🇮🇹 Italian</option>
+                            <option value="pt-BR">🇧🇷 Portuguese</option>
+                            <option value="tr">🇹🇷 Turkish</option>
+                            <option value="ar-SA">🇸🇦 Arabic</option>
+                            <option value="hi">🇮🇳 Hindi</option>
+                        </select>
+                    </div>
+
+                    <!-- VOICE: Generate Button -->
+                    <div class="section voice-only" id="voiceGenerateSection" style="display:none;">
+                        <button
+                            class="aurora-btn w-full relative overflow-hidden py-[18px] rounded-[20px] border-none text-white text-sm font-extrabold uppercase tracking-[2px] cursor-pointer transition-all shadow-[0_10px_30px_rgba(255,45,149,0.3)] hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(255,45,149,0.5)] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                            id="voiceGenerateBtn">
+                            <span class="btn-text flex items-center justify-center gap-4">🎤 Generate Voice</span>
+                            <span class="btn-loader flex items-center justify-center gap-4" style="display:none;">
+                                <span class="spinner"></span> Creating voice...
+                            </span>
+                        </button>
+                        <div id="voiceResultInfo" style="display:none;" class="mt-3 text-center">
+                            <p class="text-sm text-[#4dffff] font-bold">✓ Voice message sent to your chat!</p>
+                            <p class="text-[10px] text-white/30 mt-1" id="voiceDuration"></p>
                         </div>
                     </div>
 

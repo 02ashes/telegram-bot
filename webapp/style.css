@@ -824,3 +824,19 @@ select option, select optgroup {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-6px) scale(1.05); }
 }
+
+/* ── Voice Mode ────────────────────────────────────────── */
+.voice-pick.active {
+  background: rgba(255, 45, 149, 0.15) !important;
+  border-color: rgba(255, 45, 149, 0.4) !important;
+  color: #ff2d95 !important;
+  box-shadow: 0 0 12px rgba(255, 45, 149, 0.15);
+}
+.voice-pick:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+.voice-tag-btn:active,
+.voice-wrap-btn:active {
+  transform: scale(0.95);
+}
