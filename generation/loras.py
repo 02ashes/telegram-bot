@@ -26,8 +26,9 @@ def detect_character_loras(prompt: str) -> list[dict]:
     prompt_lower = prompt.lower()
     found = []
     for trigger, cfg in CHARACTER_LORAS.items():
-        # Use regex word boundaries to prevent 'urinating' from triggering 'rina'
-        if re.search(rf'\b{re.escape(trigger)}\b', prompt_lower):
+        # Custom boundary: \b doesn't work between Latin and CJK (e.g. "misu完美")
+        # This matches trigger only if NOT surrounded by other Latin letters
+        if re.search(rf'(?<![a-zA-Z]){re.escape(trigger)}(?![a-zA-Z])', prompt_lower):
             found.append({"trigger": trigger, **cfg})
             logger.info("Detected character LoRA: %s → %s", trigger, cfg["lora_name"])
     return found
