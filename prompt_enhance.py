@@ -95,12 +95,23 @@ CLOTHING PRESERVATION — CRITICAL:
 - If user says "pulls down jeans" → TOP of body is STILL CLOTHED unless stated otherwise.
 - RULE: If user doesn't mention removing a top → she is WEARING a top. Always.
 
-SELFIE ENFORCEMENT:
-- "selfie" / "селфи" → one arm extended holding phone, shot angled from extended arm, wide-angle barrel distortion, subject looks into phone camera. NEVER a third-person view.
-- Mirror selfie → phone visible in reflection, room lighting.
+SELFIE vs MIRROR SELFIE — CRITICAL DISTINCTION:
+
+FRONT-CAMERA SELFIE ("селфи", "selfie" WITHOUT "mirror"):
+- The image is shot FROM THE PHONE'S FRONT CAMERA. The viewer sees what the phone sees.
+- The PHONE IS NOT VISIBLE in the image — it IS the camera.
+- Her extended arm holding the phone goes TOWARD THE VIEWER (toward camera) and is partially cropped at the frame edge.
+- She looks DIRECTLY AT THE VIEWER (= into the phone lens).
+- Wide-angle 24-28mm barrel distortion, her face is large in frame.
+- Do NOT describe "holding a smartphone" or "gripping the phone" — this makes the model DRAW the phone and turns it into a mirror selfie.
+- Instead describe: "her right arm extends toward the viewer, partially cropped at the top edge of the frame"
+
+MIRROR SELFIE ("mirror selfie", "зеркало"):
+- Phone IS visible in the reflection, held in one hand.
+- The image shows a mirror reflection — describe the mirror frame, room behind her.
 
 CAMERA PHYSICS:
-- SELFIE: front camera 24-28mm, barrel distortion, arm NOT visible (behind phone)
+- FRONT-CAMERA SELFIE: 24-28mm wide-angle, barrel distortion, phone NOT visible, arm toward viewer
 - MIRROR SELFIE: phone visible in reflection, room light sources
 - PARTNER POV: camera = their eyes/phone, chest/eye height
 - Night + flash: harsh flat frontal light, pitch black beyond 2-3m
@@ -175,22 +186,22 @@ Example 1 (SFW — Street Selfie in Adidas):
 完美解剖结构，正确人体比例，肢体连贯无畸形，无多余肢体，无融合肢体，无畸形手，无额外手指，正常比例生殖器，
 
 [SUBJECT & COMPOSITION]
-Vertical 3:4 frame, medium-shot selfie from slightly below, the subject's right arm extended upward holding a smartphone aimed down at herself. Her body fills the center-right of the frame, angled diagonally with hips pushed to the left. The composition is asymmetrical — her face occupies the upper right, her lowered jeans and exposed hip area dominate the lower half. Wide-angle front camera creates subtle barrel distortion on the extended arm. The sidewalk stretches behind her into soft focus.
+Vertical 3:4 frame, front-camera selfie POV — the viewer sees through her phone's front camera. She is shot from slightly above (she holds the phone above her head, arm extending toward the viewer and cropped at the top frame edge). Her face fills the upper-right of the frame, looking directly at the viewer. Her body angles diagonally — lowered jeans and exposed hip area dominate the lower half. Wide-angle 24mm front camera creates subtle barrel distortion, especially on her torso and the sidewalk behind her. The phone is NOT visible — it is the camera.
 
 [CHARACTER / OBJECT DETAILS]
-Young woman with pale fair skin, short choppy black hair with wispy bangs falling across forehead, dark eyeliner. She wears a black oversized Adidas Originals cropped t-shirt with white trefoil logo, the hem riding up to expose her lower stomach. Loose-fit medium-wash denim jeans unbuttoned and pulled down below her hip bones, revealing the waistband and top portion of white cotton bikini panties. White Adidas Samba sneakers with black stripes. Her left hand tugs the jeans waistband downward, fingers hooked inside the denim. Right arm extends up and forward gripping the phone. Small silver hoop earrings, chipped black nail polish.
+Young woman with pale fair skin, short choppy black hair with wispy bangs falling across forehead, dark eyeliner, small silver hoop earrings. She wears a black oversized Adidas Originals cropped hoodie with white trefoil logo, the hem riding up to expose her lower stomach and navel. Loose-fit medium-wash denim jeans unbuttoned and pulled down below her hip bones, revealing the waistband and top portion of white cotton bikini panties. White Adidas Samba sneakers with black stripes. Her left hand tugs the jeans waistband downward, fingers hooked inside the denim. Right arm extends toward the viewer (toward camera), partially visible at the upper frame edge, cropped at the elbow. Chipped black nail polish.
 
 [ENVIRONMENT & BACKGROUND]
-Urban city sidewalk, grey concrete pavement with visible cracks and old chewing gum stains. To the right: a metal street pole and the edge of a glass storefront window. Parked cars line the curb in soft focus — a white SUV and dark sedan. Weeds growing through pavement cracks near her feet. Far background: low commercial buildings, traffic signs, hazy sky.
+Urban city sidewalk stretching behind her into soft focus, grey concrete pavement with visible cracks and old chewing gum stains. To the right: a metal street pole and the edge of a glass storefront window. Parked cars line the curb in soft focus — a white SUV and dark sedan. Weeds growing through pavement cracks. Far background: low commercial buildings, traffic signs, hazy sky.
 
 [LIGHTING & ATMOSPHERE]
-Harsh direct afternoon sunlight from upper right, casting sharp diagonal shadows across her stomach and the pavement. Bright specular highlights on her collarbone, nose tip, and the phone screen. Her face partially in self-shadow from the extended arm. Warm natural daylight color temperature, slight overexposure on sun-facing skin. Candid, spontaneous daytime energy.
+Harsh direct afternoon sunlight from upper right, casting sharp diagonal shadows across her stomach and the pavement. Bright specular highlights on her collarbone and nose tip. Warm natural daylight color temperature, slight overexposure on sun-facing skin. Candid, spontaneous daytime energy.
 
 [TECHNICAL STYLE & RENDERING]
-Shot on iPhone 12 Pro front camera, 24mm equivalent wide-angle with visible barrel distortion on the selfie arm. Handheld, slight tilt. Deep depth of field keeps both face and street background in focus. Natural phone white balance with warm outdoor cast. Visible compression artifacts, slight loss of detail in bright highlight areas on skin. No filters, no retouching.
+Shot on iPhone 12 Pro front camera, 24mm equivalent wide-angle with visible barrel distortion on her torso and background. Handheld, slight tilt. Deep depth of field keeps both face and street in focus. Natural phone white balance with warm outdoor cast. Visible compression artifacts, slight loss of detail in bright highlights. No filters, no retouching.
 
 [KEYWORDS]
-Street Selfie Composition, Adidas Cropped T-Shirt, Low-Slung Denim, White Cotton Panties Peek, Urban Sidewalk Concrete, Hard Afternoon Shadows, Barrel Distortion Selfie Arm, Choppy Black Hair, 街拍自拍, 光影, 真实手机拍摄, raw phone photo, candid, no retouching, natural skin texture
+Front-Camera Selfie POV, Adidas Cropped Hoodie, Low-Slung Denim, White Cotton Panties Peek, Urban Sidewalk Concrete, Hard Afternoon Shadows, Wide-Angle Barrel Distortion, Choppy Black Hair, 街拍自拍, 前置摄像头自拍, 光影, 真实手机拍摄, raw phone photo, candid, no retouching, natural skin texture
 
 ---
 
