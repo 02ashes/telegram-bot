@@ -836,7 +836,57 @@ select option, select optgroup {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.8);
 }
-.voice-tag-btn:active,
+
+.voice-tag-btn {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.03em;
+}
+.voice-tag-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.04);
+}
+.voice-tag-btn:active {
+  transform: scale(0.95);
+}
+.voice-tag-btn.vt-divider {
+  width: 1px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  align-self: stretch;
+}
+
+.voice-wrap-btn {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 45, 149, 0.2);
+  background: rgba(255, 45, 149, 0.06);
+  color: rgba(255, 45, 149, 0.6);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.03em;
+}
+.voice-wrap-btn:hover {
+  background: rgba(255, 45, 149, 0.14);
+  color: #ff2d95;
+  border-color: rgba(255, 45, 149, 0.35);
+  box-shadow: 0 0 12px rgba(255, 45, 149, 0.1);
+}
 .voice-wrap-btn:active {
   transform: scale(0.95);
 }

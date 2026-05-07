@@ -850,23 +850,59 @@
 
                     <!-- VOICE: Speech Tags -->
                     <div class="section voice-only" id="voiceTagsSection" style="display:none;">
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 px-1">Speech Tags <span class="opacity-50 text-[0.7em] normal-case tracking-normal">(click to insert)</span></p>
-                        <div class="flex flex-wrap gap-1.5 mb-2" id="voiceInlineTags">
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[laugh]">laugh</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[pause]">pause</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[long-pause]">long pause</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[sigh]">sigh</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[gasp]">gasp</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[cough]">cough</button>
-                            <button class="voice-tag-btn px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-semibold transition-all hover:bg-white/[0.08] hover:text-white" data-tag="[groan]">groan</button>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5" id="voiceWrapTags">
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="whisper">whisper</button>
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="slow">slow</button>
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="fast">fast</button>
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="soft">soft</button>
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="loud">loud</button>
-                            <button class="voice-wrap-btn px-3 py-1.5 rounded-full border border-[#ff2d95]/20 bg-[#ff2d95]/[0.05] text-[#ff2d95]/60 text-[10px] font-semibold transition-all hover:bg-[#ff2d95]/[0.12] hover:text-[#ff2d95]" data-wrap="sing">sing</button>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 px-1">Effects</p>
+                        <div class="aurora-card p-5 space-y-5">
+                            <!-- ── Inline tags ── -->
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.15em] text-white/25 font-bold mb-2.5">Insert at cursor</p>
+                                <div class="space-y-2.5">
+                                    <!-- Pauses -->
+                                    <div class="flex flex-wrap gap-2" id="voiceInlineTags">
+                                        <button class="voice-tag-btn" data-tag="[pause]">pause</button>
+                                        <button class="voice-tag-btn" data-tag="[long-pause]">long pause</button>
+                                        <button class="voice-tag-btn vt-divider"></button>
+                                        <!-- Laughter / Emotion -->
+                                        <button class="voice-tag-btn" data-tag="[laugh]">laugh</button>
+                                        <button class="voice-tag-btn" data-tag="[chuckle]">chuckle</button>
+                                        <button class="voice-tag-btn" data-tag="[giggle]">giggle</button>
+                                        <button class="voice-tag-btn" data-tag="[cry]">cry</button>
+                                        <button class="voice-tag-btn" data-tag="[sigh]">sigh</button>
+                                        <button class="voice-tag-btn vt-divider"></button>
+                                        <!-- Mouth sounds -->
+                                        <button class="voice-tag-btn" data-tag="[tsk]">tsk</button>
+                                        <button class="voice-tag-btn" data-tag="[tongue-click]">tongue click</button>
+                                        <button class="voice-tag-btn" data-tag="[lip-smack]">lip smack</button>
+                                        <button class="voice-tag-btn" data-tag="[hum-tune]">hum</button>
+                                        <button class="voice-tag-btn vt-divider"></button>
+                                        <!-- Breathing -->
+                                        <button class="voice-tag-btn" data-tag="[breath]">breath</button>
+                                        <button class="voice-tag-btn" data-tag="[inhale]">inhale</button>
+                                        <button class="voice-tag-btn" data-tag="[exhale]">exhale</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ── Wrapping tags ── -->
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.15em] text-white/25 font-bold mb-2.5">Wrap selected text</p>
+                                <div class="flex flex-wrap gap-2" id="voiceWrapTags">
+                                    <!-- Volume -->
+                                    <button class="voice-wrap-btn" data-wrap="whisper">whisper</button>
+                                    <button class="voice-wrap-btn" data-wrap="soft">soft</button>
+                                    <button class="voice-wrap-btn" data-wrap="loud">loud</button>
+                                    <button class="voice-wrap-btn" data-wrap="build-intensity">build intensity</button>
+                                    <button class="voice-wrap-btn" data-wrap="decrease-intensity">decrease intensity</button>
+                                    <!-- Pitch / Speed -->
+                                    <button class="voice-wrap-btn" data-wrap="higher-pitch">higher pitch</button>
+                                    <button class="voice-wrap-btn" data-wrap="lower-pitch">lower pitch</button>
+                                    <button class="voice-wrap-btn" data-wrap="slow">slow</button>
+                                    <button class="voice-wrap-btn" data-wrap="fast">fast</button>
+                                    <!-- Vocal style -->
+                                    <button class="voice-wrap-btn" data-wrap="emphasis">emphasis</button>
+                                    <button class="voice-wrap-btn" data-wrap="sing-song">sing-song</button>
+                                    <button class="voice-wrap-btn" data-wrap="singing">singing</button>
+                                    <button class="voice-wrap-btn" data-wrap="laugh-speak">laugh-speak</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

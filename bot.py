@@ -1207,67 +1207,143 @@ async def api_tts(request: Request):
         start = time.monotonic()
 
         # Call xAI TTS API
+        # Using WAV 24kHz (lossless) instead of MP3 — gives ffmpeg a clean
+        # uncompressed signal to apply iPhone mic simulation without
+        # MP3 compression artifacts stacking on top of OPUS encoding
+        tts_payload = {
+            "text": text,
+            "voice_id": voice_id,
+            "language": language,
+            "text_normalization": True,
+            "output_format": {"codec": "wav", "sample_rate": 24000},
+        }
+
+        mp3_bytes = None
+        max_retries = 3
         async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.x.ai/v1/tts",
-                headers={
-                    "Authorization": f"Bearer {config.XAI_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "text": text,
-                    "voice_id": voice_id,
-                    "language": language,
-                    "output_format": {"codec": "mp3", "sample_rate": 48000, "bit_rate": 128000},
-                },
-                timeout=aiohttp.ClientTimeout(total=30),
-            ) as resp:
-                if resp.status != 200:
-                    error_text = await resp.text()
-                    logger.error("TTS API error %d: %s", resp.status, error_text[:300])
-                    if tokens_deducted and db.is_enabled():
-                        await db.add_tokens(user["id"], TOKEN_COST_VOICE)
-                    return JSONResponse(status_code=502, content={"error": "TTS generation failed"})
-                mp3_bytes = await resp.read()
+            for attempt in range(max_retries):
+                async with session.post(
+                    "https://api.x.ai/v1/tts",
+                    headers={
+                        "Authorization": f"Bearer {config.XAI_API_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json=tts_payload,
+                    timeout=aiohttp.ClientTimeout(total=30),
+                ) as resp:
+                    if resp.status == 200:
+                        mp3_bytes = await resp.read()
+                        break
+                    elif resp.status in (429, 503):
+                        wait = 2 ** attempt
+                        logger.warning("TTS API %d, retry %d in %ds", resp.status, attempt + 1, wait)
+                        await asyncio.sleep(wait)
+                        continue
+                    else:
+                        error_text = await resp.text()
+                        logger.error("TTS API error %d: %s", resp.status, error_text[:300])
+                        if tokens_deducted and db.is_enabled():
+                            await db.add_tokens(user["id"], TOKEN_COST_VOICE)
+                        return JSONResponse(status_code=502, content={"error": "TTS generation failed"})
 
-        # Convert MP3 → OGG OPUS with iPhone mic simulation
-        # Filters: bandpass (phone mic range), dynamic compression (AGC),
-        # slight volume reduction — makes it sound like a real voice message
+            if mp3_bytes is None:
+                logger.error("TTS API: max retries exceeded")
+                if tokens_deducted and db.is_enabled():
+                    await db.add_tokens(user["id"], TOKEN_COST_VOICE)
+                return JSONResponse(status_code=502, content={"error": "TTS generation failed (retries exhausted)"})
+
+        # Convert WAV → OGG OPUS — "Girl recording voice message on iPhone in bedroom"
+        #
+        # WHY TTS SOUNDS "AI-ISH" (ranked by impact):
+        # 1. DEAD SILENCE between words — real recordings ALWAYS have room tone
+        # 2. Perfect frequency response — phone MEMS mics have limited bandwidth
+        # 3. No room acoustics — sounds like an anechoic chamber
+        # 4. Perfect dynamics — real phone AGC pumps and breathes
+        # 5. Studio-normalized volume — too loud and too even
+        #
+        # SOLUTION: filter_complex with TWO inputs:
+        #   Input 0: the voice WAV
+        #   Input 1: generated pink noise (simulates room tone / AC hum / air)
+        #   → process voice → mix with noise → encode
         try:
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as mp3_f:
-                mp3_f.write(mp3_bytes)
-                mp3_path = mp3_f.name
-            ogg_path = mp3_path.replace(".mp3", ".ogg")
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wav_f:
+                wav_f.write(mp3_bytes)
+                wav_path = wav_f.name
+            ogg_path = wav_path.replace(".wav", ".ogg")
 
-            # iPhone mic simulation filter chain:
-            # 1. highpass=f=80 — cut sub-bass rumble (phone mics don't capture it)
-            # 2. lowpass=f=8000 — cut sparkly highs (phone mic rolls off ~8kHz)
-            # 3. compand — simulate phone AGC (automatic gain control)
-            #    attacks=0.02 (20ms), decays=0.3 (300ms)
-            #    soft knee compression curve
-            # 4. volume=0.92 — slight level drop (not studio-loud)
-            # 5. aresample=24000 — downsample (phone = 24kHz max)
-            af_filters = (
-                "highpass=f=80,"
-                "lowpass=f=8000,"
-                "compand=attacks=0.02:decays=0.3:points=-80/-80|-45/-30|-27/-20|-15/-12|0/-7|20/-7:gain=3,"
-                "volume=0.92,"
+            # filter_complex graph:
+            # [0:a] voice → mono → bedroom reverb → iPhone mic EQ → AGC → normalize → limit → volume → [voice]
+            # [1:a] pink noise source → very quiet → [noise]
+            # [voice] + [noise] → mix → resample → [out]
+            filter_complex = (
+                # ── Voice processing chain ──
+                "[0:a]"
+                # Mono downmix
+                "pan=mono|c0=c0+c1,"
+
+                # Bedroom reverb — soft surfaces (bed, pillows, curtains)
+                # absorb high frequencies, creating warm diffuse reflections
+                # Multiple taps simulate irregular wall distances in a small room
+                # Lower decay than previous = more intimate/close sound
+                "aecho=0.8:0.88:35|52|73:0.06|0.04|0.02,"
+
+                # iPhone MEMS mic frequency shaping:
+                # - 100Hz highpass: phone body rejects sub-bass
+                # - 6.5kHz lowpass: MEMS mic rolls off highs (bedroom = duvet absorbs treble too)
+                # - 2.8kHz presence boost: iPhone capsule resonance peak
+                # - 200Hz warmth bump: proximity effect from holding phone near mouth on bed
+                "highpass=f=100:poles=2,"
+                "lowpass=f=6500:poles=2,"
+                "equalizer=f=2800:t=q:w=1.5:g=2,"
+                "equalizer=f=200:t=q:w=0.8:g=1.5,"
+
+                # AGC — moderate compression (bedroom is quiet, AGC not pumping hard)
+                # Faster attack (8ms) for transients, moderate release (200ms)
+                "compand=attacks=0.008:decays=0.2"
+                ":points=-90/-90|-60/-35|-30/-20|-15/-12|-5/-8|0/-6|20/-6"
+                ":gain=4:volume=-90:delay=0.01,"
+
+                # Dynamic normalization — makes volume subtly inconsistent
+                # like real speech (some words louder, some quieter)
+                "dynaudnorm=f=200:g=12:p=0.85:m=8,"
+
+                # Soft limiter — phone mic preamp soft-clips on loud syllables
+                "alimiter=limit=0.92:attack=3:release=80:level=false,"
+
+                # Volume to realistic level (not studio-normalized)
+                "volume=0.85"
+                "[voice];"
+
+                # ── Room tone (pink noise) ──
+                # Pink noise = more energy in low frequencies = sounds like
+                # real room tone (AC hum, air, distant traffic) not white hiss
+                # amplitude=0.0012 = VERY quiet, just barely audible
+                "[1:a]volume=0.004[noise];"
+
+                # ── Mix voice + noise ──
+                # duration=first = noise cuts when voice ends
+                "[voice][noise]amix=inputs=2:duration=first:dropout_transition=0,"
                 "aresample=24000"
+                "[out]"
             )
 
             result = subprocess.run(
                 [
-                    "ffmpeg", "-y", "-i", mp3_path,
-                    "-af", af_filters,
-                    "-c:a", "libopus", "-b:a", "32k", "-vn",
+                    "ffmpeg", "-y",
+                    "-i", wav_path,
+                    "-f", "lavfi", "-i", "anoisesrc=color=pink:sample_rate=24000:amplitude=0.0012:duration=600",
+                    "-filter_complex", filter_complex,
+                    "-map", "[out]",
+                    "-c:a", "libopus", "-b:a", "32k",
+                    "-vn", "-ac", "1",
                     ogg_path,
                 ],
-                capture_output=True, timeout=15,
+                capture_output=True, timeout=25,
             )
             if result.returncode != 0:
-                logger.error("ffmpeg error: %s", result.stderr.decode()[:300])
-                # Fallback: send as audio (MP3) instead of voice
-                voice_file = BufferedInputFile(mp3_bytes, filename="voice.mp3")
+                logger.error("ffmpeg error: %s", result.stderr.decode()[:500])
+                # Fallback: send as audio (WAV) instead of voice
+                voice_file = BufferedInputFile(mp3_bytes, filename="voice.wav")
                 await bot.send_audio(chat_id=user["id"], audio=voice_file, title="Voice")
             else:
                 with open(ogg_path, "rb") as f:
@@ -1276,7 +1352,7 @@ async def api_tts(request: Request):
                 await bot.send_voice(chat_id=user["id"], voice=voice_file)
         finally:
             # Cleanup temp files
-            for p in [mp3_path, ogg_path]:
+            for p in [wav_path, ogg_path]:
                 try:
                     os.remove(p)
                 except OSError:
