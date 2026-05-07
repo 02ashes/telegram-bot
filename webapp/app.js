@@ -3242,24 +3242,14 @@ function showEnhancedPrompt(data) {
     const voiceGenerateBtn = document.getElementById('voiceGenerateBtn');
     const voiceResultInfo = document.getElementById('voiceResultInfo');
     const voiceDuration = document.getElementById('voiceDuration');
-    const voiceVoiceSelector = document.getElementById('voiceVoiceSelector');
 
     if (!voiceTextInput || !voiceGenerateBtn) return;
 
-    let selectedVoiceId = 'htep5zqnavbz'; // Default custom voice
+    const VOICE_ID = 'htep5zqnavbz'; // Custom voice (always)
 
     // Character counter
     voiceTextInput.addEventListener('input', () => {
         voiceCharCount.textContent = voiceTextInput.value.length;
-    });
-
-    // Voice selector pills
-    voiceVoiceSelector.addEventListener('click', (e) => {
-        const btn = e.target.closest('.voice-pick');
-        if (!btn) return;
-        voiceVoiceSelector.querySelectorAll('.voice-pick').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedVoiceId = btn.dataset.voice;
     });
 
     // Inline speech tag buttons — insert at cursor position
@@ -3331,7 +3321,7 @@ function showEnhancedPrompt(data) {
                 headers: authHeaders(),
                 body: JSON.stringify({
                     text: text,
-                    voice_id: selectedVoiceId,
+                    voice_id: VOICE_ID,
                     language: language,
                 }),
             });

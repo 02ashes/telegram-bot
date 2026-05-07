@@ -1230,15 +1230,38 @@ async def api_tts(request: Request):
                     return JSONResponse(status_code=502, content={"error": "TTS generation failed"})
                 mp3_bytes = await resp.read()
 
-        # Convert MP3 → OGG OPUS for Telegram voice message
+        # Convert MP3 → OGG OPUS with iPhone mic simulation
+        # Filters: bandpass (phone mic range), dynamic compression (AGC),
+        # slight volume reduction — makes it sound like a real voice message
         try:
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as mp3_f:
                 mp3_f.write(mp3_bytes)
                 mp3_path = mp3_f.name
             ogg_path = mp3_path.replace(".mp3", ".ogg")
 
+            # iPhone mic simulation filter chain:
+            # 1. highpass=f=80 — cut sub-bass rumble (phone mics don't capture it)
+            # 2. lowpass=f=8000 — cut sparkly highs (phone mic rolls off ~8kHz)
+            # 3. compand — simulate phone AGC (automatic gain control)
+            #    attacks=0.02 (20ms), decays=0.3 (300ms)
+            #    soft knee compression curve
+            # 4. volume=0.92 — slight level drop (not studio-loud)
+            # 5. aresample=24000 — downsample (phone = 24kHz max)
+            af_filters = (
+                "highpass=f=80,"
+                "lowpass=f=8000,"
+                "compand=attacks=0.02:decays=0.3:points=-80/-80|-45/-30|-27/-20|-15/-12|0/-7|20/-7:gain=3,"
+                "volume=0.92,"
+                "aresample=24000"
+            )
+
             result = subprocess.run(
-                ["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", "-b:a", "64k", "-vn", ogg_path],
+                [
+                    "ffmpeg", "-y", "-i", mp3_path,
+                    "-af", af_filters,
+                    "-c:a", "libopus", "-b:a", "32k", "-vn",
+                    ogg_path,
+                ],
                 capture_output=True, timeout=15,
             )
             if result.returncode != 0:
