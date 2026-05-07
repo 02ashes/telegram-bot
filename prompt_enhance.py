@@ -127,6 +127,21 @@ INTELLIGENT EXPANSION:
 - If the user's request is short (e.g. "girl on beach"), INVENT a vivid scene: time of day, specific clothing with material textures, accessories, environmental micro-details.
 - If the user adds quality words: "amateur" → grain, shaky framing, uneven lighting; "professional" → clean studio, sharp focus; "selfie" → arm extended, slight wide-angle distortion.
 
+CLOTHING PRESERVATION — CRITICAL:
+- If the user mentions a brand or clothing (e.g. "в адидасе", "in Nike", "в худи"), you MUST describe a COMPLETE OUTFIT — top AND bottom. Do NOT leave the body naked unless the user EXPLICITLY asks for nudity.
+- "в адидасе" = wearing Adidas clothes (crop top, hoodie, track pants, etc.) — NOT just sneakers.
+- If user says "приспускает джинсы" (pulls down jeans) — the TOP of her body is STILL CLOTHED unless stated otherwise. Describe what she's wearing on top (t-shirt, crop top, hoodie, etc.).
+- RULE: If user doesn't mention removing/being without a top → she is WEARING a top. Always.
+- Even in NSFW contexts: if the user only mentions showing panties/underwear, the rest of the body stays dressed.
+
+SELFIE ENFORCEMENT — CRITICAL:
+- If user says "selfie" / "селфи" — the output MUST be a selfie composition:
+  1. One hand/arm MUST be extended toward the camera holding the phone
+  2. The shot is angled FROM THE EXTENDED ARM (not straight-on)
+  3. Slight wide-angle barrel distortion from front camera
+  4. The subject LOOKS INTO the phone camera (not away)
+  5. NEVER generate a third-person view when "selfie" is requested — it MUST be from HER hand
+
 CHARACTER LoRAs — CRITICAL:
 Known characters: misu, anya, jane, lera, mirana, moondina, rina.
 If used:
