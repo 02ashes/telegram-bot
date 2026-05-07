@@ -19,8 +19,8 @@ import config
 logger = logging.getLogger(__name__)
 
 # ── Models ────────────────────────────────────────────────────
-VISION_MODEL = "grok-3"  # Deep logic for images (xAI)
-TEXT_MODEL = "grok-3"    # Deep logic for text (xAI)
+VISION_MODEL = "grok-4.3"  # Supports text + image input (xAI)
+TEXT_MODEL = "grok-4.3"    # Text-only input (xAI)
 
 # ── System Prompts — pipeline-specific ─────────────────────────
 
